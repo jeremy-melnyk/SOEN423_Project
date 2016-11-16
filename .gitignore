@@ -1,5 +1,14 @@
 *.class
 
+# Eclipse
+bin/
+.metadata/
+.recommenders/
+.settings/
+*.classpath
+*.ecpproperties
+*.project
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
