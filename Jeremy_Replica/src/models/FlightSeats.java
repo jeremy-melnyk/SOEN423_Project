@@ -4,13 +4,20 @@ import java.io.Serializable;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+<<<<<<< refs/remotes/origin/master
 import global.Constants;
 
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 public class FlightSeats implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int seats;
 	private int availableSeats;
 	private ReadWriteLock lock;
+<<<<<<< refs/remotes/origin/master
+=======
+	private final String DELIMITER = "|";
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 
 	public FlightSeats(int seats) {
 		super();
@@ -96,6 +103,10 @@ public class FlightSeats implements Serializable {
 
 	@Override
 	public String toString() {
+<<<<<<< refs/remotes/origin/master
 		return "S" + seats + Constants.DELIMITER +  "A" + availableSeats;
+=======
+		return "S" + seats + DELIMITER +  "A" + availableSeats;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 	}
 }

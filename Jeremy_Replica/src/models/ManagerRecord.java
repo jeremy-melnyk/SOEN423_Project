@@ -1,7 +1,10 @@
 package models;
 
 import enums.City;
+<<<<<<< refs/remotes/origin/master
 import global.Constants;
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 
 public class ManagerRecord extends PersonRecord {
 	private static final long serialVersionUID = 1L;
@@ -22,6 +25,10 @@ public class ManagerRecord extends PersonRecord {
 	
 	@Override
 	public String toString() {
+<<<<<<< refs/remotes/origin/master
 		return "ManagerRecord" + Constants.DELIMITER + id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName + Constants.DELIMITER + city.name();
+=======
+		return "ManagerRecord" + DELIMITER + id + DELIMITER + lastName + DELIMITER + firstName + DELIMITER + city.name();
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 	}
 }

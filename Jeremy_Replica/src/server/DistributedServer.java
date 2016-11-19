@@ -1,7 +1,10 @@
 package server;
 
+<<<<<<< refs/remotes/origin/master
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +22,10 @@ import databases.PassengerRecordDb;
 import databases.PassengerRecordDbImpl;
 import enums.City;
 import enums.FlightClass;
+<<<<<<< refs/remotes/origin/master
 import global.Constants;
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 import models.FlightSeats;
 import models.FlightServerAddress;
 
@@ -44,6 +50,7 @@ public class DistributedServer {
 		// Initialization of some flight records
 		
 		List<String> mtlFlights = new ArrayList<String>();
+<<<<<<< refs/remotes/origin/master
 		mtlFlights.add("MTL|WST|06/05/2016|10|5|2");
 		mtlFlights.add("MTL|NDL|06/05/2016|10|5|2");
 		
@@ -54,6 +61,18 @@ public class DistributedServer {
 		List<String> ndlFlights = new ArrayList<String>();
 		ndlFlights.add("NDL|MTL|06/05/2016|10|5|2");
 		ndlFlights.add("NDL|WST|06/05/2016|10|5|2");
+=======
+		mtlFlights.add("MTL|WST|5-Jun-2016|10|5|2");
+		mtlFlights.add("MTL|NDL|5-Jun-2016|10|5|2");
+		
+		List<String> wstFlights = new ArrayList<String>();
+		wstFlights.add("WST|MTL|5-Jun-2016|10|5|2");
+		wstFlights.add("WST|NDL|5-Jun-2016|10|5|2");
+		
+		List<String> ndlFlights = new ArrayList<String>();
+		ndlFlights.add("NDL|MTL|5-Jun-2016|10|5|2");
+		ndlFlights.add("NDL|WST|5-Jun-2016|10|5|2");
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		
 		flightServers.put("MTL",
 				initServer(City.MTL, mtlPort,
@@ -92,14 +111,23 @@ public class DistributedServer {
 		return flightServer;
 	}
 	
+<<<<<<< refs/remotes/origin/master
 	private FlightRecordDb initFlightRecordDb(List<String> flights){
 		FlightRecordDb flightRecordDb = new FlightRecordDbImpl();
 		for (String flight : flights){
 			String[] tokens = flight.split(Constants.DELIMITER_ESCAPE);
+=======
+	@SuppressWarnings("deprecation")
+	private FlightRecordDb initFlightRecordDb(List<String> flights){
+		FlightRecordDb flightRecordDb = new FlightRecordDbImpl();
+		for (String flight : flights){
+			String[] tokens = flight.split("\\|");
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 			HashMap<FlightClass, FlightSeats> flightClasses = new HashMap<FlightClass, FlightSeats>();
 			flightClasses.put(FlightClass.FIRST, new FlightSeats(Integer.parseInt(tokens[3])));
 			flightClasses.put(FlightClass.BUSINESS, new FlightSeats(Integer.parseInt(tokens[4])));
 			flightClasses.put(FlightClass.ECONOMY, new FlightSeats(Integer.parseInt(tokens[5])));
+<<<<<<< refs/remotes/origin/master
 			Date date = new Date();
 			try {
 				date = new SimpleDateFormat(Constants.DATE_FORMAT).parse(tokens[2]);
@@ -107,6 +135,9 @@ public class DistributedServer {
 				e.printStackTrace();
 			}
 			flightRecordDb.addFlightRecord(City.valueOf(tokens[0]), City.valueOf(tokens[1]), date, flightClasses);
+=======
+			flightRecordDb.addFlightRecord(City.valueOf(tokens[0]), City.valueOf(tokens[1]), new Date(tokens[2]), flightClasses);
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		}
 		return flightRecordDb;
 	}

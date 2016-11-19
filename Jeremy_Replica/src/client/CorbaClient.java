@@ -13,6 +13,11 @@ import replica_friendly_end.FlightReservationServerHelper;
 
 public class CorbaClient {
 	protected final String NAME_SERVICE = "NameService";
+<<<<<<< refs/remotes/origin/master
+=======
+	
+	protected final String DELIMITER = "|";
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 	protected City city;
 	protected String lastName;
 	protected String firstName;

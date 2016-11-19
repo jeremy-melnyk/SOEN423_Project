@@ -3,7 +3,10 @@ package client;
 import org.omg.CORBA.ORB;
 
 import enums.City;
+<<<<<<< refs/remotes/origin/master
 import global.Constants;
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 import replica_friendly_end.FlightReservationServer;
 
 public class ManagerClient extends CorbaClient {
@@ -23,7 +26,11 @@ public class ManagerClient extends CorbaClient {
 		if (flightServer == null){
 			System.out.println("FlightServer was null for " + city);
 		}
+<<<<<<< refs/remotes/origin/master
 		String request = getId() + Constants.DELIMITER + flightClass;
+=======
+		String request = getId() + DELIMITER + flightClass;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		String result = flightServer.getBookedFlightCount(request);
 		System.out.println(result);
 	}
@@ -33,7 +40,11 @@ public class ManagerClient extends CorbaClient {
 		if (flightServer == null){
 			System.out.println("FlightServer was null for " + city);
 		}
+<<<<<<< refs/remotes/origin/master
 		String request = getId() + Constants.DELIMITER + editParameters;
+=======
+		String request = getId() + DELIMITER + editParameters;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		String result = flightServer.editFlightRecord(request, fieldToEdit, newValue);
 		String operation = editParameters.split("\\|")[0];
 		System.out.println(operation + " : " + result);
@@ -44,7 +55,11 @@ public class ManagerClient extends CorbaClient {
 		if (flightServer == null){
 			System.out.println("FlightServer was null for " + city);
 		}
+<<<<<<< refs/remotes/origin/master
 		String request = getId() + Constants.DELIMITER + flightRecordId;
+=======
+		String request = getId() + DELIMITER + flightRecordId;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		String result = flightServer.transferReservation(request, city.toString(), otherCity.toString());
 		System.out.println(result);
 	}
