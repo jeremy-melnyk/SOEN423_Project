@@ -1,11 +1,17 @@
 package front_end;
 
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.concurrent.locks.Lock;
+
 import friendly_end.FlightReservationServerPOA;
 import packet.BookFlightOperation;
 import packet.Packet;
 import packet.ReplicaOperation;
 
 public class FrontEnd extends FlightReservationServerPOA{
+	private static int portNumber = 2288;
+	private static Lock udpPortLock;
 
 	public static void main(String[] args) {
 		// TODO
@@ -20,28 +26,15 @@ public class FrontEnd extends FlightReservationServerPOA{
 	@Override
 	public String bookFlight(String firstName, String lastName, String address, String phoneNumber, String destination,
 			String date, String flightClass) {
-		String correctreply =  null;
-		// TODO 
-		// Create socket
-		// Create Packet with FE Address and port
 		BookFlightOperation bookFlightOperation = new BookFlightOperation.BuilderImpl(firstName).lastName(lastName)
-				.address(address).phoneNumber(phoneNumber).destination(destination).date(date).flightClass(flightClass).build();
+				.address(address)
+				.phoneNumber(phoneNumber)
+				.destination(destination)
+				.date(date)
+				.flightClass(flightClass)
+				.build();
 		Packet packet = new Packet(ReplicaOperation.BOOK_FLIGHT, bookFlightOperation);
-		String[] s = null;
-		FrontEndTransfer transfer =  new FrontEndTransfer(packet, s, "");
-		transfer.start();
-		// Async send msg to sequencer
-		// --- Wait for sequencer ACK
-		// ------ Wait for replica ACKS
-		// ------ As soon as 2 identical replies from replicas: Assign correct Response
-		// ------ Wait for all replies, If 2x time from before: Communicate with RM and retransmit if necessary
-		// ------ If incorrect reply from replica: increase replica counter. If 3, tell RM
-		// Wait while there's no correct Response
-		do{
-			correctreply = transfer.getCorrectReply();
-		}while(correctreply == null);
-		// Deliver correct reply
-		return correctreply;
+		return send(packet);
 	}
 
 	@Override
@@ -72,6 +65,35 @@ public class FrontEnd extends FlightReservationServerPOA{
 	public String[] getReservations() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private String send(Packet packet){
+		String correctreply =  null;
+		// TODO 
+		// Create socket
+		// Create Packet with FE Address and port
+		DatagramSocket socket = null;
+		synchronized (udpPortLock){
+			try {
+				socket = new DatagramSocket(portNumber++);
+			} catch (SocketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		packet.setSenderAddress(socket.getInetAddress());
+		packet.setSenderPort(socket.getPort());
+		// GROUP
+		String[] group = null;
+		// SEQUENCER
+		int sequencer = 1234;
+		FrontEndTransfer transfer =  new FrontEndTransfer(socket, packet, group, sequencer);
+		transfer.start();
+		// Wait while there's no correct Response
+		do{
+			correctreply = transfer.getCorrectReply();
+		}while(correctreply == null);
+		return correctreply;
 	}
 
 }
