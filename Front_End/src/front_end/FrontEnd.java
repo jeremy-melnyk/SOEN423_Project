@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.concurrent.locks.Lock;
 
+import failure_tracker.FailureTracker;
 import friendly_end.FlightReservationServerPOA;
 import packet.BookFlightOperation;
 import packet.Packet;
@@ -12,6 +13,7 @@ import packet.ReplicaOperation;
 public class FrontEnd extends FlightReservationServerPOA{
 	private static int portNumber = 2288;
 	private static Lock udpPortLock;
+	private FailureTracker failureTracker;
 
 	public static void main(String[] args) {
 		// TODO
@@ -21,6 +23,10 @@ public class FrontEnd extends FlightReservationServerPOA{
 		
 		// Register CORBA Server
 
+	}
+	
+	public FrontEnd(){
+		failureTracker = new FailureTracker();
 	}
 
 	@Override
@@ -87,7 +93,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 		String[] group = null;
 		// SEQUENCER
 		int sequencer = 1234;
-		FrontEndTransfer transfer =  new FrontEndTransfer(socket, packet, group, sequencer);
+		FrontEndTransfer transfer =  new FrontEndTransfer(socket, packet, group, sequencer, failureTracker);
 		transfer.start();
 		// Wait while there's no correct Response
 		do{
