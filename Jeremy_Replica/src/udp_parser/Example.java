@@ -1,5 +1,8 @@
 package udp_parser;
 
+import log.CustomLogger;
+import log.ILogger;
+import log.TextFileLog;
 import packet.BookFlightOperation;
 import packet.Packet;
 import packet.ReplicaOperation;
@@ -17,7 +20,8 @@ public class Example {
 		// Initialize UdpParser with an orb for the replica (it performs the role of the CORBA client)
 		// Using mock orb so that the code runs
 		MockOrb orb = new MockOrb();
-		UdpParser udpParser = new UdpParser(orb);
+		ILogger logger = new CustomLogger(new TextFileLog());
+		UdpParser udpParser = new UdpParser(orb, logger);
 		
 		// Process the packet (in which case the bookFlightOperation is called)
 		udpParser.processPacket(packet);

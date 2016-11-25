@@ -1,7 +1,7 @@
 package log;
 
 public class CustomLogger implements ILogger {
-	private final String BASE_PATH = "Logs/";
+	private final String BASE_PATH = "Jeremy_Replica_Logs/";
 	private final String EXTENSION = ".txt";
 	ILog log;
 	
