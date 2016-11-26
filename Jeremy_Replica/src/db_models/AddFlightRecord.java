@@ -1,27 +1,32 @@
 package db_models;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
 import enums.City;
 import enums.FlightClass;
 import models.FlightSeats;
+import global.Constants;
 
 public class AddFlightRecord {
-	private final String DELIMITER = "|";
-	private final String DELIMITER_ESCAPE = "\\" + DELIMITER;
 	private City origin;
 	private City destination;
 	private Date date;
 	private HashMap<FlightClass, FlightSeats> flightClasses;
 	
-	@SuppressWarnings("deprecation")
 	public AddFlightRecord(String flightRecord) {
 		super();
-		String[] tokens = flightRecord.split(DELIMITER_ESCAPE);
+		String[] tokens = flightRecord.split(Constants.DELIMITER_ESCAPE);
 		this.origin = City.valueOf(tokens[0].toUpperCase());
 		this.destination = City.valueOf(tokens[1].toUpperCase());
-		this.date = new Date(tokens[2]);
+		this.date = new Date();
+		try {
+			date = new SimpleDateFormat(Constants.DATE_FORMAT).parse(tokens[2]);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		this.flightClasses = new HashMap<FlightClass, FlightSeats>();
 		flightClasses.put(FlightClass.FIRST, new FlightSeats(Integer.parseInt(tokens[3])));
 		flightClasses.put(FlightClass.BUSINESS, new FlightSeats(Integer.parseInt(tokens[4])));

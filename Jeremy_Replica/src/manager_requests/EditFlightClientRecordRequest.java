@@ -1,10 +1,9 @@
 package manager_requests;
 
 import enums.EditType;
+import global.Constants;
 
 public class EditFlightClientRecordRequest {
-	private final String DELIMITER = "|";
-	private final String DELIMITER_ESCAPE = "\\" + DELIMITER;
 	private String managerId;
 	private EditType editType;
 	private Integer flightRecordId;
@@ -18,7 +17,7 @@ public class EditFlightClientRecordRequest {
 	
 	public EditFlightClientRecordRequest(String editFlightRecordRequest) {
 		super();
-		String tokens[] = editFlightRecordRequest.split(DELIMITER_ESCAPE); 
+		String tokens[] = editFlightRecordRequest.split(Constants.DELIMITER_ESCAPE); 
 		this.managerId = tokens[0].toUpperCase();
 		this.editType = EditType.valueOf(tokens[1].toUpperCase());
 		this.flightRecordId = Integer.parseInt(tokens[2]);
@@ -50,6 +49,6 @@ public class EditFlightClientRecordRequest {
 
 	@Override
 	public String toString() {
-		return managerId + DELIMITER + editType + DELIMITER + flightRecordId;
+		return managerId + Constants.DELIMITER + editType + Constants.DELIMITER + flightRecordId;
 	}
 }

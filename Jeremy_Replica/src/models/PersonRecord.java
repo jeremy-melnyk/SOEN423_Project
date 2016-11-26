@@ -2,12 +2,13 @@ package models;
 
 import java.io.Serializable;
 
+import global.Constants;
+
 public abstract class PersonRecord implements Serializable {
 	private static final long serialVersionUID = 1L;
 	protected Integer id;
 	protected String lastName;
 	protected String firstName;
-	protected final String DELIMITER = "|";
 
 	public PersonRecord(Integer id, String lastName, String firstName) {
 		super();
@@ -42,6 +43,6 @@ public abstract class PersonRecord implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PersonRecord" + DELIMITER + id + DELIMITER + lastName + DELIMITER + firstName;
+		return "PersonRecord" + Constants.DELIMITER + id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName;
 	}
 }
