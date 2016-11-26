@@ -1,7 +1,7 @@
 package log;
 
 public class CustomLogger implements ILogger {
-	private final String BASE_PATH = "Logs/";
+	private final String BASE_PATH = "logs";
 	private final String EXTENSION = ".txt";
 	ILog log;
 	
@@ -14,8 +14,9 @@ public class CustomLogger implements ILogger {
 	public boolean log(String tag, String operation, String message)
 	{
 		String logMessage = String.format("%s : %s : %s" + System.lineSeparator(), tag, operation, message);
-		String fileName = BASE_PATH + tag + EXTENSION;
-		return this.log.write(fileName, logMessage);
+		String directoryName = BASE_PATH;
+		String fileName = tag + EXTENSION;
+		return this.log.write(directoryName, fileName, logMessage);
 	}
 
 	@Override

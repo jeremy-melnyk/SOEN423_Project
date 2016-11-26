@@ -1,14 +1,14 @@
 package manager_requests;
 
+import global.Constants;
+
 public class TransferReservationClientRequest {
-	private final String DELIMITER = "|";
-	private final String DELIMITER_ESCAPE = "\\" + DELIMITER;
 	private String managerId;
 	private int flightReservationId;
 
 	public TransferReservationClientRequest(String transferReservationRequest) {
 		super();
-		String tokens[] = transferReservationRequest.split(DELIMITER_ESCAPE);
+		String tokens[] = transferReservationRequest.split(Constants.DELIMITER_ESCAPE);
 		this.managerId = tokens[0].toUpperCase();
 		this.flightReservationId = Integer.parseInt(tokens[1]);
 	}
@@ -31,6 +31,6 @@ public class TransferReservationClientRequest {
 
 	@Override
 	public String toString() {
-		return managerId + DELIMITER + flightReservationId;
+		return managerId + Constants.DELIMITER + flightReservationId;
 	}
 }

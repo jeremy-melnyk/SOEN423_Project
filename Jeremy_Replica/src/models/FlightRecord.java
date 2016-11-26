@@ -8,6 +8,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import enums.City;
 import enums.FlightClass;
+import global.Constants;
 
 public class FlightRecord implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -19,7 +20,6 @@ public class FlightRecord implements Serializable {
 	private ReadWriteLock originLock;
 	private ReadWriteLock destinationLock;
 	private ReadWriteLock flightDateLock;
-	private final String DELIMITER = "|";
 	
 	public FlightRecord(Integer id, City origin, City destination, Date flightDate,
 			HashMap<FlightClass, FlightSeats> flightClasses) {
@@ -107,11 +107,11 @@ public class FlightRecord implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("FlightRecord" + DELIMITER + id + DELIMITER + origin + DELIMITER + destination + DELIMITER
+		sb.append("FlightRecord" + Constants.DELIMITER + id + Constants.DELIMITER + origin + Constants.DELIMITER + destination + Constants.DELIMITER
 				+ flightDate);
-		sb.append(DELIMITER + FlightClass.FIRST + DELIMITER + flightClasses.get(FlightClass.FIRST));
-		sb.append(DELIMITER + FlightClass.BUSINESS + DELIMITER + flightClasses.get(FlightClass.BUSINESS));
-		sb.append(DELIMITER + FlightClass.ECONOMY + DELIMITER + flightClasses.get(FlightClass.ECONOMY));
+		sb.append(Constants.DELIMITER + FlightClass.FIRST + Constants.DELIMITER + flightClasses.get(FlightClass.FIRST));
+		sb.append(Constants.DELIMITER + FlightClass.BUSINESS + Constants.DELIMITER + flightClasses.get(FlightClass.BUSINESS));
+		sb.append(Constants.DELIMITER + FlightClass.ECONOMY + Constants.DELIMITER + flightClasses.get(FlightClass.ECONOMY));
 		return sb.toString();
 	}
 }

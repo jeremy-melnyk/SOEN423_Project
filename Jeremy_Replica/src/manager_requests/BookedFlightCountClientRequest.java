@@ -1,10 +1,9 @@
 package manager_requests;
 
 import enums.FlightClass;
+import global.Constants;
 
 public class BookedFlightCountClientRequest {
-	private final String DELIMITER = "|";
-	private final String DELIMITER_ESCAPE = "\\" + DELIMITER;
 	private String managerId;
 	private FlightClass flightClass;
 	
@@ -16,7 +15,7 @@ public class BookedFlightCountClientRequest {
 	
 	public BookedFlightCountClientRequest(String bookedFlightCountRequest) {
 		super();
-		String tokens[] = bookedFlightCountRequest.split(DELIMITER_ESCAPE); 
+		String tokens[] = bookedFlightCountRequest.split(Constants.DELIMITER_ESCAPE); 
 		this.managerId = tokens[0].toUpperCase();
 		this.flightClass = FlightClass.valueOf(tokens[1].toUpperCase());
 	}
@@ -39,6 +38,6 @@ public class BookedFlightCountClientRequest {
 
 	@Override
 	public String toString() {
-		return managerId + DELIMITER + flightClass;
+		return managerId + Constants.DELIMITER + flightClass;
 	}
 }

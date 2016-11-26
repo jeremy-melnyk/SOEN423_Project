@@ -1,16 +1,15 @@
 package db_models;
 
 import enums.FlightClass;
+import global.Constants;
 
 public class EditSeats {
-	private final String DELIMITER = "|";
-	private final String DELIMITER_ESCAPE = "\\" + DELIMITER;
 	private FlightClass flightClass;
 	private int seats;
 	
 	public EditSeats(String editFlightClassSeats) {
 		super();
-		String[] tokens = editFlightClassSeats.split(DELIMITER_ESCAPE);
+		String[] tokens = editFlightClassSeats.split(Constants.DELIMITER_ESCAPE);
 		this.flightClass = FlightClass.valueOf(tokens[0].toUpperCase());
 		this.seats = Integer.parseInt(tokens[1]);
 	}

@@ -2,15 +2,15 @@ package models;
 
 import java.io.Serializable;
 
-public class Address implements Serializable{
+import global.Constants;
+
+public class Address implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String street;
 	private String city;
 	private String province;
 	private String postalCode;
 	private String country;
-	private final String DELIMITER = "|";
-	private final String DELIMITER_ESCAPE = "\\" + DELIMITER;
 
 	public Address(String street, String city, String province, String postalCode, String country) {
 		super();
@@ -20,14 +20,24 @@ public class Address implements Serializable{
 		this.postalCode = postalCode;
 		this.country = country;
 	}
-	
-	public Address(String address){
-		String[] tokens = address.split(DELIMITER_ESCAPE);
-		this.street = tokens[0];
-		this.city = tokens[1];
-		this.province = tokens[2];
-		this.postalCode = tokens[3];
-		this.country = tokens[4];
+
+	public Address(String address) {
+		String[] tokens = address.split(Constants.DELIMITER_ESCAPE);
+
+		// Single string address
+		if (tokens.length < 2) {
+			this.street = tokens[0];
+			this.city = "";
+			this.province = "";
+			this.postalCode = "";
+			this.country = "";
+		} else {
+			this.street = tokens[0];
+			this.city = tokens[1];
+			this.province = tokens[2];
+			this.postalCode = tokens[3];
+			this.country = tokens[4];
+		}
 	}
 
 	public String getStreet() {
@@ -72,6 +82,7 @@ public class Address implements Serializable{
 
 	@Override
 	public String toString() {
-		return street + DELIMITER + city + DELIMITER + province + DELIMITER + postalCode + DELIMITER + country;
+		return street + Constants.DELIMITER + city + Constants.DELIMITER + province + Constants.DELIMITER + postalCode
+				+ Constants.DELIMITER + country;
 	}
 }
