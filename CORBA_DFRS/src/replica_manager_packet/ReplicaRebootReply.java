@@ -1,6 +1,7 @@
 package replica_manager_packet;
 
-public class ReplicaRebootReply {
+public class ReplicaRebootReply extends PacketParameters {
+	private static final long serialVersionUID = 1L;
 	boolean isRebooted;
 
 	public ReplicaRebootReply(boolean isRebooted) {

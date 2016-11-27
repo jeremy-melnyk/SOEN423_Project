@@ -1,6 +1,7 @@
 package replica_manager_packet;
 
 public class ReplicaAliveOperation extends PacketParameters {
+	private static final long serialVersionUID = 1L;
 	int portToCheck;
 
 	public ReplicaAliveOperation(int portToCheck) {

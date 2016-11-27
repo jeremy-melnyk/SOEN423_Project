@@ -1,4 +1,7 @@
 package replica_manager_packet;
 
-public abstract class PacketParameters {
+import java.io.Serializable;
+
+public abstract class PacketParameters implements Serializable{
+	private static final long serialVersionUID = 1L;
 }

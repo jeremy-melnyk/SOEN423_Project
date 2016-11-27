@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 
 import replica_manager_packet.PacketParameters;
-import replica_manager_packet.PacketParametersHandler;
 import replica_manager_packet.ReplicaRebootReply;
 import udp.UdpHelper;
 

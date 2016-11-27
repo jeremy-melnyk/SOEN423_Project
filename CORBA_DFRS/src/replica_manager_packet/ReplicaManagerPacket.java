@@ -1,6 +1,9 @@
 package replica_manager_packet;
 
-public class ReplicaManagerPacket {
+import java.io.Serializable;
+
+public class ReplicaManagerPacket implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private ReplicaManagerOperation replicaManagerOperation;
 	private PacketParameters packetParameters;
 

@@ -1,7 +1,9 @@
-package replica_manager_packet;
+package replica_manager;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+
+import replica_manager_packet.PacketParameters;
 
 public abstract class PacketParametersHandler {
 	protected final int BUFFER_SIZE = 5000;
