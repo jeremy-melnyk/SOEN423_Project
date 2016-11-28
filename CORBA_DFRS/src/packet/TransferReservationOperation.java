@@ -60,7 +60,7 @@ public class TransferReservationOperation extends OperationParameters {
 			return this;
 		}
 
-		public BuilderImpl address(String otherCity) {
+		public BuilderImpl otherCity(String otherCity) {
 			this.otherCity = otherCity;
 			return this;
 		}
