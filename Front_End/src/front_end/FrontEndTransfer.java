@@ -7,20 +7,24 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import failure_tracker.FailureTracker;
+import packet.MulticastPacket;
 import packet.Packet;
+import udp.UdpHelper;
 
 public class FrontEndTransfer extends Thread {
 	private DatagramSocket socket;
 	private String correctReply;
 	private Packet packet;
 	private String sequencerAdress;
-	private String[] group;
+	private List<Integer> group;
 	private FailureTracker failuretracker;
 	
-	public FrontEndTransfer(DatagramSocket socket, Packet p, String[] group, String sequencer, FailureTracker failureTracker) {
+	public FrontEndTransfer(DatagramSocket socket, Packet p, List<Integer> group, String sequencer, FailureTracker failureTracker) {
 		this.socket = socket;
 		this.correctReply = null;
 		this.packet = p;
@@ -30,12 +34,12 @@ public class FrontEndTransfer extends Thread {
 	}
 	
 	// For single Sender (RETRANSMITION)
-	public FrontEndTransfer(DatagramSocket socket, Packet p, String receiver, String sequencer, FailureTracker failureTracker) {
+	public FrontEndTransfer(DatagramSocket socket, Packet p, int receiverPort, String sequencer, FailureTracker failureTracker) {
 		this.socket = socket;
 		this.correctReply = null;
 		this.packet = p;
-		this.group = (new String[1]);
-		this.group[0] = receiver;
+		this.group = (new ArrayList<Integer>());
+		this.group.add(receiverPort);
 		this.sequencerAdress =  sequencer;
 		this.failuretracker = failureTracker;
 	}
@@ -44,7 +48,9 @@ public class FrontEndTransfer extends Thread {
 	public void run() {
 		
 		try {
-			byte[] packetBytes = packet.getByteArray();
+			// Pakcet with group for sequencer
+			MulticastPacket multicastPacket = new MulticastPacket(packet, group);			
+			byte[] packetBytes = UdpHelper.getByteArray(multicastPacket);
 			URL url = new URL(sequencerAdress);
 			InetAddress host = InetAddress.getByName(url.getHost());
 			DatagramPacket seq = new DatagramPacket(packetBytes, packetBytes.length, host, url.getPort());
@@ -62,7 +68,7 @@ public class FrontEndTransfer extends Thread {
 			if(true/*  GOOD */){
 				HashMap<String, Integer> replies = new HashMap<String, Integer>();
 				// Missing timer
-				int counter = group.length;
+				int counter = group.size();
 				while(counter > 0 /* All replicas */){
 					try{
 						buffer = new byte[1000];

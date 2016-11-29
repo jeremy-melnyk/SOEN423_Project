@@ -1,19 +1,20 @@
 package front_end;
 
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.concurrent.locks.Lock;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
-import org.omg.PortableServer.POAPackage.ServantNotActive;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 import failure_tracker.FailureTracker;
 import friendly_end.FlightReservationServer;
@@ -25,12 +26,15 @@ import packet.GetBookedFlightCountOperation;
 import packet.Packet;
 import packet.Operation;
 import packet.TransferReservationOperation;
+import replica_manager_packet.ReplicaAliveOperation;
+import replica_manager_packet.ReplicaAliveReply;
+import replica_manager_packet.ReplicaManagerOperation;
+import replica_manager_packet.ReplicaManagerPacket;
+import udp.UdpHelper;
 
 public class FrontEnd extends FlightReservationServerPOA{
-	private static int portNumber = 2288;
 	private final String[] RMs;
 	private final String sequencer;
-	private static Lock udpPortLock;
 	private FailureTracker failureTracker;
 	private ORB orb;
 
@@ -144,7 +148,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 		packet.setSenderAddress(socket.getInetAddress());
 		packet.setSenderPort(socket.getPort());
 		// TODO Get Active Replica addresses from RMs 
-		String[] group = null;
+		List<Integer> group = getActiveReplicas(socket);
 		// SEQUENCER
 		FrontEndTransfer transfer =  new FrontEndTransfer(socket, packet, group, sequencer, failureTracker);
 		transfer.start();
@@ -153,6 +157,45 @@ public class FrontEnd extends FlightReservationServerPOA{
 			correctreply = transfer.getCorrectReply();
 		}while(correctreply == null);
 		return correctreply;
+	}
+	
+	private List<Integer> getActiveReplicas(DatagramSocket socket) {
+		List<Integer> group = new ArrayList<Integer>();
+		try{
+			for(int i = 0; i < RMs.length; i++){
+				URL url = new URL(RMs[i]);
+				InetAddress host = InetAddress.getByName(url.getHost());
+				ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(2222 /*?*/);
+				ReplicaManagerPacket packet = new ReplicaManagerPacket(ReplicaManagerOperation.REPLICA_ALIVE, aliveRequest);
+				byte[] packetBytes = UdpHelper.getByteArray(packet);
+				DatagramPacket seq = new DatagramPacket(packetBytes, packetBytes.length, host, url.getPort());
+				socket.send(seq);
+			}
+			int counter = RMs.length;
+			while(counter > 0){
+				try{
+					socket.setSoTimeout(2000);
+					
+					byte buffer[] = new byte[100];
+					DatagramPacket p = new DatagramPacket(buffer, buffer.length);
+					socket.receive(p);
+					
+					ReplicaAliveReply reply = (ReplicaAliveReply) UdpHelper.getObjectFromByteArray(p.getData());
+					if(reply.isAlive())
+						group.add(reply.getReplicaPort());
+					counter--;
+				}catch (SocketTimeoutException e){
+					// TODO Resend
+						//  Find missing replies
+						// Recreate packet or get stored packet
+						// retransmit
+				}
+				
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return group;
 	}
 
 }
