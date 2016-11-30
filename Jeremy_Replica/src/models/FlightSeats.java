@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import global.Constants;
+
 public class FlightSeats implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int seats;
 	private int availableSeats;
 	private ReadWriteLock lock;
-	private final String DELIMITER = "|";
 
 	public FlightSeats(int seats) {
 		super();
@@ -95,6 +96,6 @@ public class FlightSeats implements Serializable {
 
 	@Override
 	public String toString() {
-		return "S" + seats + DELIMITER +  "A" + availableSeats;
+		return "S" + seats + Constants.DELIMITER +  "A" + availableSeats;
 	}
 }

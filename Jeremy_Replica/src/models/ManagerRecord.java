@@ -1,6 +1,7 @@
 package models;
 
 import enums.City;
+import global.Constants;
 
 public class ManagerRecord extends PersonRecord {
 	private static final long serialVersionUID = 1L;
@@ -21,6 +22,6 @@ public class ManagerRecord extends PersonRecord {
 	
 	@Override
 	public String toString() {
-		return "ManagerRecord" + DELIMITER + id + DELIMITER + lastName + DELIMITER + firstName + DELIMITER + city.name();
+		return "ManagerRecord" + Constants.DELIMITER + id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName + Constants.DELIMITER + city.name();
 	}
 }

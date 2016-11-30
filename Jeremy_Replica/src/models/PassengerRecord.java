@@ -1,5 +1,7 @@
 package models;
 
+import global.Constants;
+
 public class PassengerRecord extends PersonRecord {
 	private static final long serialVersionUID = 1L;
 	private Address address;
@@ -29,6 +31,6 @@ public class PassengerRecord extends PersonRecord {
 	
 	@Override
 	public String toString() {
-		return "PassengerRecord" + DELIMITER + id + DELIMITER + lastName + DELIMITER + firstName;
+		return "PassengerRecord" + Constants.DELIMITER + id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName;
 	}
 }

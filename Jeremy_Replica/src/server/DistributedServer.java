@@ -1,5 +1,7 @@
 package server;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import databases.PassengerRecordDb;
 import databases.PassengerRecordDbImpl;
 import enums.City;
 import enums.FlightClass;
+import global.Constants;
 import models.FlightSeats;
 import models.FlightServerAddress;
 
@@ -41,16 +44,16 @@ public class DistributedServer {
 		// Initialization of some flight records
 		
 		List<String> mtlFlights = new ArrayList<String>();
-		mtlFlights.add("MTL|WST|5-Jun-2016|10|5|2");
-		mtlFlights.add("MTL|NDL|5-Jun-2016|10|5|2");
+		mtlFlights.add("MTL|WST|06/05/2016|10|5|2");
+		mtlFlights.add("MTL|NDL|06/05/2016|10|5|2");
 		
 		List<String> wstFlights = new ArrayList<String>();
-		wstFlights.add("WST|MTL|5-Jun-2016|10|5|2");
-		wstFlights.add("WST|NDL|5-Jun-2016|10|5|2");
+		wstFlights.add("WST|MTL|06/05/2016|10|5|2");
+		wstFlights.add("WST|NDL|06/05/2016|10|5|2");
 		
 		List<String> ndlFlights = new ArrayList<String>();
-		ndlFlights.add("NDL|MTL|5-Jun-2016|10|5|2");
-		ndlFlights.add("NDL|WST|5-Jun-2016|10|5|2");
+		ndlFlights.add("NDL|MTL|06/05/2016|10|5|2");
+		ndlFlights.add("NDL|WST|06/05/2016|10|5|2");
 		
 		flightServers.put("MTL",
 				initServer(City.MTL, mtlPort,
@@ -89,16 +92,21 @@ public class DistributedServer {
 		return flightServer;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private FlightRecordDb initFlightRecordDb(List<String> flights){
 		FlightRecordDb flightRecordDb = new FlightRecordDbImpl();
 		for (String flight : flights){
-			String[] tokens = flight.split("\\|");
+			String[] tokens = flight.split(Constants.DELIMITER_ESCAPE);
 			HashMap<FlightClass, FlightSeats> flightClasses = new HashMap<FlightClass, FlightSeats>();
 			flightClasses.put(FlightClass.FIRST, new FlightSeats(Integer.parseInt(tokens[3])));
 			flightClasses.put(FlightClass.BUSINESS, new FlightSeats(Integer.parseInt(tokens[4])));
 			flightClasses.put(FlightClass.ECONOMY, new FlightSeats(Integer.parseInt(tokens[5])));
-			flightRecordDb.addFlightRecord(City.valueOf(tokens[0]), City.valueOf(tokens[1]), new Date(tokens[2]), flightClasses);
+			Date date = new Date();
+			try {
+				date = new SimpleDateFormat(Constants.DATE_FORMAT).parse(tokens[2]);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			flightRecordDb.addFlightRecord(City.valueOf(tokens[0]), City.valueOf(tokens[1]), date, flightClasses);
 		}
 		return flightRecordDb;
 	}

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import enums.FlightClass;
+import global.Constants;
 
 public class FlightReservation implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -12,7 +13,6 @@ public class FlightReservation implements Serializable {
 	private FlightRecord flightRecord;
 	private FlightClass flightClass;
 	private Date bookingDate;
-	private final String DELIMITER = "|";
 
 	public FlightReservation(Integer id, PassengerRecord passengerRecord, FlightRecord flightRecord, FlightClass flightClass,
 			Date bookingDate) {
@@ -57,7 +57,7 @@ public class FlightReservation implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "FlightReservation" + DELIMITER + id + DELIMITER + flightClass + DELIMITER + passengerRecord + DELIMITER
-				+ flightRecord + DELIMITER + "BookingDate" + DELIMITER + bookingDate;
+		return "FlightReservation" + Constants.DELIMITER + id + Constants.DELIMITER + flightClass + Constants.DELIMITER + passengerRecord + Constants.DELIMITER
+				+ flightRecord + Constants.DELIMITER + "BookingDate" + Constants.DELIMITER + bookingDate;
 	}
 }

@@ -12,7 +12,7 @@ For any method, strings could be lowercase, uppercase, mix of both, etc. Make no
 		lastName: "Doe" (any string)
 		address: "Address" (any string)
 		phoneNumber: "514-123-4567" (any string)
-		destination: "MTL", "WST", "NDL"
+		destination: "MTL|WST", "WST|MTL", "NDL|MTL" (origin | destination)  
 		date: "mm/dd/yyyy" (american simple date format)
 		flightClass: "ECONOMY", "BUSINESS", "FIRST"
 		

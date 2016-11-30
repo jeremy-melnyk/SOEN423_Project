@@ -22,12 +22,12 @@ public class ConcurrencyTestProgram {
 		while(--count >= 0){
 			Thread t0 = new Thread(() -> {
 				managerMtl.getBookedFlightCount("BUSINESS");
-				managerMtl.editFlightRecord("EDIT|0", "ORIGIN", "WST");
-				managerMtl.editFlightRecord("EDIT|0", "DESTINATION", "MTL");
-				managerMtl.editFlightRecord("EDIT|0", "DATE", "10-Jul-2017");
+				managerMtl.editFlightRecord("EDIT|0", "ORIGIN", "MTL");
+				managerMtl.editFlightRecord("EDIT|0", "DESTINATION", "WST");
+				managerMtl.editFlightRecord("EDIT|0", "DATE", "07/20/2017");
 				managerMtl.editFlightRecord("EDIT|0", "SEATS", "FIRST|30");
 				managerMtl.editFlightRecord("EDIT|0", "SEATS", "FIRST|10");
-				managerMtl.editFlightRecord("ADD|0", "NONE", "MTL|NDL|15-Jul-2017|5|5|5");
+				managerMtl.editFlightRecord("ADD|0", "NONE", "MTL|NDL|07/15/2017|5|5|5");
 				managerMtl.editFlightRecord("REMOVE|0", "NONE", "");
 				managerMtl.getBookedFlightCount("FIRST");
 				
@@ -43,10 +43,10 @@ public class ConcurrencyTestProgram {
 				managerWst.getBookedFlightCount("ECONOMY");
 				managerWst.editFlightRecord("EDIT|5", "ORIGIN", "WST");
 				managerWst.editFlightRecord("EDIT|2", "DESTINATION", "MTL");
-				managerWst.editFlightRecord("EDIT|0", "DATE", "10-Jul-2017");
+				managerWst.editFlightRecord("EDIT|0", "DATE", "07/20/2017");
 				managerWst.editFlightRecord("EDIT|4", "SEATS", "FIRST|30");
 				managerWst.editFlightRecord("EDIT|0", "SEATS", "FIRST|10");
-				managerWst.editFlightRecord("ADD|0", "NONE", "MTL|NDL|15-Jul-2017|5|5|5");
+				managerWst.editFlightRecord("ADD|0", "NONE", "WST|NDL|07/15/2017|5|5|5");
 				managerWst.editFlightRecord("REMOVE|3", "NONE", "");
 				managerWst.getBookedFlightCount("FIRST");
 				
@@ -60,12 +60,12 @@ public class ConcurrencyTestProgram {
 			
 			Thread t2 = new Thread(() -> {
 				managerNdl.getBookedFlightCount("FIRST");
-				managerNdl.editFlightRecord("EDIT|5", "ORIGIN", "WST");
+				managerNdl.editFlightRecord("EDIT|5", "ORIGIN", "NDL");
 				managerNdl.editFlightRecord("EDIT|2", "DESTINATION", "MTL");
 				managerNdl.editFlightRecord("EDIT|0", "DATE", "10-Jul-2017");
 				managerNdl.editFlightRecord("EDIT|4", "SEATS", "FIRST|30");
 				managerNdl.editFlightRecord("EDIT|0", "SEATS", "FIRST|10");
-				managerNdl.editFlightRecord("ADD|0", "NONE", "MTL|NDL|15-Jul-2017|5|5|5");
+				managerNdl.editFlightRecord("ADD|0", "NONE", "NDL|MTL|07/15/2017|5|5|5");
 				managerNdl.editFlightRecord("REMOVE|3", "NONE", "");
 				managerNdl.getBookedFlightCount("FIRST");
 				
@@ -79,24 +79,24 @@ public class ConcurrencyTestProgram {
 			
 			Thread t3 = new Thread(() -> {
 				PassengerClient passengerMtl = new PassengerClient(City.MTL, "Doe", "John", "1000 Moose Avenue|Montreal|QC|H1B 5U0|Canada", "514-123-4567", orb);
-				passengerMtl.bookFlight("WST", "5-Jun-2016", "FIRST");
-				passengerMtl.bookFlight("NDL", "5-Jun-2016", "FIRST");
+				passengerMtl.bookFlight("WST", "06/05/2016", "FIRST");
+				passengerMtl.bookFlight("NDL", "06/05/2016", "FIRST");
 			});
 			t3.start();
 			threads.add(t3);
 			
 			Thread t4 = new Thread(() -> {
 				PassengerClient passengerWst = new PassengerClient(City.WST, "Bell", "Graham", "5000 Donald Trump|Washington|DC|12345|United States", "648-123-4567", orb);
-				passengerWst.bookFlight("NDL", "5-Jun-2016", "BUSINESS");
-				passengerWst.bookFlight("MTL", "5-Jun-2016", "BUSINESS");
+				passengerWst.bookFlight("NDL", "06/05/2016", "BUSINESS");
+				passengerWst.bookFlight("MTL", "06/05/2016", "BUSINESS");
 			});
 			t4.start();
 			threads.add(t4);
 			
 			Thread t5 = new Thread(() -> {
 				PassengerClient passengerNdl = new PassengerClient(City.NDL, "Bobby", "Brown", "5000 Connaught Place|New Delhi|DC|12345|India", "648-123-4567", orb);
-				passengerNdl.bookFlight("MTL", "5-Jun-2016", "ECONOMY");
-				passengerNdl.bookFlight("WST", "5-Jun-2016", "ECONOMY");
+				passengerNdl.bookFlight("MTL", "06/05/2016", "ECONOMY");
+				passengerNdl.bookFlight("WST", "06/05/2016", "ECONOMY");
 			});
 			t5.start();
 			threads.add(t5);

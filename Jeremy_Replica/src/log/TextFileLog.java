@@ -9,7 +9,7 @@ import java.io.IOException;
 public class TextFileLog implements ILog {
 	
 	@Override
-	public boolean write(String fileName, String message)
+	public boolean write(String directoryName, String fileName, String message)
 	{
 		if (fileName == null)
 		{
@@ -19,8 +19,11 @@ public class TextFileLog implements ILog {
 		{
 			return false;
 		}
-
-		File file = new File(fileName);
+		File directory = new File(directoryName);
+		if (!directory.exists()){
+			directory.mkdir();
+		}
+		File file = new File(directoryName, fileName);
 		FileWriter fileWriter = null;
 		try
 		{

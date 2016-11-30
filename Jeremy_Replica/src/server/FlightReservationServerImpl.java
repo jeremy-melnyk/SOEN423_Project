@@ -3,6 +3,8 @@ package server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import enums.City;
 import enums.EditType;
 import enums.FlightClass;
 import enums.FlightRecordField;
+import global.Constants;
 import log.CustomLogger;
 import log.ILogger;
 import log.TextFileLog;
@@ -64,17 +67,16 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 		serveRequests();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public String bookFlight(String firstName, String lastName, String address, String phoneNumber, String destination,
 			String date, String flightClass) {
 		City destinationValue = City.valueOf(destination.toUpperCase());
-		Date dateValue;
+		Date dateValue = new Date();
 		try {
-			dateValue = new Date(date);
-		} catch (IllegalArgumentException e) {
+			dateValue = new SimpleDateFormat(Constants.DATE_FORMAT).parse(date);
+		} catch (ParseException e) {
 			e.printStackTrace();
-			logger.log(city.toString(), "BOOK_FLIGHT_FAIL", "Invalid Date or DateFormat: " + date);
+			logger.log(city.toString(), "BOOK_FLIGHT_DATE_PARSE_FAIL", "Invalid Date or DateFormat: " + date);
 			return "Invalid date format.";
 		}
 		FlightClass flightClassValue = FlightClass.valueOf(flightClass.toUpperCase());
@@ -296,7 +298,6 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 		return flightRecord.toString();
 	}
 
-	@SuppressWarnings("deprecation")
 	private String editFlightRecord(String managerTag, int flightRecordId, FlightRecordField fieldToEdit,
 			String newValue) {
 		FlightRecordDb flightRecordDb = databaseRepository.getFlightRecordDb();
@@ -309,7 +310,14 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 
 		switch (fieldToEdit) {
 		case DATE:
-			Date date = new Date(newValue);
+			Date date = new Date();
+			try {
+				date = new SimpleDateFormat(Constants.DATE_FORMAT).parse(newValue);
+			} catch (ParseException e) {
+				e.printStackTrace();
+				logger.log(city.toString(), "EDIT_FLIGHT_RECORD_DATE_PARSE_FAIL", "Invalid Date or DateFormat: " + date);
+				return "Invalid date format.";
+			}
 			flightRecord.setFlightDate(date);
 			logger.log(city.toString(), "FLIGHT_RECORD_DATE_CHANGED", flightRecord.toString());
 			logger.log(managerTag, "FLIGHT_RECORD_DATE_CHANGED", flightRecord.toString());
