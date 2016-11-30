@@ -38,6 +38,7 @@ public abstract class FlightServerInterfaceImpl extends FlightServerInterfacePOA
 		createInitialRecord(this.flightRecord);
 		registerUDPPort(UPDPort);
 		logger.log(acronym, "Server Created");
+		this.createUdpServer(this);
 	}
 	
 	public void setORB(ORB orb){
@@ -363,9 +364,19 @@ public abstract class FlightServerInterfaceImpl extends FlightServerInterfacePOA
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
-		
+		}	
 	}
+	
+	private void createUdpServer(FlightServerInterfaceImpl server){
+		final int port = server.UDP_PORT;
+		(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				server.setupUDPServer(port);
+			}
+		})).start();
+	}
+	
 	
 	public String getAcronym(){
 		return acronym.toUpperCase();
