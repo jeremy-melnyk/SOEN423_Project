@@ -142,7 +142,6 @@ public class FrontEnd extends FlightReservationServerPOA{
 		try {
 			socket = new DatagramSocket();
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		packet.setSenderAddress(socket.getInetAddress());

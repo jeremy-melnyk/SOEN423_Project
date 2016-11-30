@@ -92,7 +92,7 @@ public class FrontEndTransfer extends Thread {
 								int numberFailures = failuretracker.insertFailure(reply.getAddress(), reply.getPort());
 								if(numberFailures >= 3){
 									// SEND TO INCORRECT TO RM
-										// Get incorrect replica's adrress
+										// Get incorrect replica's address
 										// Send to RM
 								}
 							}
