@@ -4,19 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 
 import replica_manager_packet.PacketParameters;
 import replica_manager_packet.ReplicaManagerOperation;
 import replica_manager_packet.ReplicaManagerPacket;
 
 public class ReplicaManagerPacketDispatcher implements Runnable {
-	private final DatagramSocket socket;
 	private final DatagramPacket packet;
 
-	public ReplicaManagerPacketDispatcher(DatagramSocket socket, DatagramPacket packet) {
+	public ReplicaManagerPacketDispatcher(DatagramPacket packet) {
 		super();
-		this.socket = socket;
 		this.packet = packet;
 	}
 
@@ -43,10 +40,10 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 		PacketParameters packetParameters = replicaManagerPacket.getPacketParameters();
 		switch (replicaManagerOperation) {
 		case REPLICA_ALIVE:
-			new ReplicaAliveHandler(packet.getAddress(), packet.getPort(), packetParameters, socket).execute();
+			new ReplicaAliveHandler(packet.getAddress(), packet.getPort(), packetParameters).execute();
 			break;
 		case REPLICA_REBOOT:
-			new ReplicaRebootHandler(packet.getAddress(), packet.getPort(), packetParameters, socket).execute();
+			new ReplicaRebootHandler(packet.getAddress(), packet.getPort(), packetParameters).execute();
 			break;
 		}
 	}

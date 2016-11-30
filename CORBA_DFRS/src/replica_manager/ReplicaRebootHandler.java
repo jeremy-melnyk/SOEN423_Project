@@ -12,9 +12,8 @@ import udp.UdpHelper;
 
 public class ReplicaRebootHandler extends PacketParametersHandler {
 
-	public ReplicaRebootHandler(InetAddress address, int port, PacketParameters packetParameters,
-			DatagramSocket socket) {
-		super(address, port, packetParameters, socket);
+	public ReplicaRebootHandler(InetAddress address, int port, PacketParameters packetParameters) {
+		super(address, port, packetParameters);
 		// TODO Auto-generated constructor stub
 	}
 

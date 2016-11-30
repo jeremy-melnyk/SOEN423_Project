@@ -13,9 +13,8 @@ import udp.UdpHelper;
 
 public class ReplicaAliveHandler extends PacketParametersHandler {
 
-	public ReplicaAliveHandler(InetAddress address, int port, PacketParameters packetParameters,
-			DatagramSocket socket) {
-		super(address, port, packetParameters, socket);
+	public ReplicaAliveHandler(InetAddress address, int port, PacketParameters packetParameters) {
+		super(address, port, packetParameters);
 	}
 
 	@Override

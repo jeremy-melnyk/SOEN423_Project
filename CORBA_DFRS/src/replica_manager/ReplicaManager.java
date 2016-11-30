@@ -10,13 +10,11 @@ public class ReplicaManager implements Runnable {
 	private final int BUFFER_SIZE = 5000;
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
 	private final ExecutorService threadPool;
-	DatagramSocket socket;
 	int port;
 
 	public ReplicaManager(int port) {
 		super();
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-		this.socket = null;
 		this.port = port;
 	}
 
@@ -26,16 +24,21 @@ public class ReplicaManager implements Runnable {
 	}
 
 	private void serveRequests() {
+		DatagramSocket socket = null;
 		try {
 			socket = new DatagramSocket(port);
 			while (true) {
 				byte[] buffer = new byte[BUFFER_SIZE];
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
-				threadPool.execute(new ReplicaManagerPacketDispatcher(socket, packet));
+				threadPool.execute(new ReplicaManagerPacketDispatcher(packet));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if (socket != null){
+				socket.close();
+			}
 		}
 	}
 }
