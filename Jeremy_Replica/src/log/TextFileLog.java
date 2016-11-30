@@ -9,7 +9,11 @@ import java.io.IOException;
 public class TextFileLog implements ILog {
 	
 	@Override
+<<<<<<< refs/remotes/origin/master
 	public boolean write(String directoryName, String fileName, String message)
+=======
+	public boolean write(String fileName, String message)
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 	{
 		if (fileName == null)
 		{
@@ -19,11 +23,16 @@ public class TextFileLog implements ILog {
 		{
 			return false;
 		}
+<<<<<<< refs/remotes/origin/master
 		File directory = new File(directoryName);
 		if (!directory.exists()){
 			directory.mkdir();
 		}
 		File file = new File(directoryName, fileName);
+=======
+
+		File file = new File(fileName);
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		FileWriter fileWriter = null;
 		try
 		{

@@ -7,9 +7,15 @@ import org.omg.CORBA.ORB;
 import enums.City;
 import enums.FlightClass;
 import enums.FlightRecordField;
+<<<<<<< refs/remotes/origin/master
 import global.Constants;
 
 public class ConsoleProgram {
+=======
+
+public class ConsoleProgram {
+	public final static String DELIMITER = "|";
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 	public final static int exitCommand = -1;
 
 	public static void main(String[] args) {
@@ -166,9 +172,15 @@ public class ConsoleProgram {
 		if(businessSeats == exitCommand){
 			return;
 		}
+<<<<<<< refs/remotes/origin/master
 		String editParameters = "ADD" + Constants.DELIMITER + "0";
 		String flightRecord = managerClient.city.toString() + Constants.DELIMITER + city.toString() + Constants.DELIMITER + date + Constants.DELIMITER
 				+ firstSeats + Constants.DELIMITER + businessSeats + Constants.DELIMITER + economySeats;
+=======
+		String editParameters = "ADD" + DELIMITER + "0";
+		String flightRecord = managerClient.city.toString() + DELIMITER + city.toString() + DELIMITER + date + DELIMITER
+				+ firstSeats + DELIMITER + businessSeats + DELIMITER + economySeats;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		managerClient.editFlightRecord(editParameters, FlightRecordField.NONE.toString(), flightRecord);
 	}
 	
@@ -197,7 +209,11 @@ public class ConsoleProgram {
 		if(recordId == exitCommand){
 			return;
 		}
+<<<<<<< refs/remotes/origin/master
 		String editParameters = "REMOVE" + Constants.DELIMITER + recordId;
+=======
+		String editParameters = "REMOVE" + DELIMITER + recordId;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		managerClient.editFlightRecord(editParameters, FlightRecordField.NONE.toString(), "");
 	}
 
@@ -241,7 +257,11 @@ public class ConsoleProgram {
 		if (isNull(city)) {
 			return;
 		}
+<<<<<<< refs/remotes/origin/master
 		String editParameters = "EDIT" + Constants.DELIMITER + recordId;
+=======
+		String editParameters = "EDIT" + DELIMITER + recordId;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		String fieldToEdit = FlightRecordField.DESTINATION.toString();
 		managerClient.editFlightRecord(editParameters, fieldToEdit, city.toString());
 	}
@@ -251,7 +271,11 @@ public class ConsoleProgram {
 		if (isCancel(date)) {
 			return;
 		}
+<<<<<<< refs/remotes/origin/master
 		String editParameters = "EDIT" + Constants.DELIMITER + recordId;
+=======
+		String editParameters = "EDIT" + DELIMITER + recordId;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		String fieldToEdit = FlightRecordField.DATE.toString();
 		managerClient.editFlightRecord(editParameters, fieldToEdit, date);
 	}
@@ -265,9 +289,15 @@ public class ConsoleProgram {
 		if(seats == exitCommand){
 			return;
 		}
+<<<<<<< refs/remotes/origin/master
 		String editParameters = "EDIT" + Constants.DELIMITER + recordId;
 		String fieldToEdit = FlightRecordField.SEATS.toString();
 		String newValue = flightClass.toString() + Constants.DELIMITER + seats;
+=======
+		String editParameters = "EDIT" + DELIMITER + recordId;
+		String fieldToEdit = FlightRecordField.SEATS.toString();
+		String newValue = flightClass.toString() + DELIMITER + seats;
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 		managerClient.editFlightRecord(editParameters, fieldToEdit, newValue);
 	}
 

@@ -3,8 +3,11 @@ package server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+<<<<<<< refs/remotes/origin/master
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,7 +25,10 @@ import enums.City;
 import enums.EditType;
 import enums.FlightClass;
 import enums.FlightRecordField;
+<<<<<<< refs/remotes/origin/master
 import global.Constants;
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 import log.CustomLogger;
 import log.ILogger;
 import log.TextFileLog;
@@ -51,6 +57,24 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 	private DatabaseRepository databaseRepository;
 	private FlightServerAddress[] flightServerAddresses;
 	private ILogger logger;
+<<<<<<< refs/remotes/origin/master
+
+	public FlightReservationServerImpl(int port, City city, DatabaseRepository databaseRepository,
+			FlightServerAddress[] flightServerAddresses) {
+		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+		this.socket = null;
+		this.port = port;
+		this.city = city;
+		this.databaseRepository = databaseRepository;
+		this.flightServerAddresses = flightServerAddresses;
+		this.logger = new CustomLogger(new TextFileLog());
+	}
+
+	public void run() {
+		serveRequests();
+	}
+=======
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 
 	public FlightReservationServerImpl(int port, City city, DatabaseRepository databaseRepository,
 			FlightServerAddress[] flightServerAddresses) {
@@ -67,16 +91,26 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 		serveRequests();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public String bookFlight(String firstName, String lastName, String address, String phoneNumber, String destination,
 			String date, String flightClass) {
 		City destinationValue = City.valueOf(destination.toUpperCase());
+<<<<<<< refs/remotes/origin/master
 		Date dateValue = new Date();
 		try {
 			dateValue = new SimpleDateFormat(Constants.DATE_FORMAT).parse(date);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			logger.log(city.toString(), "BOOK_FLIGHT_DATE_PARSE_FAIL", "Invalid Date or DateFormat: " + date);
+=======
+		Date dateValue;
+		try {
+			dateValue = new Date(date);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			logger.log(city.toString(), "BOOK_FLIGHT_FAIL", "Invalid Date or DateFormat: " + date);
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 			return "Invalid date format.";
 		}
 		FlightClass flightClassValue = FlightClass.valueOf(flightClass.toUpperCase());
@@ -298,6 +332,10 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 		return flightRecord.toString();
 	}
 
+<<<<<<< refs/remotes/origin/master
+=======
+	@SuppressWarnings("deprecation")
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 	private String editFlightRecord(String managerTag, int flightRecordId, FlightRecordField fieldToEdit,
 			String newValue) {
 		FlightRecordDb flightRecordDb = databaseRepository.getFlightRecordDb();
@@ -310,6 +348,7 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 
 		switch (fieldToEdit) {
 		case DATE:
+<<<<<<< refs/remotes/origin/master
 			Date date = new Date();
 			try {
 				date = new SimpleDateFormat(Constants.DATE_FORMAT).parse(newValue);
@@ -318,6 +357,9 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 				logger.log(city.toString(), "EDIT_FLIGHT_RECORD_DATE_PARSE_FAIL", "Invalid Date or DateFormat: " + date);
 				return "Invalid date format.";
 			}
+=======
+			Date date = new Date(newValue);
+>>>>>>> Added CORBA replica implementation to Jeremy_Replica
 			flightRecord.setFlightDate(date);
 			logger.log(city.toString(), "FLIGHT_RECORD_DATE_CHANGED", flightRecord.toString());
 			logger.log(managerTag, "FLIGHT_RECORD_DATE_CHANGED", flightRecord.toString());
