@@ -20,63 +20,22 @@ import log.ILogger;
 import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
-import packet.OperationParameters;
-import packet.Packet;
-import packet.ReplicaOperation;
+import packet.TransferReservationOperation;
 import replica_friendly_end.FlightReservationServer;
 import replica_friendly_end.FlightReservationServerHelper;
 
-public class UdpParser {
+public class UdpParser extends UdpParserBase {
 	protected final String NAME_SERVICE = "NameService";
 	private final ORB orb;
 	private ILogger logger;
 
 	public UdpParser(ORB orb, ILogger logger) {
-		super();
+		super(orb);
 		this.orb = orb;
 		this.logger = logger;
 	}
 
-	public ORB getOrb() {
-		return orb;
-	}
-
-	public String processPacket(Packet packet) {
-		ReplicaOperation replicaOperation = packet.getReplicaOperation();
-		OperationParameters operationParameters = packet.getOperationParameters();
-		switch (replicaOperation) {
-		case BOOK_FLIGHT:
-			BookFlightOperation bookFlightOperation = (BookFlightOperation) operationParameters;
-			String bookFlightResult = bookFlight(bookFlightOperation);
-			return bookFlightResult;
-			// TODO
-			// Send result back to Front End
-		case BOOKED_FLIGHTCOUNT:
-			GetBookedFlightCountOperation getBookedFlightCountOperation = (GetBookedFlightCountOperation) operationParameters;
-			String bookedFlightCountResult = getBookedFlightCount(getBookedFlightCountOperation);
-			return bookedFlightCountResult;
-			// TODO
-			// Send result back to Front End
-		case EDIT_FLIGHT:
-			EditFlightRecordOperation editFlightRecordOperation = (EditFlightRecordOperation) operationParameters;
-			String editFlightRecordOperationResult = editFlightRecord(editFlightRecordOperation);
-			return editFlightRecordOperationResult;
-			// TODO
-			// Send result back to Front End
-		case TRANSFER_RESERVATION:
-			// TODO
-			// Determine packet destination (MTL, WST, NDL)
-			// Lookup city server using CORBA name service
-			// Parse parameters to match FlightReservationServer IDL for my replica
-			// Invoke transferReservation(...) on my replica
-		default:
-			break;
-		}
-		
-		return "";
-	}
-
-	private String bookFlight(BookFlightOperation bookFlightOperation) {
+	protected String bookFlight(BookFlightOperation bookFlightOperation) {
 		String[] destinationTokens = bookFlightOperation.getDestination().split(Constants.DELIMITER_ESCAPE);
 		City origin = City.valueOf(destinationTokens[0].toUpperCase());
 		City destination = City.valueOf(destinationTokens[1].toUpperCase());
@@ -98,7 +57,7 @@ public class UdpParser {
 				date, flightClass.toString());
 	}
 
-	private String getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
+	protected String getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
 		String[] recordTypeTokens = getBookedFlightCountOperation.getRecordType().split(Constants.DELIMITER_ESCAPE);
 		String managerId = recordTypeTokens[0].toUpperCase();
 		FlightClass flightClass = FlightClass.valueOf(recordTypeTokens[1].toUpperCase());
@@ -108,7 +67,7 @@ public class UdpParser {
 		return flightServer.getBookedFlightCount(bookedFlightCountRequest);
 	}
 
-	private String editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
+	protected String editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
 		String[] recordIdTokens = editFlightRecordOperation.getRecordId().split(Constants.DELIMITER_ESCAPE);
 		String[] fieldNameTokens = editFlightRecordOperation.getFieldName().split(Constants.DELIMITER_ESCAPE);
 		String[] newValueTokens = editFlightRecordOperation.getNewValue().split(Constants.DELIMITER_ESCAPE);
@@ -125,8 +84,10 @@ public class UdpParser {
 		switch (fieldAction) {
 		case "CREATE":
 			editType = EditType.ADD;
-			// Recognizes FIRST | BUSINESS | ECONOMY instead of ECONOMY | BUSINESS | FIRST
-			newValue = origin.toString() + Constants.DELIMITER + newValueTokens[0] + Constants.DELIMITER + newValueTokens[1] + Constants.DELIMITER + newValueTokens[4] + Constants.DELIMITER
+			// Recognizes FIRST | BUSINESS | ECONOMY instead of ECONOMY |
+			// BUSINESS | FIRST
+			newValue = origin.toString() + Constants.DELIMITER + newValueTokens[0] + Constants.DELIMITER
+					+ newValueTokens[1] + Constants.DELIMITER + newValueTokens[4] + Constants.DELIMITER
 					+ newValueTokens[3] + Constants.DELIMITER + newValueTokens[2];
 			break;
 		case "DELETE":
@@ -203,6 +164,12 @@ public class UdpParser {
 			logger.log(city.toString(), "GET_FLIGHT_SERVER_FAIL", e.getMessage());
 			e.printStackTrace();
 		}
+		return null;
+	}
+
+	@Override
+	protected String transferReservation(TransferReservationOperation transferReservation) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }
