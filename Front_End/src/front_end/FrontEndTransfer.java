@@ -15,6 +15,7 @@ import java.util.Map;
 import failure_tracker.FailureTracker;
 import packet.MulticastPacket;
 import packet.Packet;
+import replica_manager_packet.ReplicaAliveOperation;
 import replica_manager_packet.ReplicaManagerOperation;
 import replica_manager_packet.ReplicaManagerPacket;
 import replica_manager_packet.ReplicaRebootOperation;
@@ -85,6 +86,8 @@ public class FrontEndTransfer extends Thread {
 							// if true (Replica alive) resend
 							// if false, counter-- and move on
 						// else if TYPE == Sent TYPE
+						//Remove from group
+						group.remove(reply.getPort());
 						long timeReceived = System.currentTimeMillis();
 						// TODO Response Packet
 						String serverReply = (new String(reply.getData()));
@@ -118,16 +121,22 @@ public class FrontEndTransfer extends Thread {
 							replies.put(serverReply, 1);
 						}
 						counter--;
-						// Timeout set for 2x the lastest packet
+						// Timeout set for 2x the latest packet
 						socket.setSoTimeout((int)(timeReceived - timerStart* 2));
 					}catch(SocketTimeoutException e){
 						// SEND TO RM THAT REPLICA MIGHT HAVE CRASHED
-							// Get Crashed Address
-							// Send to RM
+						// Every remaining replica in the group
+						for(int replicaPort : group){
+							ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(replicaPort);
+							ReplicaManagerPacket packet = new ReplicaManagerPacket(ReplicaManagerOperation.REPLICA_ALIVE, aliveRequest);
+							byte[] aliveBytes = UdpHelper.getByteArray(packet);
+							DatagramPacket dPac = new DatagramPacket(aliveBytes, aliveBytes.length, host, replicaPort);
+							socket.send(dPac);
+						}
 					}
 				}
 			} /*else{
-				// RESEND
+				// TODO RESEND to sequencer
 			}*/
 		} catch (UnknownHostException e) {
 			e.printStackTrace();

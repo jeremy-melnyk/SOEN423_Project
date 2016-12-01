@@ -98,7 +98,6 @@ public class FrontEnd extends FlightReservationServerPOA{
 
 	@Override
 	public String getBookedFlightCount(String recordType) {
-		// TODO Auto-generated method stub
 		GetBookedFlightCountOperation getBookFlightCountOperation = new GetBookedFlightCountOperation(recordType);
 		Packet packet = new Packet(Operation.BOOKED_FLIGHTCOUNT, getBookFlightCountOperation);
 		return send(packet);
@@ -128,13 +127,11 @@ public class FrontEnd extends FlightReservationServerPOA{
 
 	@Override
 	public String[] getFlights() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String[] getReservations() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
