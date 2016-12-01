@@ -1,0 +1,11 @@
+package packet;
+
+public enum Operation {
+	BOOK_FLIGHT,
+	BOOKED_FLIGHTCOUNT,
+	EDIT_FLIGHT,
+	TRANSFER_RESERVATION,
+	
+	REPLICA_ALIVE,
+	REPLICA_REBOOT,
+}

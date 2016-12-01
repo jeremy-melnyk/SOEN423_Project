@@ -12,7 +12,7 @@ import FlightBookingServer.FlightServerInterfaceHelper;
 import packet.BookFlightOperation;
 import packet.OperationParameters;
 import packet.Packet;
-import packet.ReplicaOperation;
+import packet.Operation;
 
 public class UdpParser {
 	private final ORB orb;
@@ -27,7 +27,7 @@ public class UdpParser {
 	}
 
 	public void processPacket(Packet packet) {
-		ReplicaOperation replicaOperation = packet.getReplicaOperation();
+		Operation replicaOperation = packet.getReplicaOperation();
 		OperationParameters operationParameters = packet.getOperationParameters();
 		
 		org.omg.CORBA.Object objRef = null;

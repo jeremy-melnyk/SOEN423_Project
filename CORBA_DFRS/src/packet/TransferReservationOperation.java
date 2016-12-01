@@ -3,6 +3,7 @@ package packet;
 import patterns.Builder;
 
 public class TransferReservationOperation extends OperationParameters {
+	private static final long serialVersionUID = 1L;
 	private String passengerId;
 	private String currentCity;
 	private String otherCity;

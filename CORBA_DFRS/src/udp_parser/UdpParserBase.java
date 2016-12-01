@@ -7,7 +7,7 @@ import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
 import packet.OperationParameters;
 import packet.Packet;
-import packet.ReplicaOperation;
+import packet.Operation;
 import packet.TransferReservationOperation;
 
 public abstract class UdpParserBase {
@@ -23,7 +23,7 @@ public abstract class UdpParserBase {
 	}
 
 	public String processPacket(Packet packet) {
-		ReplicaOperation replicaOperation = packet.getReplicaOperation();
+		Operation replicaOperation = packet.getReplicaOperation();
 		OperationParameters operationParameters = packet.getOperationParameters();
 		switch (replicaOperation) {
 		case BOOK_FLIGHT:

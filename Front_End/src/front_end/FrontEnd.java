@@ -23,7 +23,7 @@ import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
 import packet.Packet;
-import packet.ReplicaOperation;
+import packet.Operation;
 import packet.TransferReservationOperation;
 
 public class FrontEnd extends FlightReservationServerPOA{
@@ -84,7 +84,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 				.date(date)
 				.flightClass(flightClass)
 				.build();
-		Packet packet = new Packet(ReplicaOperation.BOOK_FLIGHT, bookFlightOperation);
+		Packet packet = new Packet(Operation.BOOK_FLIGHT, bookFlightOperation);
 		return send(packet);
 	}
 
@@ -92,7 +92,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 	public String getBookedFlightCount(String recordType) {
 		// TODO Auto-generated method stub
 		GetBookedFlightCountOperation getBookFlightCountOperation = new GetBookedFlightCountOperation(recordType);
-		Packet packet = new Packet(ReplicaOperation.BOOKED_FLIGHTCOUNT, getBookFlightCountOperation);
+		Packet packet = new Packet(Operation.BOOKED_FLIGHTCOUNT, getBookFlightCountOperation);
 		return send(packet);
 	}
 
@@ -103,7 +103,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 				.fieldName(fieldName)
 				.newValue(newValue)
 				.build();
-		Packet packet = new Packet(ReplicaOperation.EDIT_FLIGHT, editFlightRecordOperation);
+		Packet packet = new Packet(Operation.EDIT_FLIGHT, editFlightRecordOperation);
 		return send(packet);
 	}
 
@@ -114,7 +114,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 				.currentCity(currentCity)
 				.otherCity(otherCity)
 				.build();
-		Packet packet = new Packet(ReplicaOperation.TRANSFER_RESERVATION, transferReservationOperation);
+		Packet packet = new Packet(Operation.TRANSFER_RESERVATION, transferReservationOperation);
 		return send(packet);
 	}
 
