@@ -15,6 +15,7 @@ public class Packet implements Serializable {
 	// Sequence Number
 	private ReplicaOperation replicaOperation;
 	private OperationParameters operationParameters;
+	private int sequencernumber;
 
 	public Packet(InetAddress senderAdress, int senderPort, ReplicaOperation replicaOperation, OperationParameters operationParameters) {
 		super();
@@ -82,6 +83,15 @@ public class Packet implements Serializable {
 		}
 		return b;
 	}
+
+	public int getSequencernumber() {
+		return sequencernumber;
+	}
+
+	public void setSequencernumber(int sequencernumber) {
+		this.sequencernumber = sequencernumber;
+	}
+	
 	
 	
 }
