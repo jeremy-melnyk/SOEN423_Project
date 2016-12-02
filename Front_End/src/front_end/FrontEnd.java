@@ -24,13 +24,11 @@ import friendly_end.FlightReservationServerPOA;
 import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
-import packet.Packet;
 import packet.Operation;
+import packet.Packet;
+import packet.ReplicaAliveOperation;
+import packet.ReplicaAliveReply;
 import packet.TransferReservationOperation;
-import replica_manager_packet.ReplicaAliveOperation;
-import replica_manager_packet.ReplicaAliveReply;
-import replica_manager_packet.ReplicaManagerOperation;
-import replica_manager_packet.ReplicaManagerPacket;
 import udp.UdpHelper;
 
 public class FrontEnd extends FlightReservationServerPOA{
@@ -165,7 +163,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 				URL url = new URL(RM);
 				InetAddress host = InetAddress.getByName(url.getHost());
 				ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(2222 /*?*/);
-				ReplicaManagerPacket packet = new ReplicaManagerPacket(ReplicaManagerOperation.REPLICA_ALIVE, aliveRequest);
+				Packet packet = new Packet(Operation.REPLICA_ALIVE, aliveRequest);
 				byte[] packetBytes = UdpHelper.getByteArray(packet);
 				DatagramPacket seq = new DatagramPacket(packetBytes, packetBytes.length, host, url.getPort());
 				socket.send(seq);

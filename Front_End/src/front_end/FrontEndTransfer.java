@@ -14,11 +14,10 @@ import java.util.Map;
 
 import failure_tracker.FailureTracker;
 import packet.MulticastPacket;
+import packet.Operation;
 import packet.Packet;
-import replica_manager_packet.ReplicaAliveOperation;
-import replica_manager_packet.ReplicaManagerOperation;
-import replica_manager_packet.ReplicaManagerPacket;
-import replica_manager_packet.ReplicaRebootOperation;
+import packet.ReplicaAliveOperation;
+import packet.ReplicaRebootOperation;
 import udp.UdpHelper;
 
 public class FrontEndTransfer extends Thread {
@@ -111,7 +110,7 @@ public class FrontEndTransfer extends Thread {
 									URL replicaURL = new URL(RM);
 									// Send reboot request
 									ReplicaRebootOperation rebootRequest = new ReplicaRebootOperation();
-									ReplicaManagerPacket packet = new ReplicaManagerPacket(ReplicaManagerOperation.REPLICA_REBOOT, rebootRequest);
+									Packet packet = new Packet(Operation.REPLICA_REBOOT, rebootRequest);
 									byte[] replicaRequest = UdpHelper.getByteArray(packet);
 									DatagramPacket replicaPacket = new DatagramPacket(replicaRequest, replicaRequest.length, InetAddress.getByName(replicaURL.getHost()), replicaURL.getPort());
 									socket.send(replicaPacket);
@@ -128,7 +127,7 @@ public class FrontEndTransfer extends Thread {
 						// Every remaining replica in the group
 						for(int replicaPort : group){
 							ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(replicaPort);
-							ReplicaManagerPacket packet = new ReplicaManagerPacket(ReplicaManagerOperation.REPLICA_ALIVE, aliveRequest);
+							Packet packet = new Packet(Operation.REPLICA_ALIVE, aliveRequest);
 							byte[] aliveBytes = UdpHelper.getByteArray(packet);
 							DatagramPacket dPac = new DatagramPacket(aliveBytes, aliveBytes.length, host, replicaPort);
 							socket.send(dPac);
