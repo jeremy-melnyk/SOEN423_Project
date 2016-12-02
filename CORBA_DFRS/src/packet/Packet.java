@@ -12,7 +12,7 @@ public class Packet implements Serializable {
 	
 	private InetAddress senderAddress;
 	private int senderPort;
-	// Sequence Number
+
 	private ReplicaOperation replicaOperation;
 	private OperationParameters operationParameters;
 	private int sequencernumber;
