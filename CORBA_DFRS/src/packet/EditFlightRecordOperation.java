@@ -3,6 +3,7 @@ package packet;
 import patterns.Builder;
 
 public class EditFlightRecordOperation extends OperationParameters {
+	private static final long serialVersionUID = 1L;
 	private String recordId;
 	private String fieldName;
 	private String newValue;
