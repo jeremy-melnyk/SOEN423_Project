@@ -18,6 +18,7 @@ import packet.Operation;
 import packet.OperationParameters;
 import packet.Packet;
 import packet.ReplicaAliveOperation;
+import packet.ReplicaAliveReply;
 import packet.ReplicaRebootOperation;
 import udp.UdpHelper;
 
@@ -68,12 +69,18 @@ public class FrontEndTransfer extends Thread {
 			socket.send(seq);
 			byte buffer[] = new byte[100];
 			DatagramPacket p = new DatagramPacket(buffer, buffer.length);
-			// TODO TIMEOUT RETRANSMIT
-			socket.receive(p);
-			String seqACK = (new String(p.getData())).trim();
-			// First Timeout 5 secs
-			socket.setSoTimeout(5000);
-			if(true/* TODO GOOD */){
+			String seqACK = "";
+			socket.setSoTimeout(2000);
+			while(seqACK.isEmpty()){
+				try{
+				socket.receive(p);
+				seqACK = (new String(p.getData())).trim();
+				}catch(SocketTimeoutException e){
+					socket.send(seq);
+				}
+			}
+			// First Timeout 2 secs
+			if(seqACK.equalsIgnoreCase("ACK")){
 				HashMap<OperationParameters, Integer> replies = new HashMap<OperationParameters, Integer>();
 				int counter = group.size();
 				while(counter > 0 /* All replicas */){
@@ -82,27 +89,27 @@ public class FrontEndTransfer extends Thread {
 						DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 						socket.receive(reply);
 						Packet replyPacket = (Packet) UdpHelper.getObjectFromByteArray(reply.getData());
-						if(replyPacket.getReplicaOperation() == Operation.REPLICA_ALIVE || replyPacket.getReplicaOperation() == Operation.REPLICA_ALIVE){
-							// Check TYPE for same operation or RM reply
-							// TODO if RM
-								// if true (Replica alive) resend
-								// if false, counter-- and move on
-							// else if TYPE == Sent TYPE
-							//Remove from group
-						}else{
+						OperationParameters serverReply = replyPacket.getOperationParameters();
+						if(replyPacket.getReplicaOperation() == Operation.REPLICA_ALIVE){
+							ReplicaAliveReply replicaAlive = (ReplicaAliveReply) serverReply;
+							if(!replicaAlive.isAlive())
+								counter--; // Move on, RM and sequencer will take care
+							else{}
+								// TODO Retransmition
+						} else if(replyPacket.getReplicaOperation() == Operation.REPLICA_REBOOT){
+							// Necessary?
+						}else{	// Replica Reply
 							group.remove(reply.getPort());
 							long timeReceived = System.currentTimeMillis();
-							// TODO Response Packet
-							OperationParameters serverReply = replyPacket.getOperationParameters();
-							if(replies.containsKey(serverReply)){
+							if(replies.containsKey(serverReply)){	// If same reply was received before
 								int newVal = replies.replace(serverReply, replies.get(serverReply)+1);
-								if(newVal == 2)
-									correctReply = serverReply.toString();  // Override toString
-							} else{
-								// If correct reply was found
+								if(newVal == 2)	// If 2 of the same, set as correct reply
+									correctReply = serverReply.toString();  // TODO Override toString
+							} else{				// 1st time seeing reply
+								// If correct reply was found, set this different as incorrect reply
 								if(this.hasCorrectReply()){
 									int numberFailures = failureTracker.insertFailure(reply.getAddress(), reply.getPort());
-									if(numberFailures >= 3){
+									if(numberFailures >= 3){		// Reboot Replica
 										// Get RM's Address
 										String RM = "";
 										for(Map.Entry<String, String> entry: replicaTracker.entrySet()){
@@ -111,7 +118,7 @@ public class FrontEndTransfer extends Thread {
 												break;
 											}
 										}
-										URL replicaURL = new URL(RM);
+										URL replicaURL = new URL(RM);	// TODO change to just port number
 										// Send reboot request
 										ReplicaRebootOperation rebootRequest = new ReplicaRebootOperation();
 										Packet packet = new Packet(Operation.REPLICA_REBOOT, rebootRequest);
@@ -127,7 +134,7 @@ public class FrontEndTransfer extends Thread {
 							// Timeout set for 2x the latest packet
 							socket.setSoTimeout((int)(timeReceived - timerStart* 2));
 						}
-					}catch(SocketTimeoutException e){
+					}catch(SocketTimeoutException e){	// Timeout
 						// SEND TO RM THAT REPLICA MIGHT HAVE CRASHED
 						// Every remaining replica in the group
 						for(int replicaPort : group){
