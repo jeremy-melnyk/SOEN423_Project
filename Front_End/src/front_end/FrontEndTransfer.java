@@ -15,6 +15,7 @@ import java.util.Map;
 import failure_tracker.FailureTracker;
 import packet.MulticastPacket;
 import packet.Operation;
+import packet.OperationParameters;
 import packet.Packet;
 import packet.ReplicaAliveOperation;
 import packet.ReplicaRebootOperation;
@@ -73,55 +74,59 @@ public class FrontEndTransfer extends Thread {
 			// First Timeout 5 secs
 			socket.setSoTimeout(5000);
 			if(true/* TODO GOOD */){
-				HashMap<String, Integer> replies = new HashMap<String, Integer>();
+				HashMap<OperationParameters, Integer> replies = new HashMap<OperationParameters, Integer>();
 				int counter = group.size();
 				while(counter > 0 /* All replicas */){
 					try{
 						buffer = new byte[1000];
 						DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 						socket.receive(reply);
-						// Check TYPE for same operation or RM reply
-						// if RM
-							// if true (Replica alive) resend
-							// if false, counter-- and move on
-						// else if TYPE == Sent TYPE
-						//Remove from group
-						group.remove(reply.getPort());
-						long timeReceived = System.currentTimeMillis();
-						// TODO Response Packet
-						String serverReply = (new String(reply.getData()));
-						if(replies.containsKey(serverReply)){
-							int newVal = replies.replace(serverReply, replies.get(serverReply)+1);
-							if(newVal == 2)
-								correctReply = serverReply;
-						} else{
-							// If correct reply was found
-							if(this.hasCorrectReply()){
-								int numberFailures = failureTracker.insertFailure(reply.getAddress(), reply.getPort());
-								if(numberFailures >= 3){
-									// Get RM's Address
-									String RM = "";
-									for(Map.Entry<String, String> entry: replicaTracker.entrySet()){
-										if(entry.getValue().equalsIgnoreCase(reply.getAddress()+":"+reply.getPort())){
-											RM = entry.getKey();
-											break;
+						Packet replyPacket = (Packet) UdpHelper.getObjectFromByteArray(reply.getData());
+						if(replyPacket.getReplicaOperation() == Operation.REPLICA_ALIVE || replyPacket.getReplicaOperation() == Operation.REPLICA_ALIVE){
+							// Check TYPE for same operation or RM reply
+							// TODO if RM
+								// if true (Replica alive) resend
+								// if false, counter-- and move on
+							// else if TYPE == Sent TYPE
+							//Remove from group
+						}else{
+							group.remove(reply.getPort());
+							long timeReceived = System.currentTimeMillis();
+							// TODO Response Packet
+							OperationParameters serverReply = replyPacket.getOperationParameters();
+							if(replies.containsKey(serverReply)){
+								int newVal = replies.replace(serverReply, replies.get(serverReply)+1);
+								if(newVal == 2)
+									correctReply = serverReply.toString();  // Override toString
+							} else{
+								// If correct reply was found
+								if(this.hasCorrectReply()){
+									int numberFailures = failureTracker.insertFailure(reply.getAddress(), reply.getPort());
+									if(numberFailures >= 3){
+										// Get RM's Address
+										String RM = "";
+										for(Map.Entry<String, String> entry: replicaTracker.entrySet()){
+											if(entry.getValue().equalsIgnoreCase(reply.getAddress()+":"+reply.getPort())){
+												RM = entry.getKey();
+												break;
+											}
 										}
+										URL replicaURL = new URL(RM);
+										// Send reboot request
+										ReplicaRebootOperation rebootRequest = new ReplicaRebootOperation();
+										Packet packet = new Packet(Operation.REPLICA_REBOOT, rebootRequest);
+										byte[] replicaRequest = UdpHelper.getByteArray(packet);
+										DatagramPacket replicaPacket = new DatagramPacket(replicaRequest, replicaRequest.length, InetAddress.getByName(replicaURL.getHost()), replicaURL.getPort());
+										socket.send(replicaPacket);
 									}
-									URL replicaURL = new URL(RM);
-									// Send reboot request
-									ReplicaRebootOperation rebootRequest = new ReplicaRebootOperation();
-									Packet packet = new Packet(Operation.REPLICA_REBOOT, rebootRequest);
-									byte[] replicaRequest = UdpHelper.getByteArray(packet);
-									DatagramPacket replicaPacket = new DatagramPacket(replicaRequest, replicaRequest.length, InetAddress.getByName(replicaURL.getHost()), replicaURL.getPort());
-									socket.send(replicaPacket);
 								}
+								// Add to replies structure
+								replies.put(serverReply, 1);
 							}
-							// Add to replies structure
-							replies.put(serverReply, 1);
+							counter--;
+							// Timeout set for 2x the latest packet
+							socket.setSoTimeout((int)(timeReceived - timerStart* 2));
 						}
-						counter--;
-						// Timeout set for 2x the latest packet
-						socket.setSoTimeout((int)(timeReceived - timerStart* 2));
 					}catch(SocketTimeoutException e){
 						// SEND TO RM THAT REPLICA MIGHT HAVE CRASHED
 						// Every remaining replica in the group
@@ -133,6 +138,7 @@ public class FrontEndTransfer extends Thread {
 							socket.send(dPac);
 						}
 					}
+					
 				}
 			} /*else{
 				// TODO RESEND to sequencer

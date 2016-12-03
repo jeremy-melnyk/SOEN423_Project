@@ -9,21 +9,23 @@ import org.omg.PortableServer.POAHelper;
 
 import FlightBookingServer.FlightServerInterface;
 import FlightBookingServer.FlightServerInterfaceHelper;
+import parser.UdpParser;
+import udp_parser.UdpParserBase;
 
 public class CaioPublisher {
 	//TODO Get correct CORBA Args
-	private static final String[] CORBAArgs = {""};
+	private static final String[] CORBAArgs = {"-ORBInitialPort", "1050", "-ORBInitialHost", "localhost"};
 	
 	public static void main(String[] args){
-		try{
-			// TODO Run UDP Parser
-			
+		try{			
 			// Create CORBA ORBS
 			ORB orb = ORB.init(CORBAArgs, null); 
 			POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 			rootpoa.the_POAManager().activate();
 			org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
 			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+			// Set UDP Parser
+			UdpParserBase udpParser = new UdpParser(orb);
 			// Set MTL
 			MTLServer mtl = new MTLServer(Integer.parseInt(args[1]));
 			mtl.setORB(orb);
