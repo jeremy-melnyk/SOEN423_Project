@@ -1,4 +1,5 @@
 [
+{"name":"Sequencer", "port":10000, "cities": []}
 {"name":"Jeremy", "port":2000, "cities": [
 {"name":"MTL", "port":2001},
 {"name":"WST", "port":2002}

@@ -101,9 +101,13 @@ public class JSONReader {
 
 		return port;
 	}
+	
+	public int getSequencerPort() {
+		return getPortForKeys("Sequencer", "");
+	}
 
 	// Testing
-/*	public static void main(String[] args) {
+	public static void main(String[] args) {
 		JSONReader reader = new JSONReader();
 		reader.initialize();
 		reader.displayPorts();
@@ -111,6 +115,7 @@ public class JSONReader {
 		System.out.println(reader.getPortForKeys("Jeremy", "NDL"));
 		System.out.println(reader.getPortForKeys("Mark", "WST"));
 		System.out.println(reader.getPortForKeys("Patrick", "MTL"));
-	}*/
+		System.out.println(reader.getSequencerPort());
+	}
 
 }
