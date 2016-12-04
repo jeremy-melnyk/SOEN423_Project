@@ -13,6 +13,7 @@ public class Sequencer {
 	private int sequencerport=5678;
 	private int sequencernumber=1;
 	private ArrayList<Packet> sequencerlog=new ArrayList<Packet>();
+	private final int groupportnumber=9876;
 	
 	public Sequencer(String message){
 	}
@@ -37,14 +38,15 @@ public class Sequencer {
 			//creates MulticastSocket with InetAddress and ServerPort
 			aSocket=new MulticastSocket();
 			InetAddress aGroup=InetAddress.getByName("localhost");
-			int  serverPort=9876;
+			
 			
 			//join group
 			aSocket.joinGroup(aGroup);
 			
 			//converts packet to send to group
-			byte[] m=packet.getByteArray();
-			DatagramPacket request =new DatagramPacket(m,  packet.getByteArray().length, aGroup, serverPort);
+			UdpHelper help=new UdpHelper();
+			byte[] m=UdpHelper.getByteArray(packet);
+			DatagramPacket request =new DatagramPacket(m,  UdpHelper.getByteArray(packet).length, aGroup, groupportnumber);
 			
 			synchronized(this){
 				//sends packet
@@ -69,23 +71,20 @@ public class Sequencer {
 		sequencerlog.add(packet);
 	}
 	
-	//sends the log of all operations to the request replica once it has received the replica port
-	public void sendLog(int replicaPort){
+	//sends the log of all operations to the replica manager once it has received the retransmit request
+	public void sendLog(int replicaManagerPort){
 		DatagramSocket aSocket=null;
 		try{
 			//create socket
 			aSocket = new DatagramSocket(); 
 			
-			//convert arraylist to serializable object
-			ByteArrayOutputStream bao= new ByteArrayOutputStream();
-			ObjectOutputStream oos= new ObjectOutputStream(bao);
-			oos.writeObject(sequencerlog);
-			oos.close();
-			byte [] m =bao.toByteArray();
+			//convert sequencerlog Arraylist into a byte array using UdpHelper
+			byte [] m =UdpHelper.getByteArray(sequencerlog);
 			
 			
 			InetAddress aHost = InetAddress.getByName("localhost");
-			DatagramPacket sendsequencerlogs= new DatagramPacket(m,bao.toByteArray().length,aHost,replicaPort);
+			DatagramPacket sendsequencerlogs= new DatagramPacket(m,UdpHelper.getByteArray(sequencerlog).length,aHost,replicaManagerPort);
+			aSocket.send(sendsequencerlogs);
 		}
 		catch (Exception e){
 			
@@ -103,16 +102,41 @@ public class Sequencer {
  				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
   				aSocket.receive(request);
   				
-  				//message sent to sequencer to do things is a string
+  				//if request from front end was a packet it will multicast to UDPParsers
   				Packet frontendpacket;
   				
   				ByteArrayInputStream bis = new ByteArrayInputStream(request.getData());
   				ObjectInput in = null;
   				try {
   				  in = new ObjectInputStream(bis);
-  				  frontendpacket = (Packet) in.readObject(); 
-  				} catch (ClassCastException e){
+  				  frontendpacket = (Packet) in.readObject();
+  				  this.multicastToGroup(frontendpacket);
+  				  
+  				  //sends reply back to front end to say it received message
+  				  String replytofrontend="ACK";
+  				  request.setData(replytofrontend.getBytes());
+  				  
+  				DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(), 
+  	    				request.getAddress(), request.getPort());
+  	    			aSocket.send(reply);
+  				  
+  				 
+  				} catch (ClassCastException e){//if classcastexception occurs, then the received message is a string of the serverport
   					
+  					//converts string of serverport into integer
+  					String receivedreplicatportnumber=(new String (request.getData()).trim());
+  					int replicaportnumber=Integer.parseInt(receivedreplicatportnumber);
+  					
+  					//calls method to send sequencerlogs
+  					this.sendLog(replicaportnumber);
+  					
+  					 //sends reply back to front end to say it received message
+    				  String replytofrontend="ACK";
+    				  request.setData(replytofrontend.getBytes());
+    				  
+    				DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(), 
+    	    				request.getAddress(), request.getPort());
+    	    			aSocket.send(reply);
   				} 
   				
   				finally {
