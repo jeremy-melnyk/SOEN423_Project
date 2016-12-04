@@ -25,8 +25,8 @@ import udp_parser.UdpParserBase;
 public class UdpParser extends UdpParserBase{
 	private NamingContextExt ncRef;
 	
-	public UdpParser(ORB orb) {
-		super(orb);
+	public UdpParser(ORB orb, int port) {
+		super(orb, port);
 		
 		//CORBA
 		org.omg.CORBA.Object objRef = null;

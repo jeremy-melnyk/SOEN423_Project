@@ -5,10 +5,27 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class UdpHelper {
-	public static byte[] getByteArray(Object obj){
+
+	public static Object getObjectFromByteArray(byte[] bytes) {
+		try {
+			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(bytes);
+			ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream);
+			Object o = objectInputStream.readObject();
+			objectInputStream.close();
+			return o;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static byte[] getByteArray(Object obj) {
 		try {
 			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteOutputStream);
@@ -21,56 +38,56 @@ public class UdpHelper {
 		}
 		return null;
 	}
-	
-	public static byte[] intToByteArray(int data){
-        try {
-            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-            DataOutputStream dataOutputStream = new DataOutputStream(byteOutputStream);
+
+	public static byte[] intToByteArray(int data) {
+		try {
+			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+			DataOutputStream dataOutputStream = new DataOutputStream(byteOutputStream);
 			dataOutputStream.writeInt(data);
-	        dataOutputStream.close();
-	        return byteOutputStream.toByteArray();
+			dataOutputStream.close();
+			return byteOutputStream.toByteArray();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        return null;
+		return null;
 	}
-	
-	public static int byteArrayToInt(byte[] data){
-        try {
+
+	public static int byteArrayToInt(byte[] data) {
+		try {
 			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
 			DataInputStream dataInputStream = new DataInputStream(byteInputStream);
-			int result  = dataInputStream.readInt();
+			int result = dataInputStream.readInt();
 			dataInputStream.close();
 			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        return 0;
+		return 0;
 	}
-	
-	public static byte[] booleanToByteArray(boolean data){
-        try {
-            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-            DataOutputStream dataOutputStream = new DataOutputStream(byteOutputStream);
+
+	public static byte[] booleanToByteArray(boolean data) {
+		try {
+			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+			DataOutputStream dataOutputStream = new DataOutputStream(byteOutputStream);
 			dataOutputStream.writeBoolean(data);
-	        dataOutputStream.close();
-	        return byteOutputStream.toByteArray();
+			dataOutputStream.close();
+			return byteOutputStream.toByteArray();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        return null;
+		return null;
 	}
-	
-	public static boolean byteArrayToBoolean(byte[] data){
-        try {
+
+	public static boolean byteArrayToBoolean(byte[] data) {
+		try {
 			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
 			DataInputStream dataInputStream = new DataInputStream(byteInputStream);
-			boolean result  = dataInputStream.readBoolean();
+			boolean result = dataInputStream.readBoolean();
 			dataInputStream.close();
 			return result;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        return false;
+		return false;
 	}
 }

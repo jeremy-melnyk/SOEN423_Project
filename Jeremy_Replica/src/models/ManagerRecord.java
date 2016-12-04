@@ -22,6 +22,6 @@ public class ManagerRecord extends PersonRecord {
 	
 	@Override
 	public String toString() {
-		return "ManagerRecord" + Constants.DELIMITER + id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName + Constants.DELIMITER + city.name();
+		return id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName + Constants.DELIMITER + city.name();
 	}
 }

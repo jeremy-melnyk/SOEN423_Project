@@ -43,6 +43,6 @@ public abstract class PersonRecord implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PersonRecord" + Constants.DELIMITER + id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName;
+		return id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName;
 	}
 }

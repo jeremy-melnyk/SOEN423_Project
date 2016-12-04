@@ -13,6 +13,7 @@ import replica_friendly_end.FlightReservationServerHelper;
 
 public class CorbaClient {
 	protected final String NAME_SERVICE = "NameService";
+	protected final String USERNAME = "JEREMY_";
 	protected City city;
 	protected String lastName;
 	protected String firstName;
@@ -91,7 +92,7 @@ public class CorbaClient {
 		try {
 			nameServiceRef = orb.resolve_initial_references(NAME_SERVICE);
 			NamingContextExt namingContextRef = NamingContextExtHelper.narrow(nameServiceRef);
-			org.omg.CORBA.Object flightReservationServerRef = namingContextRef.resolve_str(city.toString());
+			org.omg.CORBA.Object flightReservationServerRef = namingContextRef.resolve_str(USERNAME + city.toString());
 			FlightReservationServer flightReservationServer = FlightReservationServerHelper.narrow(flightReservationServerRef);
 			return flightReservationServer;
 		} catch (InvalidName e) {

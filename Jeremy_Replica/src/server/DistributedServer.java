@@ -55,17 +55,17 @@ public class DistributedServer {
 		ndlFlights.add("NDL|MTL|06/05/2016|10|5|2");
 		ndlFlights.add("NDL|WST|06/05/2016|10|5|2");
 		
-		flightServers.put("MTL",
+		flightServers.put("JEREMY_MTL",
 				initServer(City.MTL, mtlPort,
 						new FlightServerAddress[] { new FlightServerAddress(City.WST, wstPort, host),
 								new FlightServerAddress(City.NDL, ndlPort, host) }, mtlFlights));
 		
-		flightServers.put("WST",
+		flightServers.put("JEREMY_WST",
 				initServer(City.WST, wstPort,
 						new FlightServerAddress[] { new FlightServerAddress(City.MTL, mtlPort, host),
 								new FlightServerAddress(City.NDL, ndlPort, host) }, wstFlights));
 		
-		flightServers.put("NDL",
+		flightServers.put("JEREMY_NDL",
 				initServer(City.NDL, ndlPort,
 						new FlightServerAddress[] { new FlightServerAddress(City.MTL, mtlPort, host),
 								new FlightServerAddress(City.WST, wstPort, host) }, ndlFlights));

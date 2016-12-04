@@ -31,6 +31,6 @@ public class PassengerRecord extends PersonRecord {
 	
 	@Override
 	public String toString() {
-		return "PassengerRecord" + Constants.DELIMITER + id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName;
+		return id + Constants.DELIMITER + lastName + Constants.DELIMITER + firstName;
 	}
 }

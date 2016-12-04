@@ -16,26 +16,45 @@ import enums.EditType;
 import enums.FlightClass;
 import enums.FlightRecordField;
 import global.Constants;
+import json.JSONReader;
+import log.CustomLogger;
 import log.ILogger;
+import log.TextFileLog;
 import packet.BookFlightOperation;
+import packet.BookFlightReply;
 import packet.EditFlightRecordOperation;
+import packet.EditFlightRecordReply;
 import packet.GetBookedFlightCountOperation;
+import packet.GetBookedFlightCountReply;
 import packet.TransferReservationOperation;
+import packet.TransferReservationReply;
 import replica_friendly_end.FlightReservationServer;
 import replica_friendly_end.FlightReservationServerHelper;
 
 public class UdpParser extends UdpParserBase {
+	protected final String USERNAME = "JEREMY_";
 	protected final String NAME_SERVICE = "NameService";
-	private final ORB orb;
 	private ILogger logger;
-
-	public UdpParser(ORB orb, ILogger logger) {
-		super(orb);
-		this.orb = orb;
+	
+	public static void main(String[] args){
+		// Initialize UDP Parser
+		JSONReader jsonReader = new JSONReader();
+		jsonReader.initialize();
+		int port = jsonReader.getPortForKeys("Jeremy", "");
+		
+		ORB orb = ORB.init(args, null);
+		ILogger logger = new CustomLogger(new TextFileLog());
+		UdpParser udpParser = new UdpParser(orb, port, logger);
+		new Thread(udpParser).start();
+		System.out.println("UdpParser published.");
+	}
+	
+	public UdpParser(ORB orb, int port, ILogger logger) {
+		super(orb, port);
 		this.logger = logger;
 	}
 
-	protected String bookFlight(BookFlightOperation bookFlightOperation) {
+	protected BookFlightReply bookFlight(BookFlightOperation bookFlightOperation) {
 		String[] destinationTokens = bookFlightOperation.getDestination().split(Constants.DELIMITER_ESCAPE);
 		City origin = City.valueOf(destinationTokens[0].toUpperCase());
 		City destination = City.valueOf(destinationTokens[1].toUpperCase());
@@ -53,21 +72,44 @@ public class UdpParser extends UdpParserBase {
 			e.printStackTrace();
 		}
 		FlightClass flightClass = FlightClass.valueOf(bookFlightOperation.getFlightClass().toString().toUpperCase());
-		return flightServer.bookFlight(firstName, lastName, address.toString(), phoneNumber, destination.toString(),
+		String result = flightServer.bookFlight(firstName, lastName, address.toString(), phoneNumber, destination.toString(),
 				date, flightClass.toString());
+		if(result.equals("Error")){
+			return new BookFlightReply();
+		}
+		String[] resultTokens = result.split(Constants.DELIMITER_ESCAPE);
+		int resultFlightId = Integer.parseInt(resultTokens[0]);
+		int resultPassengerId = Integer.parseInt(resultTokens[2]);
+		String resultDate = resultTokens[8];
+		try {
+			Date resultDateObject = new SimpleDateFormat(Constants.DATE_TOSTRING_FORMAT).parse(resultTokens[8]);
+			resultDate = new SimpleDateFormat(Constants.DATE_FORMAT).format(resultDateObject);
+		} catch (ParseException e) {
+			logger.log("UDP_PARSER", "DATE_PARSE_FAILED", e.getMessage());
+			e.printStackTrace();
+		}
+		BookFlightReply bookFlightReply = new BookFlightReply(resultPassengerId, resultFlightId, resultTokens[6], resultTokens[7], 
+				resultTokens[3], resultTokens[4], resultDate, resultTokens[1]);
+		return bookFlightReply;
 	}
 
-	protected String getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
+	protected GetBookedFlightCountReply getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
 		String[] recordTypeTokens = getBookedFlightCountOperation.getRecordType().split(Constants.DELIMITER_ESCAPE);
 		String managerId = recordTypeTokens[0].toUpperCase();
 		FlightClass flightClass = FlightClass.valueOf(recordTypeTokens[1].toUpperCase());
 		City origin = City.valueOf(managerId.substring(0, 3).toUpperCase());
 		FlightReservationServer flightServer = getFlightServer(origin);
 		String bookedFlightCountRequest = managerId + Constants.DELIMITER + flightClass.toString();
-		return flightServer.getBookedFlightCount(bookedFlightCountRequest);
+		String result = flightServer.getBookedFlightCount(bookedFlightCountRequest);
+		String[] resultTokens = result.split(Constants.DELIMITER_ESCAPE);
+		int mtlCount = Integer.parseInt(resultTokens[1].substring(4, resultTokens[1].length()));
+		int wstCount = Integer.parseInt(resultTokens[2].substring(4, resultTokens[2].length()));
+		int ndlCount = Integer.parseInt(resultTokens[3].substring(4, resultTokens[3].length()));
+		GetBookedFlightCountReply getBookedFlightCountReply = new GetBookedFlightCountReply(mtlCount, wstCount, ndlCount);
+		return getBookedFlightCountReply;
 	}
 
-	protected String editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
+	protected EditFlightRecordReply editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
 		String[] recordIdTokens = editFlightRecordOperation.getRecordId().split(Constants.DELIMITER_ESCAPE);
 		String[] fieldNameTokens = editFlightRecordOperation.getFieldName().split(Constants.DELIMITER_ESCAPE);
 		String[] newValueTokens = editFlightRecordOperation.getNewValue().split(Constants.DELIMITER_ESCAPE);
@@ -139,7 +181,38 @@ public class UdpParser extends UdpParserBase {
 		}
 
 		String request = managerId + Constants.DELIMITER + editType + Constants.DELIMITER + flightRecordId;
-		return flightServer.editFlightRecord(request, flightRecordField.toString(), newValue);
+		String result = flightServer.editFlightRecord(request, flightRecordField.toString(), newValue);
+		
+		// TODO: Could be handled better
+		String failMessage1 = "Flight reservation does not exist.";
+		String failMessage2 = "Transfer reservation failed.";
+		if(result.equals(failMessage1) || result.equals(failMessage2)){
+			return new EditFlightRecordReply(result);
+		}
+		
+		String[] resultTokens = result.split(Constants.DELIMITER_ESCAPE);
+		int economicSeats = Integer.parseInt(resultTokens[11].substring(1, resultTokens[11].length()));
+		int businessSeats = Integer.parseInt(resultTokens[8].substring(1, resultTokens[8].length()));
+		int firstSeats = Integer.parseInt(resultTokens[5].substring(1, resultTokens[5].length()));
+		
+		String resultDate = resultTokens[3];
+		try {
+			Date resultDateObject = new SimpleDateFormat(Constants.DATE_TOSTRING_FORMAT).parse(resultTokens[3]);
+			resultDate = new SimpleDateFormat(Constants.DATE_FORMAT).format(resultDateObject);
+		} catch (ParseException e) {
+			logger.log("UDP_PARSER", "DATE_PARSE_FAILED", e.getMessage());
+			e.printStackTrace();
+		}
+		
+		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(resultTokens[0], resultTokens[1], resultTokens[2],
+				resultDate, economicSeats, businessSeats, firstSeats);
+		return editFlightRecordReply;
+	}
+	
+	@Override
+	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservation) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private FlightReservationServer getFlightServer(City city) {
@@ -147,7 +220,7 @@ public class UdpParser extends UdpParserBase {
 		try {
 			nameServiceRef = orb.resolve_initial_references(NAME_SERVICE);
 			NamingContextExt namingContextRef = NamingContextExtHelper.narrow(nameServiceRef);
-			org.omg.CORBA.Object flightReservationServerRef = namingContextRef.resolve_str(city.toString());
+			org.omg.CORBA.Object flightReservationServerRef = namingContextRef.resolve_str(USERNAME + city.toString());
 			FlightReservationServer flightReservationServer = FlightReservationServerHelper
 					.narrow(flightReservationServerRef);
 			return flightReservationServer;
@@ -164,12 +237,6 @@ public class UdpParser extends UdpParserBase {
 			logger.log(city.toString(), "GET_FLIGHT_SERVER_FAIL", e.getMessage());
 			e.printStackTrace();
 		}
-		return null;
-	}
-
-	@Override
-	protected String transferReservation(TransferReservationOperation transferReservation) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

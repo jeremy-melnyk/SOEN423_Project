@@ -57,7 +57,7 @@ public class FlightReservation implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "FlightReservation" + Constants.DELIMITER + id + Constants.DELIMITER + flightClass + Constants.DELIMITER + passengerRecord + Constants.DELIMITER
-				+ flightRecord + Constants.DELIMITER + "BookingDate" + Constants.DELIMITER + bookingDate;
+		return id + Constants.DELIMITER + flightClass + Constants.DELIMITER + passengerRecord + Constants.DELIMITER
+				+ flightRecord + Constants.DELIMITER + bookingDate;
 	}
 }

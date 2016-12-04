@@ -107,7 +107,7 @@ public class FlightRecord implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("FlightRecord" + Constants.DELIMITER + id + Constants.DELIMITER + origin + Constants.DELIMITER + destination + Constants.DELIMITER
+		sb.append(id + Constants.DELIMITER + origin + Constants.DELIMITER + destination + Constants.DELIMITER
 				+ flightDate);
 		sb.append(Constants.DELIMITER + FlightClass.FIRST + Constants.DELIMITER + flightClasses.get(FlightClass.FIRST));
 		sb.append(Constants.DELIMITER + FlightClass.BUSINESS + Constants.DELIMITER + flightClasses.get(FlightClass.BUSINESS));

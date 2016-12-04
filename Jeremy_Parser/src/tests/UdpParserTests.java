@@ -1,27 +1,26 @@
 package tests;
 
-import org.omg.CORBA.ORB;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 
-import log.CustomLogger;
-import log.ILogger;
-import log.TextFileLog;
 import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
 import packet.Operation;
+import packet.OperationParameters;
 import packet.Packet;
-import udp_parser.UdpParser;
+import udp.UdpHelper;
 
 public class UdpParserTests {
-	private static UdpParser udpParser;
+	public static int BUFFER_SIZE = 50000;
+	private static int portForParser;
 
-	public static void main(String[] args) {
-		// Initialize UdpParser with an orb for the replica (it performs the
-		// role of the CORBA client)
-		ORB orb = ORB.init(args, null);
-		ILogger logger = new CustomLogger(new TextFileLog());
-		udpParser = new UdpParser(orb, logger);
-
+	public static void main(String[] args) {		
+		portForParser = 2000;
+		
 		testBookFlightOperation();
 		testGetBookedFlightCount();
 		testEditFlightRecordOperation();
@@ -37,7 +36,7 @@ public class UdpParserTests {
 		Packet packet = new Packet(Operation.BOOK_FLIGHT, bookFlightOperation);
 
 		// Process the packet
-		String result = udpParser.processPacket(packet);
+		OperationParameters result = processOperationPacket(packet, portForParser);;
 		System.out.println(result);
 	}
 
@@ -47,7 +46,7 @@ public class UdpParserTests {
 
 		Packet packet = new Packet(Operation.BOOKED_FLIGHTCOUNT, getBookedFlightCountOperation);
 
-		String result = udpParser.processPacket(packet);
+		OperationParameters result = processOperationPacket(packet, portForParser);
 		System.out.println(result);
 	}
 
@@ -57,7 +56,31 @@ public class UdpParserTests {
 		
 		Packet packet = new Packet(Operation.EDIT_FLIGHT, editFlightRecordOperation);
 
-		String result = udpParser.processPacket(packet);
+		OperationParameters result = processOperationPacket(packet, portForParser);
 		System.out.println(result);
+	}
+	
+	private static OperationParameters processOperationPacket(Packet packet, int port) {
+		DatagramSocket socket = null;
+		try {
+			socket = new DatagramSocket();
+			byte[] message = UdpHelper.getByteArray(packet);
+			InetAddress host = InetAddress.getByName("localhost");
+			int serverPort = port;
+			DatagramPacket requestPacket = new DatagramPacket(message, message.length, host, serverPort);
+			socket.send(requestPacket);
+			byte[] buffer = new byte[BUFFER_SIZE];
+			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+			socket.receive(reply);
+			OperationParameters result = (OperationParameters) UdpHelper.getObjectFromByteArray(reply.getData());
+			return result;
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			socket.close();
+		}
+		return null;
 	}
 }

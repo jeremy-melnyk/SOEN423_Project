@@ -77,7 +77,7 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 		} catch (ParseException e) {
 			e.printStackTrace();
 			logger.log(city.toString(), "BOOK_FLIGHT_DATE_PARSE_FAIL", "Invalid Date or DateFormat: " + date);
-			return "Invalid date format.";
+			return "Error";
 		}
 		FlightClass flightClassValue = FlightClass.valueOf(flightClass.toUpperCase());
 		Address addressValue = new Address(address);
@@ -95,7 +95,7 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 			logger.log(city.toString(), "BOOK_FLIGHT_FAIL",
 					"Either no Flight Records match Date: " + date + ", there are no available seats for "
 							+ flightClassValue + ", there is no flight to the chose destination: " + destination);
-			return "No flight seat available.";
+			return "Error";
 		}
 		for (FlightRecord flightRecord : flightRecords) {
 			// Book first available flight
@@ -104,7 +104,7 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 			logger.log(city.toString(), "BOOK_FLIGHT_SUCCESS", flightReservation.toString());
 			return flightReservation.toString();
 		}
-		return "No flight seat available.";
+		return "Error";
 	}
 
 	@Override
@@ -123,19 +123,19 @@ public class FlightReservationServerImpl extends FlightReservationServerPOA impl
 			}
 			FlightReservationDb flightReservationDb = databaseRepository.getFlightReservationDb();
 			String localFlightCount = city + " " + flightReservationDb.getFlightReservationCount(flightClass);
-			sb.append(localFlightCount).append(", ");
+			sb.append(localFlightCount).append(Constants.DELIMITER);
 			for (int i = 0; i < flightCounts.size() - 1; ++i) {
 				String flightCount = flightCounts.get(i).get();
-				sb.append(flightCount).append(", ");
+				sb.append(flightCount).append(Constants.DELIMITER);
 			}
 			if (flightCounts.size() > 0) {
 				int lastIndex = flightCounts.size() - 1;
 				String flightCount = flightCounts.get(lastIndex).get();
 				sb.append(flightCount);
 			}
-			logger.log(city.toString(), "BOOKED_FLIGHTCOUNT_SUCCESS", sb.toString());
-			logger.log(managerTag, "BOOKED_FLIGHTCOUNT_SUCCESS", sb.toString());
-			return flightClass + " : " + sb.toString();
+			logger.log(city.toString(), "BOOKED_FLIGHTCOUNT_SUCCESS", flightClass + Constants.DELIMITER + sb.toString());
+			logger.log(managerTag, "BOOKED_FLIGHTCOUNT_SUCCESS", flightClass + Constants.DELIMITER + sb.toString());
+			return flightClass + Constants.DELIMITER + sb.toString();
 		} catch (Exception e) {
 			logger.log(city.toString(), "BOOKED_FLIGHTCOUNT_FAIL", e.getMessage());
 			logger.log(managerTag, "BOOKED_FLIGHTCOUNT_FAIL", e.getMessage());

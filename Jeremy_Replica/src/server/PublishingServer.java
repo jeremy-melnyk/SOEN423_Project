@@ -20,16 +20,17 @@ import replica_friendly_end.FlightReservationServer;
 import replica_friendly_end.FlightReservationServerHelper;
 
 public class PublishingServer {
-	private static final int MTL_PORT = 50152;
-	private static final int WST_PORT = 50153;
-	private static final int NDL_PORT = 50154;
 	private static final String HOST = "localhost";
 	private static final String ROOT_POA = "RootPOA";
 	private static final String NAME_SERVICE = "NameService";
 
 	public static void main(String[] args) {
+		int mtlPort = 2001;
+		int wstPort = 2002;
+		int ndlPort = 2003;
+		
 		// Initialize Servers
-		DistributedServer server = new DistributedServer(MTL_PORT, WST_PORT, NDL_PORT, HOST);
+		DistributedServer server = new DistributedServer(mtlPort, wstPort, ndlPort, HOST);
 		HashMap<String, IFlightReservationServer> flightServers = server.init();
 		
 		// Initialize ORB
@@ -50,8 +51,6 @@ public class PublishingServer {
 				NameComponent[] path = namingContextRef.to_name(name);
 				namingContextRef.rebind(path, flightReservationServer);
 			}
-			
-			System.out.println("FlightReservationServers published.");
 		} catch (InvalidName e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
