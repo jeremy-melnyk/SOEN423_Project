@@ -1,0 +1,10 @@
+module ServerInterfaceIDL {
+	
+	interface ServerIDL {
+	
+	 string bookFlight(in string firstName,in string lastName,in string Address,in string phone,in string destination,in string date,in string flightclass);
+	 string getBookedFlightCount(in string recordtype);
+	 string editFlightRecord(in string recordID,in string fieldname,in string newValue);
+	 string transferReservation(in string PassengerID,in string currentcity,in string newcity);
+	};	
+};
