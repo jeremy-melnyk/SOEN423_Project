@@ -11,6 +11,7 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -125,14 +126,53 @@ public void multicastToGroup(Packet packet){
 		}
 	}
 	
-	//resends all the packets 
-	public void requestsequencerlogs(){
+	//receives
+	@SuppressWarnings("unchecked")
+	public void requestSequencerLog(){
 		DatagramSocket aSocket= null;
 		
 		try{
-			aSocket=new DatagramSocket();
+			//creates socket to receive sequencer log of packets
+			aSocket=new DatagramSocket(replicaportnumber);
+			byte[] buffer=new byte[1000];
+			DatagramPacket request=new DatagramPacket(buffer,buffer.length);
 			
-			byte[] m=
+			//receive sequencer log of packets
+			aSocket.receive(request);
+			
+			
+			//converts to List<packet> from byte array
+			List<Packet>receivedseqlog=null;
+			
+			ByteArrayInputStream bis = new ByteArrayInputStream(request.getData());
+			ObjectInput in = null;
+			try {
+			  in = new ObjectInputStream(bis);
+			  receivedseqlog = (List<Packet>) in.readObject(); 
+			} finally {
+			  try {
+			    if (in != null) {
+			      in.close();
+			    }
+			  } catch (IOException ex) {
+			    // ignore close exception
+			  }
+			}
+			
+			//adds list<packet> to priority holdback queue
+			for (int i=0;i<receivedseqlog.size();i++){
+				holdbackqueue.offer(receivedseqlog.get(i));
+			}
+			
+			//sends replicamanager an ACK that it has received the sequencer logs and has successfully added them to the holdback queue
+			request.setData("ACK".getBytes());
+			
+			DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(), 
+	    				request.getAddress(), request.getPort());
+	    	aSocket.send(reply);
+			
+			
+			
 		}
 		catch (Exception e){
 			
@@ -143,17 +183,17 @@ public void multicastToGroup(Packet packet){
 	
 	public void UDPServer(){
 	
-	//	DatagramSocket aSocket=null;
+		DatagramSocket aSocket=null;
 		MulticastSocket mSocket=null;
 		try{
-		//	aSocket= new DatagramSocket(replicaportnumber);
+			aSocket= new DatagramSocket(replicaportnumber);
 			
 			mSocket= new MulticastSocket(groupportnumber);
 			InetAddress aGroup=InetAddress.getByName("localhost");
 			mSocket.joinGroup(aGroup);
 			
 			
-			//aSocket.setSoTimeout(5000);
+			aSocket.setSoTimeout(5000);
 			while (true){
 				
 				byte[] buffer= new byte[1000];
