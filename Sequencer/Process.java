@@ -8,6 +8,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketTimeoutException;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -18,9 +19,16 @@ public class Process {
 	private int lastreceivednumber=0;
 	private Set<Integer> setofreceivednumbers=new HashSet<Integer>();
 	private PriorityQueue<Packet> holdbackqueue=new PriorityQueue<Packet>(new PQSort());
+	private int replicaportnumber;
+	private final int groupportnumber=9876;
 	
 	
-	
+	public int getReplicaportnumber() {
+		return replicaportnumber;
+	}
+	public void setReplicaportnumber(int replicaportnumber) {
+		this.replicaportnumber = replicaportnumber;
+	}
 	public int getLastreceivednumber() {
 		return lastreceivednumber;
 	}
@@ -37,14 +45,13 @@ public void multicastToGroup(Packet packet){
 			//creates MulticastSocket with InetAddress and ServerPort
 			aSocket=new MulticastSocket();
 			InetAddress aGroup=InetAddress.getByName("localhost");
-			int  serverPort=9876;
 			
 			//join group
 			aSocket.joinGroup(aGroup);
 			
 			//converts packet to send to group
-			byte[] m=packet.getByteArray();
-			DatagramPacket request =new DatagramPacket(m,  packet.getByteArray().length, aGroup, serverPort);
+			byte[] m=UdpHelper.getByteArray(packet);
+			DatagramPacket request =new DatagramPacket(m,  UdpHelper.getByteArray(packet).length, aGroup, groupportnumber);
 			
 			//sends packet
 			aSocket.send(request);
@@ -55,39 +62,8 @@ public void multicastToGroup(Packet packet){
 		finally {if(aSocket != null) aSocket.close();}
 	}
 	
-	public void deliverMulticast(){
-		MulticastSocket aSocket=null;
-		try{
-			//set socket and join group
-			aSocket= new MulticastSocket(9876);
-			InetAddress aGroup=InetAddress.getByName("localhost");
-			aSocket.joinGroup(aGroup);
-			
-			//create packet to receive information
-			byte[] buffer = new byte[1000];
-			DatagramPacket request=new DatagramPacket(buffer, buffer.length);
-			
-			//receives information
-			aSocket.receive(request);
-			
-			//unserialize byte array and transform back into a Packet class
-			Packet receivedpacket;
-			
-			ByteArrayInputStream bis = new ByteArrayInputStream(request.getData());
-			ObjectInput in = null;
-			try {
-			  in = new ObjectInputStream(bis);
-			  receivedpacket = (Packet) in.readObject(); 
-			} finally {
-			  try {
-			    if (in != null) {
-			      in.close();
-			    }
-			  } catch (IOException ex) {
-			    // ignore close exception
-			  }
-			}
-			
+	public void deliverMulticast(Packet receivedpacket){
+		
 			
 			//check if this is a duplicate packet
 			int receivedseqnumber=receivedpacket.getSequencernumber();
@@ -119,11 +95,7 @@ public void multicastToGroup(Packet packet){
 			
 			
 		}
-		catch (Exception e){
-			e.printStackTrace();
-		}
-		finally {if(aSocket != null) aSocket.close();}
-	}
+		
 	
 	public boolean isDuplicate(int seqnumber){
 		if (setofreceivednumbers.contains(seqnumber)){
@@ -167,6 +139,57 @@ public void multicastToGroup(Packet packet){
 		}
 		
 		
+	}
+	
+	public void UDPServer(){
+	
+	//	DatagramSocket aSocket=null;
+		MulticastSocket mSocket=null;
+		try{
+		//	aSocket= new DatagramSocket(replicaportnumber);
+			
+			mSocket= new MulticastSocket(groupportnumber);
+			InetAddress aGroup=InetAddress.getByName("localhost");
+			mSocket.joinGroup(aGroup);
+			
+			
+			//aSocket.setSoTimeout(5000);
+			while (true){
+				
+				byte[] buffer= new byte[1000];
+				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+				
+				mSocket.receive(request);
+				
+				
+				//unserialize byte array and transform back into a Packet class
+				Packet receivedpacket;
+				
+				ByteArrayInputStream bis = new ByteArrayInputStream(request.getData());
+				ObjectInput in = null;
+				try {
+				  in = new ObjectInputStream(bis);
+				  receivedpacket = (Packet) in.readObject(); 
+				} finally {
+				  try {
+				    if (in != null) {
+				      in.close();
+				    }
+				  } catch (IOException ex) {
+				    // ignore close exception
+				  }
+				}
+				
+				//delivers packet
+				this.deliverMulticast(receivedpacket);
+				
+				
+				
+			}
+		}
+		catch (Exception e){
+			
+		}
 	}
 	
 	
