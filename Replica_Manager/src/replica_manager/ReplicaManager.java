@@ -6,42 +6,53 @@ import java.net.DatagramSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import log.ILogger;
+
 public class ReplicaManager implements Runnable {
+	private final String TAG = "REPLICA_MANAGER";
 	private final int BUFFER_SIZE = 5000;
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
 	private final ExecutorService threadPool;
-	int port;
+	private ILogger logger;
+	private String replicaPath;
+	private int port;
+	Process replica;
 	
-	public static void main(String[] args){
-		ReplicaManager r = new ReplicaManager(5000);
-		r.initReplicas(args);
-	}
-	
-	public ReplicaManager(int port) {
+	public ReplicaManager(int port, String replicaPath, ILogger logger) {
 		super();
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+		this.replicaPath = replicaPath;
 		this.port = port;
+		this.logger = logger;
+		this.replica = null;
 	}
 
 	@Override
 	public void run() {
+		initReplica();
 		serveRequests();
 	}
 	
-	private void initReplicas(String[] args){
-		String jeremyPath = "java -classpath ..\\Jeremy_Replica\\bin server.PublishingServer";
-		Process p = null;
+	private void initReplica(){		
 		try {
-			p = Runtime.getRuntime().exec(jeremyPath);
+			Runtime runtime = Runtime.getRuntime();
+			replica = runtime.exec(replicaPath);
+			logger.log(TAG, "REPLICA_INITIALIZED", "Replica: " + replicaPath + " was initialized.");
+			runtime.addShutdownHook(new Thread(() -> {
+				try {
+					replica.destroy();
+					logger.log(TAG, "REPLICA_DESTROYED", "Replica: " + replicaPath + " was destroyed by JVM shutdown hook.");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					logger.log(TAG, "REPLICA_DESTROY_FAIL", e.getMessage());
+					e.printStackTrace();
+				} finally {
+					replica = null;	
+				}
+			}));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			logger.log(TAG, "REPLICA_INIT_ERROR", e.getMessage());
 			e.printStackTrace();
-		}
-		
-		// Testing process kill
-		if(p != null)
-		{
-			p.destroy();	
 		}
 	}
 
