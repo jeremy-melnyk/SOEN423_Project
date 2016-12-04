@@ -1,5 +1,7 @@
 package packet;
 
+import java.text.SimpleDateFormat;
+
 public class BookFlightReply extends OperationParameters {
 	private static final long serialVersionUID = 1L;
 	private String unsuccessfulOperation; /*If operation was executed but there was a problem*/
@@ -135,6 +137,18 @@ public class BookFlightReply extends OperationParameters {
 		}catch(ClassCastException e){
 			return false;
 		}
+	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.passengerId); sb.append(" | ");
+		sb.append(this.flightId); sb.append(" | ");
+		sb.append(this.departure + " ---> " + this.destination + " | ");
+		sb.append(this.date + " | ");
+		sb.append(this.lastName.toUpperCase() +", " + this.firstName.toUpperCase() + " | ");
+		sb.append("Class: "+ this.flightClass);
+		return sb.toString();
 	}
 	
 }

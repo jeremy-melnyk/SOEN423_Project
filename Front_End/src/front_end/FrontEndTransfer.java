@@ -104,7 +104,7 @@ public class FrontEndTransfer extends Thread {
 							if(replies.containsKey(serverReply)){	// If same reply was received before
 								int newVal = replies.replace(serverReply, replies.get(serverReply)+1);
 								if(newVal == 2)	// If 2 of the same, set as correct reply
-									correctReply = serverReply.toString();  // TODO Override toString
+									correctReply = serverReply.toString();
 							} else{				// 1st time seeing reply
 								// If correct reply was found, set this different as incorrect reply
 								if(this.hasCorrectReply()){
