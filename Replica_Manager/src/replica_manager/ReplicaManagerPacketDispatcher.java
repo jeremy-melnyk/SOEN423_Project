@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 
-import replica_manager_packet.PacketParameters;
-import replica_manager_packet.ReplicaManagerOperation;
-import replica_manager_packet.ReplicaManagerPacket;
+import packet.Operation;
+import packet.OperationParameters;
+import packet.Packet;
 
 public class ReplicaManagerPacketDispatcher implements Runnable {
 	private final DatagramPacket packet;
@@ -23,11 +23,11 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 	}
 
 	private void handlePacket() {
-		ReplicaManagerPacket replicaManagerPacket = null;
+		Packet replicaPacket = null;
 		try {
 			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(this.packet.getData());
 			ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream);
-			replicaManagerPacket = (ReplicaManagerPacket)objectInputStream.readObject();
+			replicaPacket = (Packet)objectInputStream.readObject();
 			objectInputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -36,14 +36,16 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 			e.printStackTrace();
 			return;
 		}
-		ReplicaManagerOperation replicaManagerOperation = replicaManagerPacket.getReplicaManagerOperation();
-		PacketParameters packetParameters = replicaManagerPacket.getPacketParameters();
-		switch (replicaManagerOperation) {
+		Operation operation = replicaPacket.getReplicaOperation();
+		OperationParameters operationParameters = replicaPacket.getOperationParameters();
+		switch (operation) {
 		case REPLICA_ALIVE:
-			new ReplicaAliveHandler(packet.getAddress(), packet.getPort(), packetParameters).execute();
+			new ReplicaAliveHandler(packet.getAddress(), packet.getPort(), operationParameters).execute();
 			break;
 		case REPLICA_REBOOT:
-			new ReplicaRebootHandler(packet.getAddress(), packet.getPort(), packetParameters).execute();
+			new ReplicaRebootHandler(packet.getAddress(), packet.getPort(), operationParameters).execute();
+			break;
+		default:
 			break;
 		}
 	}

@@ -2,19 +2,19 @@ package replica_manager;
 
 import java.net.InetAddress;
 
-import replica_manager_packet.PacketParameters;
+import packet.OperationParameters;
 
 public abstract class PacketParametersHandler {
 	protected final int BUFFER_SIZE = 5000;
 	protected final InetAddress address;
 	protected final int port;
-	protected final PacketParameters packetParameters;
+	protected final OperationParameters operationParameters;
 
-	public PacketParametersHandler(InetAddress address, int port, PacketParameters packetParameters) {
+	public PacketParametersHandler(InetAddress address, int port, OperationParameters operationParameters) {
 		super();
 		this.address = address;
 		this.port = port;
-		this.packetParameters = packetParameters;
+		this.operationParameters = operationParameters;
 	}
 
 	public abstract void execute();

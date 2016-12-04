@@ -6,14 +6,14 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-import replica_manager_packet.PacketParameters;
-import replica_manager_packet.ReplicaRebootReply;
+import packet.OperationParameters;
+import packet.ReplicaRebootReply;
 import udp.UdpHelper;
 
 public class ReplicaRebootHandler extends PacketParametersHandler {
 
-	public ReplicaRebootHandler(InetAddress address, int port, PacketParameters packetParameters) {
-		super(address, port, packetParameters);
+	public ReplicaRebootHandler(InetAddress address, int port, OperationParameters operationParameters) {
+		super(address, port, operationParameters);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -8,8 +8,8 @@ import log.TextFileLog;
 import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
+import packet.Operation;
 import packet.Packet;
-import packet.ReplicaOperation;
 import udp_parser.UdpParser;
 
 public class UdpParserTests {
@@ -34,7 +34,7 @@ public class UdpParserTests {
 				.flightClass("FIRST").build();
 
 		// Create a packet with the operation
-		Packet packet = new Packet(ReplicaOperation.BOOK_FLIGHT, bookFlightOperation);
+		Packet packet = new Packet(Operation.BOOK_FLIGHT, bookFlightOperation);
 
 		// Process the packet
 		String result = udpParser.processPacket(packet);
@@ -45,7 +45,7 @@ public class UdpParserTests {
 		GetBookedFlightCountOperation getBookedFlightCountOperation = new GetBookedFlightCountOperation(
 				"MTL1111|FIRST");
 
-		Packet packet = new Packet(ReplicaOperation.BOOKED_FLIGHTCOUNT, getBookedFlightCountOperation);
+		Packet packet = new Packet(Operation.BOOKED_FLIGHTCOUNT, getBookedFlightCountOperation);
 
 		String result = udpParser.processPacket(packet);
 		System.out.println(result);
@@ -55,7 +55,7 @@ public class UdpParserTests {
 		EditFlightRecordOperation editFlightRecordOperation = new EditFlightRecordOperation.BuilderImpl("MTL1111|0")
 				.fieldName("EDIT|DESTINATION").newValue("NDL").build();
 		
-		Packet packet = new Packet(ReplicaOperation.EDIT_FLIGHT, editFlightRecordOperation);
+		Packet packet = new Packet(Operation.EDIT_FLIGHT, editFlightRecordOperation);
 
 		String result = udpParser.processPacket(packet);
 		System.out.println(result);

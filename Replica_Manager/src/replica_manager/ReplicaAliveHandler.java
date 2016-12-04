@@ -6,15 +6,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-import replica_manager_packet.PacketParameters;
-import replica_manager_packet.ReplicaAliveOperation;
-import replica_manager_packet.ReplicaAliveReply;
+import packet.OperationParameters;
+import packet.ReplicaAliveOperation;
+import packet.ReplicaAliveReply;
 import udp.UdpHelper;
 
 public class ReplicaAliveHandler extends PacketParametersHandler {
 
-	public ReplicaAliveHandler(InetAddress address, int port, PacketParameters packetParameters) {
-		super(address, port, packetParameters);
+	public ReplicaAliveHandler(InetAddress address, int port, OperationParameters operationParameters) {
+		super(address, port, operationParameters);
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class ReplicaAliveHandler extends PacketParametersHandler {
 		try {
 			newSocket = new DatagramSocket();
 			
-			ReplicaAliveOperation replicaAliveOperation = (ReplicaAliveOperation) packetParameters;
+			ReplicaAliveOperation replicaAliveOperation = (ReplicaAliveOperation) operationParameters;
 			int portToCheck = replicaAliveOperation.getPortToCheck();
 			
 			// TODO : Confirm with Caio if port of replica is being sent, or if port of replica is being replied
