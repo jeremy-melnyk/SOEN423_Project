@@ -14,10 +14,9 @@ import FlightBookingServer.FlightServerInterfaceHelper;
 import packet.BookFlightOperation;
 import packet.BookFlightReply;
 import packet.EditFlightRecordOperation;
+import packet.EditFlightRecordReply;
 import packet.GetBookedFlightCountOperation;
 import packet.GetBookedFlightCountReply;
-import packet.Operation;
-import packet.Packet;
 import packet.TransferReservationOperation;
 import packet.TransferReservationReply;
 import udp_parser.UdpParserBase;
@@ -38,13 +37,8 @@ public class UdpParser extends UdpParserBase{
 		ncRef = NamingContextExtHelper.narrow(objRef);
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 	@Override
-	protected String bookFlight(BookFlightOperation bookFlightOperation) {
+	protected BookFlightReply bookFlight(BookFlightOperation bookFlightOperation) {
 		FlightServerInterface server = null;
 		// FORMAT MTL|WST : DEPARTURE = MTL
 		BookFlightReply bookFlightReply = null;
@@ -75,7 +69,17 @@ public class UdpParser extends UdpParserBase{
 				String name[] = parsedReply[4].split(",");
 				String fName =name[1].trim();
 				String lName = name[0].trim();
-				flightClass = parsedReply[5];
+				int iFlightClass = Integer.parseInt(parsedReply[5].trim());
+				switch(iFlightClass){
+				case 1:
+					flightClass = "ECONOMY";
+					break;
+				case 2:
+					flightClass = "BUSINESS";
+					break;
+				case 3:
+					flightClass = "FIRST";
+				}
 				bookFlightReply = new BookFlightReply(passengerId, flightId, dep, dest, lName, fName, date,flightClass);
 			}else if(reply.contains("ERR")){
 				bookFlightReply = new BookFlightReply("There was a problem with the operation");
@@ -83,12 +87,11 @@ public class UdpParser extends UdpParserBase{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		Packet packet = new Packet(Operation.BOOK_FLIGHT, bookFlightReply);
-		return null;
+		return bookFlightReply;
 	}
 
 	@Override
-	protected String getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
+	protected GetBookedFlightCountReply getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
 		// recordType: "MTL1111|FIRST" (managerId | flightClass)
 		FlightServerInterface server = null;
 		GetBookedFlightCountReply getBookedFlightCountReply = null;
@@ -126,13 +129,11 @@ public class UdpParser extends UdpParserBase{
 				wst = Integer.parseInt(parsedReply[i+1]);
 		}
 		getBookedFlightCountReply = new GetBookedFlightCountReply(mtl, wst, ndl);
-		Packet packet = new Packet(Operation.BOOKED_FLIGHTCOUNT, getBookedFlightCountReply);
-		// Construct reply packet and reply
-		return null;
+		return getBookedFlightCountReply;
 	}
 
 	@Override
-	protected String editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
+	protected EditFlightRecordReply editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
 		FlightServerInterface server = null;
 		String recordId[] = editFlightRecordOperation.getRecordId().split("|");
 		String manager = recordId[0];
@@ -174,12 +175,13 @@ public class UdpParser extends UdpParserBase{
 			e.printStackTrace();
 		}
 		String reply = server.editFlightRecord(parsedRecordId, parsedFieldName, parsedNewValues);
-		// Create response packet and return
-		return null;
+		// TODO Parse message with agreed format
+		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(reply);
+		return editFlightRecordReply;
 	}
 
 	@Override
-	protected String transferReservation(TransferReservationOperation transferReservation) {
+	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservation) {
 		FlightServerInterface server = null;
 		String recordId[] = transferReservation.getPassengerId().split("|");
 		String managerLocation = recordId[0].substring(0, 3);
@@ -209,7 +211,18 @@ public class UdpParser extends UdpParserBase{
 				String name[] = parsedReply[4].split(",");
 				String fName =name[1].trim();
 				String lName = name[0].trim();
-				String flightClass = parsedReply[5]; // parse
+				String flightClass = "";
+				int iFlightClass = Integer.parseInt(parsedReply[5].trim());
+				switch(iFlightClass){
+				case 1:
+					flightClass = "ECONOMY";
+					break;
+				case 2:
+					flightClass = "BUSINESS";
+					break;
+				case 3:
+					flightClass = "FIRST";
+				}
 				transferReservationReply = new TransferReservationReply(passengerId, flightId, dep, dest, lName, fName, date,flightClass);
 			}catch(Exception e){
 				e.printStackTrace();
@@ -217,9 +230,7 @@ public class UdpParser extends UdpParserBase{
 		}else if(reply.contains("ERR")){
 			transferReservationReply = new TransferReservationReply("There was a problem with the operation");
 		}
-		Packet packet = new Packet(Operation.TRANSFER_RESERVATION, transferReservationReply);
-		// Create packet and return
-		return null;
+		return transferReservationReply;
 	}
 
 }

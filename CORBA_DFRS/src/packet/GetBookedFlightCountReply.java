@@ -59,5 +59,10 @@ public class GetBookedFlightCountReply extends OperationParameters {
 			return false;
 		}
 	}
+	
+	@Override
+	public String toString(){
+		return "MTL " + this.MTL + ", WST " + this.WST + ", NDL " + this.NDL;
+	}
 
 }

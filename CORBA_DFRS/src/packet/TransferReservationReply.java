@@ -135,4 +135,16 @@ public class TransferReservationReply extends OperationParameters {
 			return false;
 		}
 	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.passengerId); sb.append(" | ");
+		sb.append(this.flightId); sb.append(" | ");
+		sb.append(this.departure + " ---> " + this.destination + " | ");
+		sb.append(this.date + " | ");
+		sb.append(this.lastName.toUpperCase() +", " + this.firstName.toUpperCase() + " | ");
+		sb.append("Class: "+ this.flightClass);
+		return sb.toString();
+	}
 }
