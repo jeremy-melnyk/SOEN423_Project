@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import packet.Packet;
+
 public class Process {
 
 	private int lastreceivednumber=0;
