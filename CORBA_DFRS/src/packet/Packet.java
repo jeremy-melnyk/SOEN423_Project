@@ -8,7 +8,7 @@ public class Packet implements Serializable {
 	
 	private InetAddress senderAddress;
 	private int senderPort;
-	// Sequence Number
+	private int sequencernumber;
 	private Operation operation;
 	private OperationParameters operationParameters;
 
@@ -56,5 +56,15 @@ public class Packet implements Serializable {
 
 	public void setSenderPort(int senderPort) {
 		this.senderPort = senderPort;
-	}	
+	}
+
+	public int getSequencernumber() {
+		return sequencernumber;
+	}
+
+	public void setSequencernumber(int sequencernumber) {
+		this.sequencernumber = sequencernumber;
+	}
+	
+	
 }
