@@ -5,9 +5,26 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class UdpHelper {
+	
+	public static Object getObjectFromByteArray(byte[] bytes){
+		try {
+			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(bytes);
+			ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream);
+			Object o = objectInputStream.readObject();
+			objectInputStream.close();
+			return o;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static byte[] getByteArray(Object obj){
 		try {
 			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();

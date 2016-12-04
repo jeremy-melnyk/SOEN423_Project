@@ -36,6 +36,72 @@ public class EditFlightRecordReply extends OperationParameters {
 		this.unsuccessfulOperation = message;
 	}
 	
+	public EditFlightRecordReply(){}
+	
+	public String getUnsuccessfulOperation() {
+		return unsuccessfulOperation;
+	}
+
+	public void setUnsuccessfulOperation(String unsuccessfulOperation) {
+		this.unsuccessfulOperation = unsuccessfulOperation;
+	}
+
+	public String getFlightId() {
+		return flightId;
+	}
+
+	public void setFlightId(String flightId) {
+		this.flightId = flightId;
+	}
+
+	public String getDeparture() {
+		return departure;
+	}
+
+	public void setDeparture(String departure) {
+		this.departure = departure;
+	}
+
+	public String getDestination() {
+		return destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public int getEconomicSeats() {
+		return economicSeats;
+	}
+
+	public void setEconomicSeats(int economicSeats) {
+		this.economicSeats = economicSeats;
+	}
+
+	public int getBusinessSeats() {
+		return businessSeats;
+	}
+
+	public void setBusinessSeats(int businessSeats) {
+		this.businessSeats = businessSeats;
+	}
+
+	public int getFirstSeats() {
+		return firstSeats;
+	}
+
+	public void setFirstSeats(int firstSeats) {
+		this.firstSeats = firstSeats;
+	}
+
 	@Override
 	public boolean equals(Object o){
 		try{

@@ -17,6 +17,33 @@ public class GetBookedFlightCountReply extends OperationParameters {
 		NDL = nDL;
 	}
 	
+	public GetBookedFlightCountReply(){}
+	
+	
+	public int getMTL() {
+		return MTL;
+	}
+
+	public void setMTL(int mTL) {
+		MTL = mTL;
+	}
+
+	public int getWST() {
+		return WST;
+	}
+
+	public void setWST(int wST) {
+		WST = wST;
+	}
+
+	public int getNDL() {
+		return NDL;
+	}
+
+	public void setNDL(int nDL) {
+		NDL = nDL;
+	}
+
 	@Override
 	public boolean equals(Object o){
 		try{

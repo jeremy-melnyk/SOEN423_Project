@@ -12,9 +12,14 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 import FlightBookingServer.FlightServerInterface;
 import FlightBookingServer.FlightServerInterfaceHelper;
 import packet.BookFlightOperation;
+import packet.BookFlightReply;
 import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
+import packet.GetBookedFlightCountReply;
+import packet.Operation;
+import packet.Packet;
 import packet.TransferReservationOperation;
+import packet.TransferReservationReply;
 import udp_parser.UdpParserBase;
 
 public class UdpParser extends UdpParserBase{
@@ -42,6 +47,7 @@ public class UdpParser extends UdpParserBase{
 	protected String bookFlight(BookFlightOperation bookFlightOperation) {
 		FlightServerInterface server = null;
 		// FORMAT MTL|WST : DEPARTURE = MTL
+		BookFlightReply bookFlightReply = null;
 		try{
 			String date = (new SimpleDateFormat("YYYY/mm/DD")).format((new SimpleDateFormat("mm/DD/YYYY").parse(bookFlightOperation.getDate())));
 			String[] dep_dest = (bookFlightOperation.getDestination().split("|"));
@@ -58,10 +64,26 @@ public class UdpParser extends UdpParserBase{
 			String reply = server.bookFlight(bookFlightOperation.getFirstName(), bookFlightOperation.getLastName(),
 											bookFlightOperation.getAddress(), bookFlightOperation.getPhoneNumber(),
 											dep_dest[1], date, flightClass);
-			// Create packet and return;
+			if(reply.contains("OKK")){
+				String parsedReply[] = reply.substring(0,4).split("|");
+				int passengerId = Integer.parseInt(parsedReply[0].trim());
+				int flightId = Integer.parseInt(parsedReply[1].trim());
+				String departure_destination[] = parsedReply[2].split("--->");
+				String dep = departure_destination[0].trim();
+				String dest = departure_destination[1].trim();
+				date = (new SimpleDateFormat("MM/dd/yyyy")).format((new SimpleDateFormat("yyyy/MM/dd")).parse(parsedReply[3].trim()));
+				String name[] = parsedReply[4].split(",");
+				String fName =name[1].trim();
+				String lName = name[0].trim();
+				flightClass = parsedReply[5];
+				bookFlightReply = new BookFlightReply(passengerId, flightId, dep, dest, lName, fName, date,flightClass);
+			}else if(reply.contains("ERR")){
+				bookFlightReply = new BookFlightReply("There was a problem with the operation");
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		Packet packet = new Packet(Operation.BOOK_FLIGHT, bookFlightReply);
 		return null;
 	}
 
@@ -69,6 +91,7 @@ public class UdpParser extends UdpParserBase{
 	protected String getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
 		// recordType: "MTL1111|FIRST" (managerId | flightClass)
 		FlightServerInterface server = null;
+		GetBookedFlightCountReply getBookedFlightCountReply = null;
 		String recordType[] = getBookedFlightCountOperation.getRecordType().split("|");
 		String manager = recordType[0];
 		String flightClass = recordType[1];
@@ -92,6 +115,18 @@ public class UdpParser extends UdpParserBase{
 			e.printStackTrace();
 		}
 		String reply = server.getBookedFlightCount(flightClassInteger);
+		String parsedReply[] = reply.split(" ");
+		int mtl = 0, ndl = 0, wst = 0;
+		for(int i = 0; i < parsedReply.length; i += 2){
+			if(parsedReply[i].equalsIgnoreCase("mtl"))
+				mtl = Integer.parseInt(parsedReply[i+1]);
+			else if(parsedReply[i].equalsIgnoreCase("ndl"))
+				ndl = Integer.parseInt(parsedReply[i+1]);
+			else if(parsedReply[i].equalsIgnoreCase("wst"))
+				wst = Integer.parseInt(parsedReply[i+1]);
+		}
+		getBookedFlightCountReply = new GetBookedFlightCountReply(mtl, wst, ndl);
+		Packet packet = new Packet(Operation.BOOKED_FLIGHTCOUNT, getBookedFlightCountReply);
 		// Construct reply packet and reply
 		return null;
 	}
@@ -150,6 +185,7 @@ public class UdpParser extends UdpParserBase{
 		String managerLocation = recordId[0].substring(0, 3);
 		String currentCity = transferReservation.getCurrentCity();
 		String otherCity = transferReservation.getOtherCity();
+		TransferReservationReply transferReservationReply = null;
 		try {
 			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(managerLocation));
 		} catch (NotFound e) {
@@ -160,6 +196,28 @@ public class UdpParser extends UdpParserBase{
 			e.printStackTrace();
 		}
 		String reply = server.transferReservation(recordId[1], currentCity, otherCity);
+		
+		if(reply.contains("OKK")){
+			try{
+				String parsedReply[] = reply.substring(0,4).split("|");
+				int passengerId = Integer.parseInt(parsedReply[0].trim());
+				int flightId = Integer.parseInt(parsedReply[1].trim());
+				String departure_destination[] = parsedReply[2].split("--->");
+				String dep = departure_destination[0].trim();
+				String dest = departure_destination[1].trim();
+				String date = (new SimpleDateFormat("MM/dd/yyyy")).format((new SimpleDateFormat("yyyy/MM/dd")).parse(parsedReply[3].trim()));
+				String name[] = parsedReply[4].split(",");
+				String fName =name[1].trim();
+				String lName = name[0].trim();
+				String flightClass = parsedReply[5]; // parse
+				transferReservationReply = new TransferReservationReply(passengerId, flightId, dep, dest, lName, fName, date,flightClass);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}else if(reply.contains("ERR")){
+			transferReservationReply = new TransferReservationReply("There was a problem with the operation");
+		}
+		Packet packet = new Packet(Operation.TRANSFER_RESERVATION, transferReservationReply);
 		// Create packet and return
 		return null;
 	}

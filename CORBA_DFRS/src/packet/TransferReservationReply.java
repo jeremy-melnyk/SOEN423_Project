@@ -38,6 +38,80 @@ public class TransferReservationReply extends OperationParameters {
 		this.unsuccessfulOperation = message;
 	}
 	
+	public TransferReservationReply(){}
+	
+	public String getUnsuccessfulOperation() {
+		return unsuccessfulOperation;
+	}
+
+	public void setUnsuccessfulOperation(String unsuccessfulOperation) {
+		this.unsuccessfulOperation = unsuccessfulOperation;
+	}
+
+	public int getPassengerId() {
+		return passengerId;
+	}
+
+	public void setPassengerId(int passengerId) {
+		this.passengerId = passengerId;
+	}
+
+	public int getFlightId() {
+		return flightId;
+	}
+
+	public void setFlightId(int flightId) {
+		this.flightId = flightId;
+	}
+
+	public String getDeparture() {
+		return departure;
+	}
+
+	public void setDeparture(String departure) {
+		this.departure = departure;
+	}
+
+	public String getDestination() {
+		return destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getFlightClass() {
+		return flightClass;
+	}
+
+	public void setFlightClass(String flightClass) {
+		this.flightClass = flightClass;
+	}
+
 	@Override
 	public boolean equals(Object o){
 		try{
