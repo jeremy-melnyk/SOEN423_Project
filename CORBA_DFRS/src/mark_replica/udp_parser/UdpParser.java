@@ -54,18 +54,38 @@ public class UdpParser extends UdpParserBase {
 		String destination = cityTokens[1].toUpperCase();
 		FlightReservation server = getFlightServer(origin);
 		String reply = server.bookFlight(bookFlightOperation.getFirstName(), bookFlightOperation.getLastName(),
-				bookFlightOperation.getAddress(), bookFlightOperation.getPhoneNumber(), destination, date,
-				flightClass);
-		
-		// TODO : Convert string reply back into the reply object model
-		/*
-		BookFlightReply bookFlightReply = new BookFlightReply(int passengerId, int flightId, String departure, String destination, 
-				String lastName, String firstName, String date, String flightClass);
-				*/
-		return null;
+				bookFlightOperation.getAddress(), bookFlightOperation.getPhoneNumber(), destination, date, flightClass);
+
+		// Typical reply would look like this: "Flight successfully booked for
+		// passenger:|...|...|..."
+		// It follows the format below:
+		// BookFlightReply(int passengerId, int flightId, String departure,
+		// String destination, String lastName, String firstName, String date,
+		// String flightClass)
+
+		String formattedReply = reply.replaceAll("Flight successfully booked for passenger:|", "");
+		// Format to remove the first part
+
+		String[] replyTokens = formattedReply.split(Constants.DELIMITER_ESCAPE);
+
+		int passengerID = Integer.parseInt(replyTokens[0]);
+		int flightID = Integer.parseInt(replyTokens[1]);
+
+		try {
+			date = (new SimpleDateFormat("MM/dd/yyyy"))
+					.format((new SimpleDateFormat("dd/MM/yyyy")).parse(replyTokens[6]));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		BookFlightReply bookFlightReply = new BookFlightReply(passengerID, flightID, replyTokens[2], replyTokens[3],
+				replyTokens[4], replyTokens[5], date, replyTokens[7]);
+
+		return bookFlightReply;
 	}
 
-	protected GetBookedFlightCountReply getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
+	protected GetBookedFlightCountReply getBookedFlightCount(
+			GetBookedFlightCountOperation getBookedFlightCountOperation) {
 		String[] recordTypeTokens = getBookedFlightCountOperation.getRecordType().split(Constants.DELIMITER_ESCAPE);
 		String managerId = recordTypeTokens[0].toUpperCase();
 		String flightClass = null;
@@ -77,19 +97,40 @@ public class UdpParser extends UdpParserBase {
 		String origin = managerId.substring(0, 3).toUpperCase();
 		FlightReservation server = getFlightServer(origin);
 		String reply = server.getBookedFlightCount(flightClass);
-		
-		// TODO : Convert string reply back into the reply object model
-		/*
-		GetBookedFlightCountReply getBookedFlightCountReply = new GetBookedFlightCountReply(int mTL, int wST, int nDL);
-		*/
-		return null;
+
+		// Typical reply would look like this: "Booked
+		// flights:|MTL|1|WST|2|NDL|3"
+
+		String formattedReply = reply.replaceAll("Booked flights:|", "");
+		// Format to "MTL|1|WST|2|NDL|3";
+
+		String[] replyTokens = formattedReply.split(Constants.DELIMITER_ESCAPE);
+
+		int mtlCount = 0;
+		int wstCount = 0;
+		int ndlCount = 0;
+
+		for (int i = 0; i < 7; i += 2) {
+			if (replyTokens[i].equalsIgnoreCase("MTL")) {
+				mtlCount = Integer.parseInt(replyTokens[i + 1]);
+			} else if (replyTokens[i].equalsIgnoreCase("WST")) {
+				wstCount = Integer.parseInt(replyTokens[i + 1]);
+			} else if (replyTokens[i].equalsIgnoreCase("NDL")) {
+				ndlCount = Integer.parseInt(replyTokens[i + 1]);
+			}
+		}
+
+		GetBookedFlightCountReply getBookedFlightCountReply = new GetBookedFlightCountReply(mtlCount, wstCount,
+				ndlCount);
+
+		return getBookedFlightCountReply;
 	}
 
 	protected EditFlightRecordReply editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
 		String[] recordIdTokens = editFlightRecordOperation.getRecordId().split(Constants.DELIMITER_ESCAPE);
 		String[] fieldNameTokens = editFlightRecordOperation.getFieldName().split(Constants.DELIMITER_ESCAPE);
 		String[] newValueTokens = editFlightRecordOperation.getNewValue().split(Constants.DELIMITER_ESCAPE);
-		
+
 		String managerID = recordIdTokens[0].toUpperCase();
 		int flightRecordID = Integer.parseInt(recordIdTokens[1]);
 		String fieldAction = fieldNameTokens[0].toUpperCase();
@@ -107,12 +148,11 @@ public class UdpParser extends UdpParserBase {
 			String newValue = newValueTokens[0];
 			reply = server.editFlightRecord(flightRecordID, fieldAction, newValue);
 		}
-		
-		// TODO : Convert string reply back into the reply object model
-		/*
-		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(String message);
-		*/
-		return null;
+
+		// Need agreed upon standardized reply message?
+		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(reply);
+
+		return editFlightRecordReply;
 	}
 
 	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservation) {
@@ -120,18 +160,47 @@ public class UdpParser extends UdpParserBase {
 		int passengerID = Integer.parseInt(passengerIDTokens[1]);
 		String currentCity = transferReservation.getCurrentCity();
 		String otherCity = transferReservation.getOtherCity();
-		
+
 		FlightReservation server = getFlightServer(currentCity);
 		String reply = server.transferReservation(passengerID, currentCity, otherCity);
-		
-		// TODO : Convert string reply back into the reply object model
-		/*
-		TransferReservationReply transferReservationReply = new TransferReservationReply(int passengerId, int flightId, String departure, String destination, 
-		String lastName, String firstName, String date, String flightClass);
-		*/
-		return null;
+
+		TransferReservationReply transferReservationReply = null;
+
+		// Checking that the transfer operation was successful
+		if (reply.split(Constants.DELIMITER_ESCAPE).length > 1) {
+			// A successful reply has the same format as a successful flight
+			// booking
+			// It follows the format below:
+			// BookFlightReply(int passengerId, int flightId, String departure,
+			// String destination, String lastName, String firstName, String
+			// date,
+			// String flightClass)
+
+			String formattedReply = reply.replaceAll("Flight successfully booked for passenger:|", "");
+			// Format to remove the first part
+
+			String[] replyTokens = formattedReply.split(Constants.DELIMITER_ESCAPE);
+
+			passengerID = Integer.parseInt(replyTokens[0]);
+			int flightID = Integer.parseInt(replyTokens[1]);
+			String date = null;
+
+			try {
+				date = (new SimpleDateFormat("MM/dd/yyyy"))
+						.format((new SimpleDateFormat("dd/MM/yyyy")).parse(replyTokens[6]));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+
+			transferReservationReply = new TransferReservationReply(passengerID, flightID, replyTokens[2],
+					replyTokens[3], replyTokens[4], replyTokens[5], date, replyTokens[7]);
+		} else {
+			transferReservationReply = new TransferReservationReply(reply);
+		}
+
+		return transferReservationReply;
 	}
-	
+
 	private FlightReservation getFlightServer(String serverIdentifier) {
 		org.omg.CORBA.Object nameServiceRef;
 		try {
