@@ -23,6 +23,23 @@ public class FlightRecordDbImpl implements FlightRecordDb {
 	public FlightRecordDbImpl() {
 		this.records = new HashMap<Date, HashMap<Integer, FlightRecord>>();
 	}
+	
+	@Override
+	public FlightRecord getFlightRecord(Date date, City destination) {
+		HashMap<Integer, FlightRecord> flightRecords = records.get(date);
+		if(flightRecords == null){
+			return null;
+		}
+		synchronized(flightRecords){
+			for (Entry<Integer, FlightRecord> entry : flightRecords.entrySet()) {
+				FlightRecord flightRecord = entry.getValue();
+				if(flightRecord.getDestination().equals(destination)){
+					return flightRecord;
+				}
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public FlightRecord getFlightRecord(Date date, Integer id) {
