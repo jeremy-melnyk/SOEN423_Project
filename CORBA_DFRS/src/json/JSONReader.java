@@ -22,7 +22,7 @@ public class JSONReader {
 		cityPorts = new HashMap<String, HashMap<String, Integer>>();
 
 		// Default file path
-		filePath = "..\\port_config.json";
+		filePath = "port_config.json";
 	}
 
 	public JSONReader(String filePath) {
