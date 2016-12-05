@@ -29,13 +29,13 @@ public class UdpParserTests {
 		jsonReader.initialize();
 		
 		// Choose parser to test
-		String username = "Caio";
+		String username = "Jeremy";
 		
 		int udpPort = jsonReader.getPortForKeys(username, "");
 		
 		// Initialize UDP Parser			
-		UdpParser udpParser = new UdpParser(orb, udpPort);
-		new Thread(udpParser).start();
+		//UdpParser udpParser = new UdpParser(orb, udpPort);
+		//new Thread(udpParser).start();
 		
 		testBookFlightOperation(udpPort);
 		testGetBookedFlightCount(udpPort);

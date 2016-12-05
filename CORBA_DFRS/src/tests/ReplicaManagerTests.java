@@ -24,7 +24,7 @@ public class ReplicaManagerTests {
 		jsonReader.initialize();
 		
 		// Choose parser to test
-		String username = "Jeremy";
+		String username = "Mark";
 		
 		int udpPort = jsonReader.getPortForKeys(username, "RM");
 		

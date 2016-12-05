@@ -23,11 +23,15 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
+import caio_replica.udp_parser.UdpParser;
+import json.JSONReader;
 import mark_replica.flight_reservation_system.FlightReservation;
 import mark_replica.flight_reservation_system.FlightReservationHelper;
 import mark_replica.flight_reservation_system.FlightReservationImplementation;
+import udp_parser.UdpParserBase;
 
 public class FlightReservationServerPublisher {
+	private static final String USERNAME = "Mark";
 
 	public static void main(String[] args) throws InvalidName, ServantAlreadyActive, WrongPolicy, ObjectNotActive,
 			FileNotFoundException, AdapterInactive {
@@ -38,6 +42,15 @@ public class FlightReservationServerPublisher {
 		for (int i = 0; i < 3; i++) {
 			citiesCount.add(i);
 		}
+		
+		// Initialize ports configuration
+		JSONReader jsonReader = new JSONReader();
+		jsonReader.initialize();
+		
+		int udpParserPort = jsonReader.getPortForKeys(USERNAME, "");
+		int mtlPort = jsonReader.getPortForKeys(USERNAME, "MTL");
+		int wstPort = jsonReader.getPortForKeys(USERNAME, "WST");
+		int ndlPort = jsonReader.getPortForKeys(USERNAME, "NDL");
 		
 		ORB orb = ORB.init(args, null);
 
@@ -50,13 +63,13 @@ public class FlightReservationServerPublisher {
 			// Creating new server object for selected city
 			FlightReservationImplementation flightReservationSystem = null;
 			if (Integer == 0) {
-				flightReservationSystem = new FlightReservationImplementation("Montreal", "MTL", 2020);
+				flightReservationSystem = new FlightReservationImplementation("Montreal", "MTL", mtlPort);
 				cityCode = "MTL";
 			} else if (Integer == 1) {
-				flightReservationSystem = new FlightReservationImplementation("Washington", "WST", 2021);
+				flightReservationSystem = new FlightReservationImplementation("Washington", "WST", wstPort);
 				cityCode = "WST";
 			} else if (Integer == 2) {
-				flightReservationSystem = new FlightReservationImplementation("New Delhi", "NDL", 2022);
+				flightReservationSystem = new FlightReservationImplementation("New Delhi", "NDL", ndlPort);
 				cityCode = "NDL";
 			}
 			
@@ -86,6 +99,11 @@ public class FlightReservationServerPublisher {
 				e.printStackTrace();
 			}
 		});
+		
+		// Set UDP Parser
+		UdpParserBase udpParser = new UdpParser(orb, udpParserPort);
+		// Spins up UdpParser
+		new Thread(udpParser).start();
 		
 		orb.run();
 
