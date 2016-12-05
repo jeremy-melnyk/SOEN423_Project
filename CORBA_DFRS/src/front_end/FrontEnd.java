@@ -5,7 +5,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,9 +69,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 		// GET RMs' address from config
 		replicaTracker = new HashMap<Integer, Integer>();
 		JSONReader jsonReader = new JSONReader();
-		jsonReader.initialize();
 		
-		//RMs = "localhost:3333\nlocalhost:4444\nlocalhost:5555".split("\n");
 		for(int RM : jsonReader.getAllRMPorts())
 			replicaTracker.put(RM, 0);
 		// Get sequencer's address from config
