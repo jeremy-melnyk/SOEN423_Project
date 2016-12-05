@@ -71,6 +71,4 @@ public class TransferReservationOperation extends OperationParameters {
 			return new TransferReservationOperation(passengerId, currentCity, otherCity);
 		}
 	}
-	
-
 }

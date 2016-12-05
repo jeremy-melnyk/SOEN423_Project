@@ -5,14 +5,15 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 import org.omg.CORBA.ORB;
 
 import json.JSONReader;
-import caio_replica.udp_parser.UdpParser;
 import udp.UdpHelper;
 import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
+import packet.ExecuteOperationLogOperation;
 import packet.GetBookedFlightCountOperation;
 import packet.Operation;
 import packet.Packet;
@@ -39,6 +40,7 @@ public class UdpParserTests {
 		testBookFlightOperation(udpPort);
 		testGetBookedFlightCount(udpPort);
 		testEditFlightRecordOperation(udpPort);
+		testExecuteOperationLogOperation(udpPort);
 	}
 
 	private static void testBookFlightOperation(int port) {
@@ -70,6 +72,16 @@ public class UdpParserTests {
 				.fieldName("EDIT|DESTINATION").newValue("NDL").build();
 		
 		Packet packet = new Packet(Operation.EDIT_FLIGHT, editFlightRecordOperation);
+
+		Packet result = processOperationPacket(packet, port);
+		System.out.println(result);
+	}
+	
+	private static void testExecuteOperationLogOperation(int port) {
+		ArrayList<Packet> operationLog = new ArrayList<Packet>();
+		ExecuteOperationLogOperation executeOperationLogOperation = new ExecuteOperationLogOperation(operationLog);
+		
+		Packet packet = new Packet(Operation.EXECUTE_OPERATION_LOG, executeOperationLogOperation);
 
 		Packet result = processOperationPacket(packet, port);
 		System.out.println(result);

@@ -3,6 +3,7 @@ package udp_parser;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 import packet.Packet;
@@ -24,20 +25,22 @@ public class UdpParserPacketDispatcher implements Runnable {
 	}
 	
 	private void handlePacket() {
+		InetAddress address = packet.getAddress();
+		int port = packet.getPort();
 		Packet replicaPacket = null;
-		replicaPacket = (Packet)UdpHelper.getObjectFromByteArray(this.packet.getData());
+		replicaPacket = (Packet)UdpHelper.getObjectFromByteArray(packet.getData());
 		if(replicaPacket != null){
 			Packet replicaReplyPacket = this.udpParser.processPacket(replicaPacket);
-			sendReply(replicaReplyPacket);
+			sendReply(replicaReplyPacket, address, port);
 		}
 	}
 	
-	private void sendReply(Packet replicaReplyPacket){
+	private void sendReply(Packet replicaReplyPacket, InetAddress address, int port){
 		DatagramSocket newSocket = null;
 		try {
 			newSocket = new DatagramSocket();
 			byte[] message = UdpHelper.getByteArray(replicaReplyPacket);
-			DatagramPacket reply = new DatagramPacket(message, message.length, packet.getAddress(), packet.getPort());
+			DatagramPacket reply = new DatagramPacket(message, message.length, address, port);
 			newSocket.send(reply);
 		} catch (SocketException e) {
 			e.printStackTrace();
