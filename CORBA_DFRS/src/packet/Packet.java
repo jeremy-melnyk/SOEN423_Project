@@ -1,9 +1,5 @@
 package packet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 
@@ -13,29 +9,30 @@ public class Packet implements Serializable {
 	private InetAddress senderAddress;
 	private int senderPort;
 	// Sequence Number
-	private ReplicaOperation replicaOperation;
+	private int sequencernumber;
+	private Operation operation;
 	private OperationParameters operationParameters;
 
-	public Packet(InetAddress senderAdress, int senderPort, ReplicaOperation replicaOperation, OperationParameters operationParameters) {
+	public Packet(InetAddress senderAdress, int senderPort, Operation operation, OperationParameters operationParameters) {
 		super();
-		this.replicaOperation = replicaOperation;
+		this.operation = operation;
 		this.operationParameters = operationParameters;
 		this.senderAddress = senderAdress;
 		this.senderPort = senderPort;
 	}
 	
-	public Packet(ReplicaOperation replicaOperation, OperationParameters operationParameters) {
+	public Packet(Operation operation, OperationParameters operationParameters) {
 		super();
-		this.replicaOperation = replicaOperation;
+		this.operation = operation;
 		this.operationParameters = operationParameters;
 	}
 
-	public ReplicaOperation getReplicaOperation() {
-		return replicaOperation;
+	public Operation getReplicaOperation() {
+		return operation;
 	}
 
-	public void setReplicaOperation(ReplicaOperation replicaOperation) {
-		this.replicaOperation = replicaOperation;
+	public void setReplicaOperation(Operation replicaOperation) {
+		this.operation = replicaOperation;
 	}
 
 	public OperationParameters getOperationParameters() {
@@ -61,27 +58,12 @@ public class Packet implements Serializable {
 	public void setSenderPort(int senderPort) {
 		this.senderPort = senderPort;
 	}
-	
-	public byte[] getByteArray(){
-		byte[] b = null;
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ObjectOutput out = null;
-		try {
-		  out = new ObjectOutputStream(bos);   
-		  out.writeObject(this);
-		  out.flush();
-		  b = bos.toByteArray();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-		    try {
-				bos.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return b;
+
+	public int getSequencernumber() {
+		return sequencernumber;
 	}
-	
-	
+
+	public void setSequencernumber(int sequencernumber) {
+		this.sequencernumber = sequencernumber;
+	}
 }

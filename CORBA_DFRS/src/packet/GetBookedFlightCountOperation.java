@@ -1,6 +1,7 @@
 package packet;
 
 public class GetBookedFlightCountOperation extends OperationParameters {
+	private static final long serialVersionUID = 1L;
 	private String recordType;
 	
 	public GetBookedFlightCountOperation(String recordType){

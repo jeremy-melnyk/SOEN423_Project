@@ -3,6 +3,7 @@ package packet;
 import patterns.Builder;
 
 public class BookFlightOperation extends OperationParameters {
+	private static final long serialVersionUID = 1L;
 	private String firstName;
 	private String lastName;
 	private String address;

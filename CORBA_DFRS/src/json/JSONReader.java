@@ -3,16 +3,12 @@ package json;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import enums.City;
-import models.PassengerRecord;
 
 public class JSONReader {
 
@@ -26,7 +22,7 @@ public class JSONReader {
 		cityPorts = new HashMap<String, HashMap<String, Integer>>();
 
 		// Default file path
-		filePath = "CORBA_DFRS/src/port_config.json";
+		filePath = "port_config.json";
 	}
 
 	public JSONReader(String filePath) {
@@ -117,5 +113,4 @@ public class JSONReader {
 		System.out.println(reader.getPortForKeys("Patrick", "MTL"));
 		System.out.println(reader.getSequencerPort());
 	}
-
 }
