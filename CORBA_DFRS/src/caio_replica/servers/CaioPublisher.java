@@ -42,7 +42,7 @@ public class CaioPublisher {
 			// Set UDP Parser
 			UdpParserBase udpParser = new UdpParser(orb, udpParserPort);
 			// Spins up UdpParser
-			// new Thread(udpParser).start();
+			new Thread(udpParser).start();
 			// Set MTL
 			MTLServer mtl = new MTLServer(mtlPort);
 			mtl.setORB(orb);
