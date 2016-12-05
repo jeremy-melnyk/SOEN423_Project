@@ -30,38 +30,38 @@ public class MTLServer extends Server {
 			
 			Server mtlserver=new Server("MTL",1010);
 		
-		
+/*		
 			Flight mtlflight1= new Flight (mtlserver.getNextFlightID(),"WST","01/01/2017", 5,10,15,"MTL");
 			Flight mtlflight2= new Flight (mtlserver.getNextFlightID(),"NDL","01/02/2017", 10,20,30,"MTL");
 			Flight mtlflight3= new Flight (mtlserver.getNextFlightID(),"WST","01/01/2020", 2,2,2,"MTL");
-			
+	*/		
 			HashMap<Date,List<Flight>> defaultmtlflightmap= new HashMap<Date,List<Flight>>();
-			
+		/*	
 			defaultmtlflightmap.put(mtlflight1.getDate(), new ArrayList<Flight>());
 			defaultmtlflightmap.get(mtlflight1.getDate()).add(mtlflight1);
 			defaultmtlflightmap.put(mtlflight2.getDate(), new ArrayList<Flight>());
 			defaultmtlflightmap.get(mtlflight2.getDate()).add(mtlflight2);
 			defaultmtlflightmap.put(mtlflight3.getDate(), new ArrayList<Flight>());
 			defaultmtlflightmap.get(mtlflight3.getDate()).add(mtlflight3);
-			
+			*/
 /*			List<Flight> defaultmtlflightlist= new ArrayList<Flight>();
 			defaultmtlflightlist.add(mtlflight1);
 			defaultmtlflightlist.add(mtlflight2);
 			defaultmtlflightlist.add(mtlflight3);
 */			
-			PassengerRecord mtlrecord1=new PassengerRecord(mtlserver.getNextRecordID(),mtlflight1,"Adam" , "Smith","22 Sherbrooke", "5149028799","WST","01/01/2017","Economy","MTL");
-			PassengerRecord mtlrecord2=new PassengerRecord(mtlserver.getNextRecordID(),mtlflight2,"Bob" , "Downey","15 Jean-Talon", "1279096599","WST","01/01/2020","First","MTL");
+	//		PassengerRecord mtlrecord1=new PassengerRecord(mtlserver.getNextRecordID(),mtlflight1,"Adam" , "Smith","22 Sherbrooke", "5149028799","WST","01/01/2017","Economy","MTL");
+	//		PassengerRecord mtlrecord2=new PassengerRecord(mtlserver.getNextRecordID(),mtlflight2,"Bob" , "Downey","15 Jean-Talon", "1279096599","WST","01/01/2020","First","MTL");
 			
 			List<PassengerRecord> mtllistS=new ArrayList<PassengerRecord>();
 			List<PassengerRecord> mtllistD=new ArrayList<PassengerRecord>();
 			
 
-			mtllistS.add(mtlrecord1);
-			mtllistD.add(mtlrecord2);
+//			mtllistS.add(mtlrecord1);
+	//		mtllistD.add(mtlrecord2);
 			
 			HashMap<Character,List<PassengerRecord>> defaultmtlmap= new HashMap<Character,List<PassengerRecord>>();
-			defaultmtlmap.put('S',mtllistS);
-			defaultmtlmap.put('D', mtllistD);
+//			defaultmtlmap.put('S',mtllistS);
+//			defaultmtlmap.put('D', mtllistD);
 			
 	//		mtlserver.setFlightlist(defaultmtlflightlist);
 			mtlserver.setMap(defaultmtlmap);
@@ -89,9 +89,6 @@ public class MTLServer extends Server {
 			
 			
 			
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

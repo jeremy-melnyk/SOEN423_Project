@@ -27,8 +27,8 @@ public class Server extends ServerIDLPOA{
 	private HashMap<Character,List<PassengerRecord>> map = new HashMap<Character,List<PassengerRecord>>();
 	private HashMap<Date,List<Flight>> flightmap =new HashMap<Date,List<Flight>>();
 	private List<Flight> flightlist = new ArrayList<Flight>();
-	private AtomicInteger flightID=new AtomicInteger(100);
-	private AtomicInteger recordID=new AtomicInteger(1000);
+	private AtomicInteger flightID=new AtomicInteger(0);
+	private AtomicInteger recordID=new AtomicInteger(0);
 	
 
 	public String bookFlight(String firstname, String lastname, String address, String phone, String originanddestination, String date, String flightclass) {
