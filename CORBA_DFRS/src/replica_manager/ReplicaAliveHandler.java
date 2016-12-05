@@ -15,7 +15,7 @@ import packet.ReplicaAliveOperation;
 import packet.ReplicaAliveReply;
 import udp.UdpHelper;
 
-public class ReplicaAliveHandler extends OperationParametersHandler {
+public class ReplicaAliveHandler extends OperationParametersHandler implements Runnable {
 	// 2 seconds
 	private final int TIMEOUT = 2000;
 	private ReplicaManager replicaManager;
@@ -23,6 +23,11 @@ public class ReplicaAliveHandler extends OperationParametersHandler {
 	public ReplicaAliveHandler(InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
 		super(address, port, operationParameters);
 		this.replicaManager = replicaManager;
+	}
+	
+	@Override
+	public void run() {
+		execute();
 	}
 
 	@Override
