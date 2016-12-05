@@ -33,7 +33,6 @@ public class PublishingServer {
 	public static void main(String[] args) {
 		// Initialize ports configuration
 		JSONReader jsonReader = new JSONReader();
-		jsonReader.initialize();
 		
 		int udpPort = jsonReader.getPortForKeys(USERNAME, "");
 		int mtlPort = jsonReader.getPortForKeys(USERNAME, "MTL");
