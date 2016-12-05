@@ -1,10 +1,8 @@
 package replica_manager;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 
+import jeremy_replica.udp.UdpHelper;
 import packet.Operation;
 import packet.OperationParameters;
 import packet.Packet;
@@ -25,19 +23,7 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 	}
 
 	private void handlePacket() {
-		Packet replicaPacket = null;
-		try {
-			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(this.packet.getData());
-			ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream);
-			replicaPacket = (Packet)objectInputStream.readObject();
-			objectInputStream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}
+		Packet replicaPacket = (Packet) UdpHelper.getObjectFromByteArray(packet.getData());
 		Operation operation = replicaPacket.getReplicaOperation();
 		OperationParameters operationParameters = replicaPacket.getOperationParameters();
 		switch (operation) {
