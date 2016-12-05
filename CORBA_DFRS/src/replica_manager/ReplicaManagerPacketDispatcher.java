@@ -42,7 +42,7 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 		OperationParameters operationParameters = replicaPacket.getOperationParameters();
 		switch (operation) {
 		case REPLICA_ALIVE:
-			new ReplicaAliveHandler(packet.getAddress(), packet.getPort(), operationParameters).execute();
+			new ReplicaAliveHandler(packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
 			break;
 		case REPLICA_REBOOT:
 			new ReplicaRebootHandler(packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
