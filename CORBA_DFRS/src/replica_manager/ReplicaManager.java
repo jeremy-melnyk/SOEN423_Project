@@ -15,19 +15,25 @@ public class ReplicaManager implements Runnable {
 	private ILogger logger;
 	private String replicaPath;
 	private int port;
+	private int replicaPort;
 	private Process replica;
 	private Thread shutdownHook;
 	private final String tag;
 	
-	public ReplicaManager(int port, String replicaPath, ILogger logger) {
+	public ReplicaManager(int port, int replicaPort, String replicaPath, ILogger logger) {
 		super();
 		this.tag = "REPLICA_MANAGER_" + port;
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		this.replicaPath = replicaPath;
 		this.port = port;
+		this.replicaPort = replicaPort;
 		this.logger = logger;
 		this.replica = null;
 		this.shutdownHook = null;
+	}
+	
+	public int getReplicaPort(){
+		return this.replicaPort;
 	}
 
 	@Override

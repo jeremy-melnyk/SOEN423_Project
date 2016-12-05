@@ -6,7 +6,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+import packet.Operation;
 import packet.OperationParameters;
+import packet.Packet;
 import packet.ReplicaRebootReply;
 import udp.UdpHelper;
 
@@ -24,17 +26,17 @@ public class ReplicaRebootHandler extends PacketParametersHandler {
 		try {
 			newSocket = new DatagramSocket();
 			
+			// Reboot replica and reply to Front End
 			boolean result = replicaManager.rebootReplica();
-			ReplicaRebootReply replicaRebootReaply = new ReplicaRebootReply(result);
+			ReplicaRebootReply replicaRebootReply = new ReplicaRebootReply(result);
+			Packet replyPacket = new Packet(Operation.REPLICA_REBOOT, replicaRebootReply);
 			
-			byte[] message = UdpHelper.getByteArray(replicaRebootReaply);
+			byte[] message = UdpHelper.getByteArray(replyPacket);
 			DatagramPacket reply = new DatagramPacket(message, message.length, address, port);
 			newSocket.send(reply);
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if (newSocket != null) {

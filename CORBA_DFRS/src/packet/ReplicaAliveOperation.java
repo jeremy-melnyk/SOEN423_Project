@@ -8,6 +8,11 @@ public class ReplicaAliveOperation extends OperationParameters {
 		super();
 		this.portToCheck = portToCheck;
 	}
+	
+	public ReplicaAliveOperation() {
+		super();
+		this.portToCheck = -1;
+	}
 
 	public int getPortToCheck() {
 		return portToCheck;

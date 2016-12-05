@@ -9,7 +9,6 @@ import java.net.SocketException;
 import jeremy_replica.udp.UdpHelper;
 import json.JSONReader;
 import packet.Operation;
-import packet.OperationParameters;
 import packet.Packet;
 import packet.ReplicaRebootOperation;
 import packet.ReplicaRebootReply;
@@ -38,12 +37,12 @@ public class ReplicaManagerTests {
 		Packet packet = new Packet(Operation.REPLICA_REBOOT, rebootReplicaOperation);
 
 		// Process the packet
-		OperationParameters result = processOperationPacket(packet, port);
-		ReplicaRebootReply reply = (ReplicaRebootReply) result;
+		Packet result = processOperationPacket(packet, port);
+		ReplicaRebootReply reply = (ReplicaRebootReply) result.getOperationParameters();
 		System.out.println("Replica isRebooted: " + reply.isRebooted());
 	}
 	
-	private static OperationParameters processOperationPacket(Packet packet, int port) {
+	private static Packet processOperationPacket(Packet packet, int port) {
 		DatagramSocket socket = null;
 		try {
 			socket = new DatagramSocket();
@@ -55,7 +54,7 @@ public class ReplicaManagerTests {
 			byte[] buffer = new byte[BUFFER_SIZE];
 			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 			socket.receive(reply);
-			OperationParameters result = (OperationParameters) UdpHelper.getObjectFromByteArray(reply.getData());
+			Packet result = (Packet) UdpHelper.getObjectFromByteArray(reply.getData());
 			return result;
 		} catch (SocketException e) {
 			e.printStackTrace();
