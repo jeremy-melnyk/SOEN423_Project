@@ -1,6 +1,6 @@
-package replica_manager_packet;
+package packet;
 
-public class ReplicaAliveReply extends PacketParameters {
+public class ReplicaAliveReply extends OperationParameters {
 	private static final long serialVersionUID = 1L;
 	boolean isAlive;
 	int replicaPort;

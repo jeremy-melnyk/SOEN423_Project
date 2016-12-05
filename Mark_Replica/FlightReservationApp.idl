@@ -1,0 +1,21 @@
+module FlightReservationApp {
+	interface FlightReservation {
+		string bookFlight(in string firstName, in string lastName, in string address, in string phone, in string destination, in string date, in string seating);
+		
+		string getBookedFlightCount(in string recordType);
+		
+		string editFlightRecord(in long recordID, in string fieldName, in string newValue);
+		
+		string transferReservation(in long passengerID, in string currentCity, in string otherCity);
+		
+		string displayRecords();
+		
+		string displayPassengerRecords();
+		
+		string getServerName();
+		
+		string getCityCode();
+		
+		string getPortNumber();
+	};
+};
