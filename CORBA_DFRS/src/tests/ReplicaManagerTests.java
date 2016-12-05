@@ -21,7 +21,6 @@ public class ReplicaManagerTests {
 	public static void main(String[] args) {
 		// Initialize ports configuration
 		JSONReader jsonReader = new JSONReader();
-		jsonReader.initialize();
 		
 		// Choose parser to test
 		String username = "Mark";

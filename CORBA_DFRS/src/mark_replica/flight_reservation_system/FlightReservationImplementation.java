@@ -25,16 +25,19 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import json.JSONReader;
 import mark_replica.models.FlightRecord;
 import mark_replica.models.PassengerRecord;
 
 public class FlightReservationImplementation extends FlightReservationPOA implements Runnable {
 
-	int port;
-	String city;
-	String cityCode;
-	HashMap<Integer, ArrayList<PassengerRecord>> passengers;
-	List<FlightRecord> flights;
+	private final String USERNAME = "Mark";
+
+	private int port;
+	private String city;
+	private String cityCode;
+	private HashMap<Integer, ArrayList<PassengerRecord>> passengers;
+	private List<FlightRecord> flights;
 
 	public FlightReservationImplementation(String city, String cityCode, int port) {
 		this.city = city;
@@ -135,52 +138,70 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 			}
 		}
 
-		/*
-		 * DatagramSocket aSocket = null;
-		 * 
-		 * try { // Creating socket aSocket = new DatagramSocket(port + 1000);
-		 * 
-		 * System.out.println("Initiating connection with other servers...");
-		 * 
-		 * byte[] buffer = new byte[1000];
-		 * 
-		 * // Looking for client requests from other servers while (true) {
-		 * DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-		 * aSocket.receive(request);
-		 * 
-		 * ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		 * 
-		 * byte[] newMessage = null;
-		 * 
-		 * String requestMessage = new String(request.getData(), 0,
-		 * request.getLength()), replyMessage = "";
-		 * 
-		 * // Checking whether request is for number of booked flights or //
-		 * reservation transfer if (requestMessage.equals("count")) { //
-		 * Counting number of booked flights on this server int count = 0;
-		 * 
-		 * for (ArrayList<PassengerRecord> lists : passengers.values()) {
-		 * synchronized (lists) { for (int i = 0; i < lists.size(); i++) {
-		 * count++; } } } replyMessage = cityCode + " " +
-		 * Integer.toString(count); } else { String data[] =
-		 * requestMessage.split("/");
-		 * 
-		 * // Checking if correct city to transfer passenger // reservation to
-		 * if (data[0].equals(cityCode)) { // Attempting to book flight on this
-		 * server with // received data from other server replyMessage =
-		 * bookFlight(data[1], data[2], data[3], data[4], data[5], data[6],
-		 * data[7]); } }
-		 * 
-		 * // Sending back reply outputStream.write(replyMessage.getBytes());
-		 * newMessage = outputStream.toByteArray();
-		 * 
-		 * DatagramPacket reply = new DatagramPacket(newMessage,
-		 * newMessage.length, request.getAddress(), request.getPort());
-		 * aSocket.send(reply); } } catch (SocketException e) {
-		 * System.out.println("Socket: " + e.getMessage()); } catch (IOException
-		 * e) { System.out.println("IO: " + e.getMessage()); } finally { if
-		 * (aSocket != null) aSocket.close(); }
-		 */
+		DatagramSocket aSocket = null;
+
+		try {
+			// Creating socket
+			aSocket = new DatagramSocket(port);
+
+			System.out.println("Initiating connection with other servers...");
+
+			byte[] buffer = new byte[1000];
+
+			// Looking for client requests from other servers
+			while (true) {
+				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+				aSocket.receive(request);
+
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+				byte[] newMessage = null;
+
+				String requestMessage = new String(request.getData(), 0, request.getLength()), replyMessage = "";
+
+				// Checking whether request is for number of booked flights or
+				// reservation transfer
+				if (requestMessage.equals("count")) {
+					// Counting number of booked flights on this server
+					int count = 0;
+
+					for (ArrayList<PassengerRecord> lists : passengers.values()) {
+						synchronized (lists) {
+							for (int i = 0; i < lists.size(); i++) {
+								count++;
+							}
+						}
+					}
+					replyMessage = cityCode + " " + Integer.toString(count);
+				} else {
+					String data[] = requestMessage.split("/");
+
+					// Checking if correct city to transfer passenger
+					// reservation to
+					if (data[0].equals(cityCode)) {
+						// Attempting to book flight on this server with
+						// received data from other server
+						replyMessage = bookFlight(data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+					}
+				}
+
+				// Sending back reply
+				outputStream.write(replyMessage.getBytes());
+				newMessage = outputStream.toByteArray();
+
+				DatagramPacket reply = new DatagramPacket(newMessage, newMessage.length, request.getAddress(),
+						request.getPort());
+				aSocket.send(reply);
+			}
+		} catch (SocketException e) {
+			System.out.println("Socket: " + e.getMessage());
+		} catch (IOException e) {
+			System.out.println("IO: " + e.getMessage());
+		} finally {
+			if (aSocket != null)
+				aSocket.close();
+		}
+
 	}
 
 	// Used to connect via UDP to other servers
@@ -190,10 +211,21 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 
 		String s = "";
 
+		JSONReader r = new JSONReader();
+
 		Set<Integer> serverPorts = new HashSet<Integer>();
-		for (int i = 3020; i < 3023; i++) {
-			if (i != port + 1000) {
-				serverPorts.add(i);
+
+		for (int i = 0; i < 3; i++) {
+			String temp = null;
+			if (i == 0) {
+				temp = "MTL";
+			} else if (i == 1) {
+				temp = "WST";
+			} else if (i == 2) {
+				temp = "NDL";
+			}
+			if (!cityCode.equalsIgnoreCase(temp)) {
+				serverPorts.add(r.getPortForKeys(USERNAME, temp));
 			}
 		}
 

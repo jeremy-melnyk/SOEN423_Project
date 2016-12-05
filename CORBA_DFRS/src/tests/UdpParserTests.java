@@ -26,7 +26,6 @@ public class UdpParserTests {
 		
 		// Initialize ports configuration
 		JSONReader jsonReader = new JSONReader();
-		jsonReader.initialize();
 		
 		// Choose parser to test
 		String username = "Jeremy";
