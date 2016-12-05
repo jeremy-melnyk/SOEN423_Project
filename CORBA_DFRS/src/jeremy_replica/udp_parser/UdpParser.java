@@ -18,10 +18,7 @@ import jeremy_replica.enums.FlightRecordField;
 import jeremy_replica.friendly_end.FlightReservationServer;
 import jeremy_replica.friendly_end.FlightReservationServerHelper;
 import jeremy_replica.global.Constants;
-import jeremy_replica.log.CustomLogger;
 import jeremy_replica.log.ILogger;
-import jeremy_replica.log.TextFileLog;
-import json.JSONReader;
 import packet.BookFlightOperation;
 import packet.BookFlightReply;
 import packet.EditFlightRecordOperation;
@@ -36,19 +33,6 @@ public class UdpParser extends UdpParserBase {
 	protected final String USERNAME = "JEREMY_";
 	protected final String NAME_SERVICE = "NameService";
 	private ILogger logger;
-	
-	public static void main(String[] args){
-		// Initialize UDP Parser
-		JSONReader jsonReader = new JSONReader();
-		jsonReader.initialize();
-		int port = jsonReader.getPortForKeys("Jeremy", "");
-		
-		ORB orb = ORB.init(args, null);
-		ILogger logger = new CustomLogger(new TextFileLog());
-		UdpParser udpParser = new UdpParser(orb, port, logger);
-		new Thread(udpParser).start();
-		System.out.println("UdpParser published.");
-	}
 	
 	public UdpParser(ORB orb, int port, ILogger logger) {
 		super(orb, port);
