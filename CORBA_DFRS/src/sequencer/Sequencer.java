@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import json.JSONReader;
 import packet.Packet;
 import udp.UdpHelper;
 
@@ -16,7 +17,7 @@ public class Sequencer implements Runnable{
 	private final int BUFFER_SIZE = 5000;
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
 	private final ExecutorService threadPool;
-	private int sequencerport = 10000;
+	private int sequencerport;
 	private int sequencernumber = 1;
 	private ArrayList<Packet> sequencerlog = new ArrayList<Packet>();
 	private final int groupportnumber = 9876;
@@ -28,6 +29,8 @@ public class Sequencer implements Runnable{
 
 	public Sequencer(String message) {
 		super();
+		JSONReader jsonReader = new JSONReader();
+		sequencerport = jsonReader.getSequencerPort();
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 	}
 
