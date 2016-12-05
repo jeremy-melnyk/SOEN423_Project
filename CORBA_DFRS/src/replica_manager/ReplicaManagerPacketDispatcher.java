@@ -11,10 +11,12 @@ import packet.Packet;
 
 public class ReplicaManagerPacketDispatcher implements Runnable {
 	private final DatagramPacket packet;
+	private final ReplicaManager replicaManager;
 
-	public ReplicaManagerPacketDispatcher(DatagramPacket packet) {
+	public ReplicaManagerPacketDispatcher(DatagramPacket packet, ReplicaManager replicaManager) {
 		super();
 		this.packet = packet;
+		this.replicaManager = replicaManager;
 	}
 
 	@Override
@@ -43,7 +45,7 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 			new ReplicaAliveHandler(packet.getAddress(), packet.getPort(), operationParameters).execute();
 			break;
 		case REPLICA_REBOOT:
-			new ReplicaRebootHandler(packet.getAddress(), packet.getPort(), operationParameters).execute();
+			new ReplicaRebootHandler(packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
 			break;
 		default:
 			break;

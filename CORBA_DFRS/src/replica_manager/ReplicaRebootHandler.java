@@ -11,10 +11,11 @@ import packet.ReplicaRebootReply;
 import udp.UdpHelper;
 
 public class ReplicaRebootHandler extends PacketParametersHandler {
+	private ReplicaManager replicaManager;
 
-	public ReplicaRebootHandler(InetAddress address, int port, OperationParameters operationParameters) {
+	public ReplicaRebootHandler(InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
 		super(address, port, operationParameters);
-		// TODO Auto-generated constructor stub
+		this.replicaManager = replicaManager;
 	}
 
 	@Override
@@ -23,8 +24,8 @@ public class ReplicaRebootHandler extends PacketParametersHandler {
 		try {
 			newSocket = new DatagramSocket();
 			
-			// TODO : Reboot replica
-			ReplicaRebootReply replicaRebootReaply = new ReplicaRebootReply(true);
+			boolean result = replicaManager.rebootReplica();
+			ReplicaRebootReply replicaRebootReaply = new ReplicaRebootReply(result);
 			
 			byte[] message = UdpHelper.getByteArray(replicaRebootReaply);
 			DatagramPacket reply = new DatagramPacket(message, message.length, address, port);
