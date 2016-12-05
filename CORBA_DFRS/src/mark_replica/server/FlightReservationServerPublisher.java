@@ -45,7 +45,6 @@ public class FlightReservationServerPublisher {
 		
 		// Initialize ports configuration
 		JSONReader jsonReader = new JSONReader();
-		jsonReader.initialize();
 		
 		int udpParserPort = jsonReader.getPortForKeys(USERNAME, "");
 		int mtlPort = jsonReader.getPortForKeys(USERNAME, "MTL");
