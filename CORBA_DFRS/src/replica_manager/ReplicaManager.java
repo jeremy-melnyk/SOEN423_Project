@@ -17,6 +17,7 @@ public class ReplicaManager implements Runnable {
 	private int port;
 	private int replicaPort;
 	private Process replica;
+	private boolean isRebooting = false;
 	private Thread shutdownHook;
 	private final String tag;
 	
@@ -29,7 +30,20 @@ public class ReplicaManager implements Runnable {
 		this.replicaPort = replicaPort;
 		this.logger = logger;
 		this.replica = null;
+		this.isRebooting = false;
 		this.shutdownHook = null;
+	}
+	
+	public boolean isRebooting() {
+		return isRebooting;
+	}
+
+	public void setRebooting(boolean isRebooting) {
+		this.isRebooting = isRebooting;
+	}
+
+	public int getPort(){
+		return this.port;
 	}
 	
 	public int getReplicaPort(){

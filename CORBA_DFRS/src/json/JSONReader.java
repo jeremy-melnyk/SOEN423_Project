@@ -3,7 +3,9 @@ package json;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -104,6 +106,15 @@ public class JSONReader {
 	
 	public int getSequencerPort() {
 		return getPortForKeys("Sequencer", "");
+	}
+	
+	public List<Integer> getAllRMPorts(){
+		List<Integer> list = new ArrayList<Integer>(4);
+		for(HashMap<String, Integer> city : cityPorts.values()){
+			if(city.containsKey("RM"))
+				list.add(city.get("RM"));
+		}
+		return list;
 	}
 
 	// Testing
