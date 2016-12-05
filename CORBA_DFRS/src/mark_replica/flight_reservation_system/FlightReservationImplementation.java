@@ -43,11 +43,7 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 		this.city = city;
 		this.cityCode = cityCode;
 		this.port = port;
-	}
-
-	// Used for concurrent execution with other servers, executes at runtime
-	public void run() {
-
+		
 		System.out.println("Setting up server for " + city + "...");
 
 		int recordID = 0;
@@ -137,14 +133,16 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 				e.printStackTrace();
 			}
 		}
+	}
 
+	// Used for concurrent execution with other servers, executes at runtime
+	@Override
+	public void run() {
 		DatagramSocket aSocket = null;
 
 		try {
 			// Creating socket
 			aSocket = new DatagramSocket(port);
-
-			System.out.println("Initiating connection with other servers...");
 
 			byte[] buffer = new byte[1000];
 
