@@ -111,7 +111,8 @@ public class JSONReader {
 	public List<Integer> getAllRMPorts(){
 		List<Integer> list = new ArrayList<Integer>(4);
 		for(HashMap<String, Integer> city : cityPorts.values()){
-			list.add(city.get("RM"));
+			if(city.containsKey("RM"))
+				list.add(city.get("RM"));
 		}
 		return list;
 	}
