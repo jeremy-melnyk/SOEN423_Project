@@ -41,10 +41,6 @@ public class PassengerClient extends CorbaClient {
 		}
 		String originAndDestination = this.city.toString() + Constants.DELIMITER + destination.toUpperCase();
 		String result = flightServer.bookFlight(firstName, lastName, address.toString(), phoneNumber, originAndDestination, date, flightClass);
-		if(result.equals("No flight seat available.")){
-			System.out.println("BOOKFLIGHT_FAIL: " + result);
-		} else {
-			System.out.println("BOOKFLIGHT_SUCCESS: " + result);
-		}
+		System.out.println("BOOKFLIGHT: " + result);
 	}
 }
