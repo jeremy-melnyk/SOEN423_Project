@@ -28,8 +28,8 @@ import udp_parser.UdpParserBase;
 public class UdpParser extends UdpParserBase {
 	private final ORB orb;
 
-	public UdpParser(ORB orb) {
-		super(orb);
+	public UdpParser(ORB orb, int port) {
+		super(orb, port);
 		this.orb = orb;
 	}
 

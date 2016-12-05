@@ -1,0 +1,15 @@
+module friendly_end {
+	typedef sequence <string> strings;
+
+	interface FlightReservationServer{
+		string bookFlight(in string firstName, in string lastName, in string address, in string phoneNumber, in string destination, in string date, in string flightClass);
+		string getBookedFlightCount(in string bookedFlightCountRequest);
+		string editFlightRecord(in string editFlightRecordRequest, in string fieldToEdit, in string newValue);
+		string transferReservation(in string transferReservationRequest, in string currentCity, in string otherCity);
+		
+		strings getFlightRecords();
+		strings getFlightReservations();
+		strings getPassengerRecords();
+		strings getManagerRecords();
+	};
+};

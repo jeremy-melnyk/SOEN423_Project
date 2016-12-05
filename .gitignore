@@ -21,4 +21,4 @@ bin/
 hs_err_pid*
 
 # replicas
-Jeremy_Replica/logs/
+logs/

@@ -25,7 +25,7 @@ public class CaioPublisher {
 			org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
 			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 			// Set UDP Parser
-			UdpParserBase udpParser = new UdpParser(orb);
+			UdpParserBase udpParser = new UdpParser(orb, 3000);
 			// Set MTL
 			MTLServer mtl = new MTLServer(Integer.parseInt(args[1]));
 			mtl.setORB(orb);
