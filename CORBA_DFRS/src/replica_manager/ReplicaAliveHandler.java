@@ -9,12 +9,13 @@ import java.net.SocketTimeoutException;
 
 import packet.Operation;
 import packet.OperationParameters;
+import packet.OperationParametersHandler;
 import packet.Packet;
 import packet.ReplicaAliveOperation;
 import packet.ReplicaAliveReply;
 import udp.UdpHelper;
 
-public class ReplicaAliveHandler extends PacketParametersHandler {
+public class ReplicaAliveHandler extends OperationParametersHandler {
 	// 2 seconds
 	private final int TIMEOUT = 2000;
 	private ReplicaManager replicaManager;
@@ -38,6 +39,17 @@ public class ReplicaAliveHandler extends PacketParametersHandler {
 				portToPing = this.replicaManager.getReplicaPort();
 			}
 			
+			// If in the process of rebooting
+			if(replicaManager.isRebooting()){
+				// Send reply back to Front End 
+				ReplicaAliveReply isRebootingReplicaAliveReply = new ReplicaAliveReply(false, portToPing);
+				Packet isRebootingReplyPacket = new Packet(Operation.REPLICA_ALIVE, isRebootingReplicaAliveReply);
+				byte[] isRebootingReplyMessage = UdpHelper.getByteArray(isRebootingReplyPacket);
+				DatagramPacket isRebootingReply = new DatagramPacket(isRebootingReplyMessage, isRebootingReplyMessage.length, address, port);
+				newSocket.send(isRebootingReply);
+				return;
+			}
+			
 			// Ping UdpParser too see if replica is alive
 			ReplicaAliveOperation replicaAliveOperation = new ReplicaAliveOperation(portToPing);
 			Packet packet = new Packet(Operation.REPLICA_ALIVE, replicaAliveOperation);
@@ -58,7 +70,6 @@ public class ReplicaAliveHandler extends PacketParametersHandler {
 				replyMessage = UdpHelper.getByteArray(replyPacket);
 			}
 			
-			// Send reply back to Front End
 			DatagramPacket finalReply = new DatagramPacket(replyMessage, replyMessage.length, address, port);
 			newSocket.send(finalReply);
 		} catch (SocketException e) {

@@ -24,15 +24,25 @@ public class ReplicaManagerTests {
 		jsonReader.initialize();
 		
 		// Choose parser to test
-		String username = "Mark";
+		String username = "Jeremy";
 		
 		int udpPort = jsonReader.getPortForKeys(username, "RM");
 		
+		testReplicaAlive(udpPort);
 		testRebootReplica(udpPort);
 		testReplicaAlive(udpPort);
 		
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		testReplicaAlive(udpPort);
+		
+		try {
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

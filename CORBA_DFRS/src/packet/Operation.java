@@ -8,4 +8,7 @@ public enum Operation {
 	
 	REPLICA_ALIVE,
 	REPLICA_REBOOT,
+	
+	OPERATION_LOG,
+	EXECUTE_OPERATION_LOG
 }
