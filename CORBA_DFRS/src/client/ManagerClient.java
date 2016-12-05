@@ -1,10 +1,10 @@
-package jeremy_replica.client;
+package client;
 
 import org.omg.CORBA.ORB;
 
-import jeremy_replica.enums.City;
-import jeremy_replica.friendly_end.FlightReservationServer;
-import jeremy_replica.global.Constants;
+import enums.City;
+import friendly_end.FlightReservationServer;
+import global.Constants;
 
 public class ManagerClient extends CorbaClient {
 	private Integer id;
@@ -25,18 +25,17 @@ public class ManagerClient extends CorbaClient {
 		}
 		String request = getId() + Constants.DELIMITER + flightClass;
 		String result = flightServer.getBookedFlightCount(request);
-		System.out.println("BOOKED_FLIGHT_COUNT: " +  result);
+		System.out.println("COUNT: " + result);
 	}
 	
-	public void editFlightRecord(String editParameters, String fieldToEdit, String newValue){
+	public void editFlightRecord(int flightRecordId, String fieldName, String newValue){
 		FlightReservationServer flightServer = getFlightServer();
 		if (flightServer == null){
 			System.out.println("FlightServer was null for " + city);
 		}
-		String request = getId() + Constants.DELIMITER + editParameters;
-		String result = flightServer.editFlightRecord(request, fieldToEdit, newValue);
-		String operation = editParameters.split(Constants.DELIMITER_ESCAPE)[0];
-		System.out.println(operation + ": " + result);
+		String recordId = getId() + Constants.DELIMITER + flightRecordId;
+		String result = flightServer.editFlightRecord(recordId, fieldName, newValue);
+		System.out.println(fieldName + ": " + result);
 	}
 	
 	public void transferReservation(int flightRecordId, City otherCity){
@@ -47,14 +46,5 @@ public class ManagerClient extends CorbaClient {
 		String request = getId() + Constants.DELIMITER + flightRecordId;
 		String result = flightServer.transferReservation(request, city.toString(), otherCity.toString());
 		System.out.println("TRANSFER: " + result);
-	}
-	
-	protected String[] getManagerRecords(){
-		FlightReservationServer flightServer = getFlightServer();
-		if (flightServer == null){
-			System.out.println("FlightServer was null for " + city);
-			return new String[0];
-		}
-		return flightServer.getManagerRecords();
 	}
 }

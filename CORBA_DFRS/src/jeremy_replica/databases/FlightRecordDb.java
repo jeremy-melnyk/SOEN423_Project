@@ -10,6 +10,7 @@ import jeremy_replica.models.FlightRecord;
 import jeremy_replica.models.FlightSeats;
 
 public interface FlightRecordDb {
+	public FlightRecord getFlightRecord(Date date, City destination);
 	public FlightRecord getFlightRecord(Date date, Integer id);
 	public FlightRecord getFlightRecord(Integer id);
 	public FlightRecord[] getFlightRecords(Date date, FlightClass flightClass, City destination);

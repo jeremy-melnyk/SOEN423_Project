@@ -125,12 +125,12 @@ public class FrontEnd extends FlightReservationServerPOA{
 
 	@Override
 	public String[] getFlights() {
-		return null;
+		return new String[] {"List of flights here."};
 	}
 
 	@Override
 	public String[] getReservations() {
-		return null;
+		return new String[] {"List of flights here."};
 	}
 	
 	private String send(Packet packet){
