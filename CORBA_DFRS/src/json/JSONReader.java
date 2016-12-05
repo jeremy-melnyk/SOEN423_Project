@@ -5,14 +5,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-import enums.City;
-import models.PassengerRecord;
 
 public class JSONReader {
 
@@ -26,16 +24,20 @@ public class JSONReader {
 		cityPorts = new HashMap<String, HashMap<String, Integer>>();
 
 		// Default file path
-		filePath = "CORBA_DFRS/src/port_config.json";
+		filePath = "port_config.json";
+		
+		initialize();
 	}
 
 	public JSONReader(String filePath) {
 		replicaManagerPorts = new HashMap<String, Integer>();
 		cityPorts = new HashMap<String, HashMap<String, Integer>>();
 		this.filePath = filePath;
+		
+		initialize();
 	}
 
-	public void initialize() {
+	private void initialize() {
 		JSONParser parser = new JSONParser();
 
 		JSONArray replicaManagers;
@@ -105,6 +107,15 @@ public class JSONReader {
 	public int getSequencerPort() {
 		return getPortForKeys("Sequencer", "");
 	}
+	
+	public List<Integer> getAllRMPorts(){
+		List<Integer> list = new ArrayList<Integer>(4);
+		for(HashMap<String, Integer> city : cityPorts.values()){
+			if(city.containsKey("RM"))
+				list.add(city.get("RM"));
+		}
+		return list;
+	}
 
 	// Testing
 	public static void main(String[] args) {
@@ -117,5 +128,4 @@ public class JSONReader {
 		System.out.println(reader.getPortForKeys("Patrick", "MTL"));
 		System.out.println(reader.getSequencerPort());
 	}
-
 }
