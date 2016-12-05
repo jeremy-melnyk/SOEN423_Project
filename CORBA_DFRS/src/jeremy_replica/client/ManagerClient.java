@@ -25,7 +25,7 @@ public class ManagerClient extends CorbaClient {
 		}
 		String request = getId() + Constants.DELIMITER + flightClass;
 		String result = flightServer.getBookedFlightCount(request);
-		System.out.println(result);
+		System.out.println("BOOKED_FLIGHT_COUNT: " +  result);
 	}
 	
 	public void editFlightRecord(String editParameters, String fieldToEdit, String newValue){
@@ -35,8 +35,8 @@ public class ManagerClient extends CorbaClient {
 		}
 		String request = getId() + Constants.DELIMITER + editParameters;
 		String result = flightServer.editFlightRecord(request, fieldToEdit, newValue);
-		String operation = editParameters.split("\\|")[0];
-		System.out.println(operation + " : " + result);
+		String operation = editParameters.split(Constants.DELIMITER_ESCAPE)[0];
+		System.out.println(operation + ": " + result);
 	}
 	
 	public void transferReservation(int flightRecordId, City otherCity){
@@ -46,7 +46,7 @@ public class ManagerClient extends CorbaClient {
 		}
 		String request = getId() + Constants.DELIMITER + flightRecordId;
 		String result = flightServer.transferReservation(request, city.toString(), otherCity.toString());
-		System.out.println(result);
+		System.out.println("TRANSFER: " + result);
 	}
 	
 	protected String[] getManagerRecords(){

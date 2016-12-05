@@ -5,11 +5,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Date;
 
 import jeremy_replica.databases.DatabaseRepository;
 import jeremy_replica.databases.FlightRecordDb;
 import jeremy_replica.databases.FlightReservationDb;
 import jeremy_replica.databases.PassengerRecordDb;
+import jeremy_replica.enums.City;
+import jeremy_replica.enums.FlightClass;
 import jeremy_replica.models.FlightRecord;
 import jeremy_replica.models.FlightReservation;
 import jeremy_replica.models.PassengerRecord;
@@ -45,25 +48,33 @@ public class TransferReservationHandler extends RequestHandler {
 				return;
 			}
 			
-			// TODO : Fix Transfer Reservation Logic
 			// Flight reservation can only be transferred if
 			// A. Flight to same destination is available
 			// B. The flight could be booked normally
 			// Must link to flight record, and transfer passenger record if it does not exist
-			/*
+			
+			boolean transferResult = false;
+			
+			City destination = flightReservation.getFlightRecord().getDestination();
+			Date date = flightReservation.getFlightRecord().getFlightDate();
+			FlightClass flightClass = flightReservation.getFlightClass();
+			
 			PassengerRecordDb passengerRecordDb = databaseRepository.getPassengerRecordDb();
 			FlightRecordDb flightRecordDb = databaseRepository.getFlightRecordDb();
-			FlightRecord newFlightRecord = flightRecordDb.addFlightRecord(flightReservation.getFlightRecord());
-			PassengerRecord newPassengerRecord = passengerRecordDb.addPassengerRecord(flightReservation.getPassengerRecord());
-			flightReservation.setFlightRecord(newFlightRecord);
-			flightReservation.setPassengerRecord(newPassengerRecord);
-			*/
+			FlightReservationDb flightReservationDb = databaseRepository.getFlightReservationDb();
 			
-			// Transfer flight reservation
-			FlightReservationDb flightReservationDb = databaseRepository.getFlightReservationDb();		
-			flightReservationDb.addFlightReservation(flightReservation);
-			
-			boolean transferResult = flightReservation != null;
+			// Transfer flight reservation, if valid flight record exists for transfer, and seat is available
+			FlightRecord existingFlightRecord = flightRecordDb.getFlightRecord(date, destination);
+			if(existingFlightRecord != null){
+				boolean acquiredSeat = existingFlightRecord.getFlightClasses().get(flightClass).acquireSeat();
+				if(acquiredSeat){
+					PassengerRecord newPassengerRecord = passengerRecordDb.addPassengerRecord(flightReservation.getPassengerRecord());
+					flightReservation.setFlightRecord(existingFlightRecord);
+					flightReservation.setPassengerRecord(newPassengerRecord);
+					flightReservationDb.addFlightReservation(flightReservation);
+					transferResult = true;	
+				}
+			}
 			
 			// Send result
 			byte[] result = UdpHelper.booleanToByteArray(transferResult);

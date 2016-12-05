@@ -82,7 +82,7 @@ public class TransferReservationTask extends Task<String> {
 				boolean result = UdpHelper.byteArrayToBoolean(resultPacket.getData());
 				if (!result) {
 					// Cancel transaction
-					return "Cancelled";
+					return "Unable to transfer.";
 				}
 
 				// Complete transaction
