@@ -27,7 +27,7 @@ import packet.ReplicaAliveReply;
 import packet.Operation;
 import packet.TransferReservationOperation;
 import packet.TransferReservationReply;
-
+/*
 public abstract class UdpParserBase implements Runnable {
 	private final int BUFFER_SIZE = 50000;
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
@@ -130,3 +130,4 @@ public abstract class UdpParserBase implements Runnable {
 		}
 	}
 }
+*/

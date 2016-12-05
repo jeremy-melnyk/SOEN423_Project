@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 import packet.Packet;
 import udp.UdpHelper;
 
-public class Sequencer implements Runnable{
+public class Sequencer {
 	private final int BUFFER_SIZE = 5000;
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
 	private final ExecutorService threadPool;
@@ -20,15 +20,17 @@ public class Sequencer implements Runnable{
 	private int sequencernumber = 1;
 	private ArrayList<Packet> sequencerlog = new ArrayList<Packet>();
 	private final int groupportnumber = 9876;
+	Thread packetDispatcherThread;
 	
 	public static void main(String[] args){
 		Sequencer sequencer = new Sequencer("");
-		new Thread(sequencer).start();
 	}
 
 	public Sequencer(String message) {
 		super();
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+		this.packetDispatcherThread = initPacketDispatcherThread();
+		this.packetDispatcherThread.start();
 	}
 
 	public ArrayList<Packet> getSequencerLog() {
@@ -43,9 +45,10 @@ public class Sequencer implements Runnable{
 		this.sequencernumber = sequencernumber;
 	}
 	
-	@Override
-	public void run() {
-		serveRequests();
+	private Thread initPacketDispatcherThread(){
+		return new Thread(() -> {
+			serveRequests();
+		});
 	}
 
 	public void multicastToGroup(Packet packet) {
