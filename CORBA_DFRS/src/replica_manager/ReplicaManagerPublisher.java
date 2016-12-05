@@ -13,8 +13,10 @@ import json.JSONReader;
 public class ReplicaManagerPublisher {
 	private static final String JSON_CONFIG_PATH = "port_config.json";
 	private static final String REPLICA_1_PATH = "java -classpath json-simple-1.1.jar;bin jeremy_replica.server.PublishingServer";
-	private static final String REPLICA_2_PATH = "java -classpath json-simple-1.1.jar;bin servers.CaioPublisher";
-	private static final String REPLICA_3_PATH = "java -classpath json-simple-1.1.jar;bin server.FlightReservationServerPublisher";
+	private static final String REPLICA_2_PATH = "java -classpath json-simple-1.1.jar;bin caio_replica.servers.CaioPublisher";
+	private static final String REPLICA_3_PATH = "java -classpath json-simple-1.1.jar;bin mark_replica.server.FlightReservationServerPublisher";
+	// TODO : Add Tam's publishing server path
+	private static final String REPLICA_4_PATH = "java -classpath json-simple-1.1.jar;bin tam_replica.??";
 	
 	public static void main(String[] args) {
 		JSONReader jsonReader = new JSONReader(JSON_CONFIG_PATH);
@@ -31,10 +33,14 @@ public class ReplicaManagerPublisher {
 		int rm_3_port = jsonReader.getPortForKeys("Mark", "RM");
 		ReplicaManager rm3 = new ReplicaManager(rm_3_port, REPLICA_3_PATH, new CustomLogger(new TextFileLog()));
 		
+		int rm_4_port = jsonReader.getPortForKeys("Patrick", "RM");
+		ReplicaManager rm4 = new ReplicaManager(rm_4_port, REPLICA_4_PATH, new CustomLogger(new TextFileLog()));
+		
 		HashMap<String, ReplicaManager> replicaManagers = new HashMap<String, ReplicaManager>();
 		replicaManagers.put("RM_1", rm1);
-		//replicaManagers.put("RM_2", rm2);
-		//replicaManagers.put("RM_3", rm3);
+		replicaManagers.put("RM_2", rm2);
+		replicaManagers.put("RM_3", rm3);
+		//replicaManagers.put("RM_4", rm4);
 		
 		for(Entry<String, ReplicaManager> entry : replicaManagers.entrySet()){
 			ReplicaManager replicaManager = entry.getValue();

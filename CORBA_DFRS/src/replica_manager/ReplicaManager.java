@@ -9,18 +9,19 @@ import java.util.concurrent.Executors;
 import jeremy_replica.log.ILogger;
 
 public class ReplicaManager implements Runnable {
-	private final String TAG = "REPLICA_MANAGER";
 	private final int BUFFER_SIZE = 5000;
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
 	private final ExecutorService threadPool;
 	private ILogger logger;
 	private String replicaPath;
 	private int port;
-	Process replica;
-	Thread shutdownHook;
+	private Process replica;
+	private Thread shutdownHook;
+	private final String tag;
 	
 	public ReplicaManager(int port, String replicaPath, ILogger logger) {
 		super();
+		this.tag = "REPLICA_MANAGER_" + port;
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		this.replicaPath = replicaPath;
 		this.port = port;
@@ -41,11 +42,11 @@ public class ReplicaManager implements Runnable {
 			replica.destroy();
 			replica.waitFor();
 			replica = runtime.exec(replicaPath);
-			logger.log(TAG, "REPLICA_REBOOTED", "Replica: " + replicaPath + " was rebooted.");
+			logger.log(tag, "REPLICA_REBOOTED", "Replica: " + replicaPath + " was rebooted.");
 			resetShutdownHook();
 			return true;
 		} catch (IOException e) {
-			logger.log(TAG, "REPLICA_REBOOT_ERROR", e.getMessage());
+			logger.log(tag, "REPLICA_REBOOT_ERROR", e.getMessage());
 			e.printStackTrace();
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
@@ -58,10 +59,10 @@ public class ReplicaManager implements Runnable {
 		try {
 			Runtime runtime = Runtime.getRuntime();
 			replica = runtime.exec(replicaPath);
-			logger.log(TAG, "REPLICA_INITIALIZED", "Replica: " + replicaPath + " was initialized.");
+			logger.log(tag, "REPLICA_INITIALIZED", "Replica: " + replicaPath + " was initialized.");
 			resetShutdownHook();
 		} catch (IOException e) {
-			logger.log(TAG, "REPLICA_INIT_ERROR", e.getMessage());
+			logger.log(tag, "REPLICA_INIT_ERROR", e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -75,10 +76,10 @@ public class ReplicaManager implements Runnable {
 			try {
 				if(replica != null){
 					replica.destroy();
-					logger.log(TAG, "REPLICA_DESTROYED", "Replica: " + replicaPath + " was destroyed by JVM shutdown hook.");	
+					logger.log(tag, "REPLICA_DESTROYED", "Replica: " + replicaPath + " was destroyed by JVM shutdown hook.");	
 				}
 			} catch (Exception e) {
-				logger.log(TAG, "REPLICA_DESTROY_FAIL", e.getMessage());
+				logger.log(tag, "REPLICA_DESTROY_FAIL", e.getMessage());
 				e.printStackTrace();
 			} finally {
 				replica = null;	
