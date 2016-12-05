@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import packet.BookFlightOperation;
 import packet.ExecuteOperationLogOperation;
 import packet.Operation;
 import packet.OperationLogOperation;
@@ -18,14 +17,19 @@ import packet.Packet;
 import packet.ReplicaRebootReply;
 import udp.UdpHelper;
 
-public class ReplicaRebootHandler extends OperationParametersHandler {
+public class ReplicaRebootHandler extends OperationParametersHandler implements Runnable {
 	private ReplicaManager replicaManager;
 
 	public ReplicaRebootHandler(InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
 		super(address, port, operationParameters);
 		this.replicaManager = replicaManager;
 	}
-
+	
+	@Override
+	public void run() {
+		execute();
+	}
+	
 	@Override
 	public void execute() {
 		DatagramSocket newSocket = null;
@@ -52,16 +56,6 @@ public class ReplicaRebootHandler extends OperationParametersHandler {
 			OperationLogReply operationLogReply = (OperationLogReply) sequencerReplyPacket.getOperationParameters();
 			ArrayList<Packet> operationLog = operationLogReply.getOperationLog();
 			
-			// TESTING
-			// Build the action for the packet
-			BookFlightOperation bookFlightOperation = new BookFlightOperation.BuilderImpl("John").lastName("Doe")
-					.address("Address").phoneNumber("PhoneNumber").destination("MTL|NDL").date("06/05/2016")
-					.flightClass("FIRST").build();
-			
-			// Create a packet with the operation
-			Packet testPacket = new Packet(Operation.BOOK_FLIGHT, bookFlightOperation);
-			operationLog.add(testPacket);
-			
 			// Replica re-performs all operations in the log
 			ExecuteOperationLogOperation executeOperationLogOperation = new ExecuteOperationLogOperation(operationLog);
 			Packet executeOperationLogOperationPacket = new Packet(Operation.EXECUTE_OPERATION_LOG, executeOperationLogOperation);
@@ -69,7 +63,7 @@ public class ReplicaRebootHandler extends OperationParametersHandler {
 			DatagramPacket operationPacket = new DatagramPacket(operationLogPayload, operationLogPayload.length, address, replicaManager.getReplicaPort());
 			try {
 				// Would prefer an alternative, but it won't work without a delay
-				// No access to error logs, and packet doesn't get sent otherwise
+				// Packet doesn't get sent otherwise and it hangs at newSocket.receive()
 				Thread.sleep(400);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

@@ -33,6 +33,7 @@ public abstract class UdpParserBase implements Runnable {
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
 	private final ExecutorService threadPool;
 	private ILogger logger;
+	private final String tag;
 
 	protected final ORB orb;
 	protected final int port;
@@ -42,6 +43,7 @@ public abstract class UdpParserBase implements Runnable {
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		this.orb = orb;
 		this.port = port;
+		this.tag = "UDP_PARSER_"  + port;
 		this.logger = new CustomLogger(new TextFileLog());
 	}
 
@@ -57,32 +59,37 @@ public abstract class UdpParserBase implements Runnable {
 	public Packet processPacket(Packet packet) {
 		Operation replicaOperation = packet.getReplicaOperation();
 		OperationParameters operationParameters = packet.getOperationParameters();
-		this.logger.log("UDP_PARSER", "SWITCH_STATEMENT", packet.toString());
+		this.logger.log("UDP_PARSER", "PACKET_RECEIVED", replicaOperation.toString());
 		switch (replicaOperation) {
 		case BOOK_FLIGHT:
 			BookFlightOperation bookFlightOperation = (BookFlightOperation) operationParameters;
 			BookFlightReply bookFlightResult = bookFlight(bookFlightOperation);
+			this.logger.log(tag, "BOOK_FLIGHT_REPLY", bookFlightResult.toString());
 			return new Packet(Operation.BOOK_FLIGHT, bookFlightResult);
 		case BOOKED_FLIGHTCOUNT:
 			GetBookedFlightCountOperation getBookedFlightCountOperation = (GetBookedFlightCountOperation) operationParameters;
 			GetBookedFlightCountReply bookedFlightCountResult = getBookedFlightCount(getBookedFlightCountOperation);
+			this.logger.log(tag, "GET_BOOKED_FLIGHT_COUNT_REPLY", bookedFlightCountResult.toString());
 			return new Packet(Operation.BOOKED_FLIGHTCOUNT, bookedFlightCountResult);
 		case EDIT_FLIGHT:
 			EditFlightRecordOperation editFlightRecordOperation = (EditFlightRecordOperation) operationParameters;
 			EditFlightRecordReply editFlightRecordOperationResult = editFlightRecord(editFlightRecordOperation);
+			this.logger.log(tag, "EDIT_FLIGHT_RECORD_REPLY", editFlightRecordOperationResult.toString());
 			return new Packet(Operation.EDIT_FLIGHT, editFlightRecordOperationResult);
 		case TRANSFER_RESERVATION:
 			TransferReservationOperation transferReservationOperation = (TransferReservationOperation) operationParameters;
 			TransferReservationReply transferReservationOperationResult = transferReservation(transferReservationOperation);
+			this.logger.log(tag, "TRANSFER_RESERVATION_REPLY", transferReservationOperationResult.toString());
 			return new Packet(Operation.TRANSFER_RESERVATION, transferReservationOperationResult);
 		case REPLICA_ALIVE:
 			ReplicaAliveOperation replicaAliveOperation = (ReplicaAliveOperation) operationParameters;
 			ReplicaAliveReply replicaAliveReply = replicaAlive(replicaAliveOperation);
+			this.logger.log(tag, "REPLICA_ALIVE_REPLY", replicaAliveReply.toString());
 			return new Packet(Operation.REPLICA_ALIVE, replicaAliveReply);
 		case EXECUTE_OPERATION_LOG:
-			this.logger.log("UDP_PARSER", "EXECUTE_OPERATION_LOG", packet.toString());
 			ExecuteOperationLogOperation executeOperationLogOperation = (ExecuteOperationLogOperation) operationParameters;
 			ExecuteOperationLogReply executeOperationLogReply = executeOperationLog(executeOperationLogOperation);
+			this.logger.log(tag, "EXECUTE_OPERATION_LOG_REPLY", executeOperationLogReply.toString());
 			return new Packet(Operation.EXECUTE_OPERATION_LOG, executeOperationLogReply);
 		default:
 			break;
@@ -118,7 +125,6 @@ public abstract class UdpParserBase implements Runnable {
 				byte[] buffer = new byte[BUFFER_SIZE];
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
-				this.logger.log("UDP_PARSER", "SERVE_REQUESTS", packet.toString());
 				threadPool.execute(new UdpParserPacketDispatcher(this, packet));
 			}
 		} catch (IOException e) {
