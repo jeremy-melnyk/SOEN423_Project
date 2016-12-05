@@ -20,7 +20,6 @@ public class ReplicaManagerPublisher {
 	
 	public static void main(String[] args) {
 		JSONReader jsonReader = new JSONReader(JSON_CONFIG_PATH);
-		jsonReader.initialize();
 		
 		// TODO : Add Patrick's replica
 		

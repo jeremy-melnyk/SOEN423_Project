@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import org.omg.CORBA.ORB;
 
 import json.JSONReader;
-import caio_replica.udp_parser.UdpParser;
 import udp.UdpHelper;
 import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
@@ -28,7 +27,6 @@ public class UdpParserTests {
 		
 		// Initialize ports configuration
 		JSONReader jsonReader = new JSONReader();
-		jsonReader.initialize();
 		
 		// Choose parser to test
 		String username = "Jeremy";
