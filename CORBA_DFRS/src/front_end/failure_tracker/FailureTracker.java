@@ -10,18 +10,17 @@ import java.util.HashMap;
  *
  */
 public class FailureTracker {
-	HashMap<String, Integer> fails;
+	HashMap<Integer, Integer> fails;
 	
 	public FailureTracker(){
-		fails = new HashMap<String, Integer>();
+		fails = new HashMap<Integer, Integer>();
 	}
 	
-	public synchronized int insertFailure(InetAddress address, int port){
-		String socketAddress =  address.toString()+port;
-		if(fails.containsKey(socketAddress)){
-			return fails.replace(socketAddress, fails.get(socketAddress)+1);
+	public synchronized int insertFailure(int port){
+		if(fails.containsKey(port)){
+			return fails.replace(port, fails.get(port)+1);
 		}else{
-			return fails.put(socketAddress, 1);
+			return fails.put(port, 1);
 		}
 	}
 

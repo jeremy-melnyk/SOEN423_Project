@@ -21,6 +21,7 @@ import friendly_end.FlightReservationServer;
 import friendly_end.FlightReservationServerHelper;
 import friendly_end.FlightReservationServerPOA;
 import front_end.failure_tracker.FailureTracker;
+import json.JSONReader;
 import packet.BookFlightOperation;
 import packet.EditFlightRecordOperation;
 import packet.GetBookedFlightCountOperation;
@@ -32,9 +33,9 @@ import packet.TransferReservationOperation;
 import udp.UdpHelper;
 
 public class FrontEnd extends FlightReservationServerPOA{
-	private final String sequencer;
+	private final int sequencer;
 	private FailureTracker failureTracker;
-	private HashMap<String, String> replicaTracker;
+	private HashMap<Integer, Integer> replicaTracker;
 	private ORB orb;
 
 	public static void main(String[] args) {
@@ -67,12 +68,15 @@ public class FrontEnd extends FlightReservationServerPOA{
 	public FrontEnd(){
 		failureTracker = new FailureTracker();
 		// GET RMs' address from config
-		replicaTracker = new HashMap<String, String>();
+		replicaTracker = new HashMap<Integer, Integer>();
+		JSONReader jsonReader = new JSONReader();
+		jsonReader.initialize();
+		
 		//RMs = "localhost:3333\nlocalhost:4444\nlocalhost:5555".split("\n");
-		for(String RM : "localhost:3333\nlocalhost:4444\nlocalhost:5555".split("\n"))
-			replicaTracker.put(RM, "");
+		for(int RM : jsonReader.getAllRMPorts())
+			replicaTracker.put(RM, 0);
 		// Get sequencer's address from config
-		sequencer = "localhost:1234";
+		sequencer = jsonReader.getSequencerPort();
 	}
 	
 	public void setORB(ORB orb){
@@ -155,18 +159,17 @@ public class FrontEnd extends FlightReservationServerPOA{
 	
 	private List<Integer> getActiveReplicas(DatagramSocket socket) {
 		List<Integer> group = new ArrayList<Integer>();
-		HashMap<String, DatagramPacket> transmitionTracker = new HashMap<String, DatagramPacket>();
+		HashMap<Integer, DatagramPacket> transmitionTracker = new HashMap<Integer, DatagramPacket>();
 		try{
 			// Multicast 
-			for(String RM : replicaTracker.keySet()){
-				URL url = new URL(RM);
-				InetAddress host = InetAddress.getByName(url.getHost());
-				ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(2222 /*?*/);
+			for(int RM : replicaTracker.keySet()){
+				InetAddress host = InetAddress.getLocalHost();
+				ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation();
 				Packet packet = new Packet(Operation.REPLICA_ALIVE, aliveRequest);
 				byte[] packetBytes = UdpHelper.getByteArray(packet);
-				DatagramPacket seq = new DatagramPacket(packetBytes, packetBytes.length, host, url.getPort());
+				DatagramPacket seq = new DatagramPacket(packetBytes, packetBytes.length, host, RM);
 				socket.send(seq);
-				transmitionTracker.put(seq.getAddress()+":"+seq.getPort(), seq);
+				transmitionTracker.put(seq.getPort(), seq);
 			}
 			int counter = replicaTracker.size();
 			socket.setSoTimeout(2000);
@@ -175,14 +178,14 @@ public class FrontEnd extends FlightReservationServerPOA{
 					byte buffer[] = new byte[100];
 					DatagramPacket p = new DatagramPacket(buffer, buffer.length);
 					socket.receive(p);
-					if (transmitionTracker.containsKey(p.getAddress()+":"+p.getPort()))
-						transmitionTracker.remove(p.getAddress()+":"+p.getPort());	// Remove from tracker
+					if (transmitionTracker.containsKey(p.getPort()))
+						transmitionTracker.remove(p.getPort());	// Remove from tracker
 					else
 						continue;	// If repeated
 					ReplicaAliveReply reply = (ReplicaAliveReply) UdpHelper.getObjectFromByteArray(p.getData());
 					if(reply.isAlive()){
 						group.add(reply.getReplicaPort());
-						replicaTracker.put(p.getAddress()+":"+p.getPort(), "localhost:"+reply.getReplicaPort());
+						replicaTracker.put(p.getPort(), reply.getReplicaPort());
 					}
 					counter--;
 				}catch (SocketTimeoutException e){
