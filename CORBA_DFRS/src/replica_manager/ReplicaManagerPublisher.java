@@ -24,7 +24,7 @@ public class ReplicaManagerPublisher {
 		int replica2Port = jsonReader.getPortForKeys("Caio", "");
 		int replica3Port = jsonReader.getPortForKeys("Mark", "");
 		int replica4Port = jsonReader.getPortForKeys("Patrick", "");
-		int sequencerPort = jsonReader.getSequencerPort();
+		int sequencerPort = 50000;
 		
 		int rm_1_port = jsonReader.getPortForKeys("Jeremy", "RM");
 		ReplicaManager rm1 = new ReplicaManager(rm_1_port, replica1Port, sequencerPort, REPLICA_1_PATH, new CustomLogger(new TextFileLog()));

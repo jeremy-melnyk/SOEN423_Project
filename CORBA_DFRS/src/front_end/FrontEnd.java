@@ -181,7 +181,6 @@ public class FrontEnd extends FlightReservationServerPOA{
 						continue;	// If repeated
 					Packet packetReply = (Packet) UdpHelper.getObjectFromByteArray(p.getData());
 					ReplicaAliveReply reply = (ReplicaAliveReply) packetReply.getOperationParameters();
-					System.out.println(reply.getReplicaPort() + " : " + reply.isAlive());
 					if(reply.isAlive()){
 						group.add(reply.getReplicaPort());
 						replicaTracker.put(p.getPort(), reply.getReplicaPort());

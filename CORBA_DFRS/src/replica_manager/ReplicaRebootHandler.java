@@ -35,16 +35,17 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 		DatagramSocket newSocket = null;
 		try {
 			newSocket = new DatagramSocket();
+			newSocket.setReuseAddress(true);
 			
 			// Reboot replica
 			replicaManager.setRebooting(true);
 			boolean result = replicaManager.rebootReplica();
 			
-			int sequencerPort = replicaManager.getSequencerPort();
+			int replicaManagerSequencerPort = replicaManager.getReplicaManagerSequencerPort();
 			OperationLogOperation operationLogOperation = new OperationLogOperation(replicaManager.getPort());
 			Packet operationLogPacket = new Packet(newSocket.getInetAddress(), newSocket.getLocalPort(), Operation.OPERATION_LOG, operationLogOperation);
 			byte[] operationLogMessage = UdpHelper.getByteArray(operationLogPacket);
-			DatagramPacket requestPacket = new DatagramPacket(operationLogMessage, operationLogMessage.length, address, sequencerPort);
+			DatagramPacket requestPacket = new DatagramPacket(operationLogMessage, operationLogMessage.length, address, replicaManagerSequencerPort);
 			newSocket.send(requestPacket);
 			
 			// Receive reply from Sequencer
@@ -64,7 +65,7 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 			try {
 				// Would prefer an alternative, but it won't work without a delay
 				// Packet doesn't get sent otherwise and it hangs at newSocket.receive()
-				Thread.sleep(400);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
