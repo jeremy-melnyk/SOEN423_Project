@@ -88,7 +88,7 @@ public class FrontEndTransfer extends Thread {
 				int counter = group.size();
 				while(counter > 0 /* All replicas */){
 					try{
-						buffer = new byte[1000];
+						buffer = new byte[50000];
 						DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 						socket.receive(reply);
 						Packet replyPacket = (Packet) UdpHelper.getObjectFromByteArray(reply.getData());
