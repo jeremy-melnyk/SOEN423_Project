@@ -92,7 +92,7 @@ public class EditFlightRecordReply extends OperationParameters {
 
 	@Override
 	public String toString() {
-		if(error != ""){
+		if(!error.isEmpty()){
 			return error;
 		}
 		StringBuilder sb = new StringBuilder();

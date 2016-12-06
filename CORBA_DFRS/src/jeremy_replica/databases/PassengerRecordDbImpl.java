@@ -11,7 +11,7 @@ import jeremy_replica.models.Address;
 import jeremy_replica.models.PassengerRecord;
 
 public class PassengerRecordDbImpl implements PassengerRecordDb {
-	private static int RECORD_ID = 0;
+	private static int RECORD_ID = 1;
 	private HashMap<Integer, PassengerRecord> records;
 	private ReadWriteLock recordsLock;
 	private static Lock idLock = new ReentrantLock(true);
