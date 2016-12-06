@@ -116,7 +116,7 @@ public class ReplicaManager implements Runnable {
 				byte[] buffer = new byte[BUFFER_SIZE];
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
-				threadPool.execute(new ReplicaManagerPacketDispatcher(packet, this));
+				threadPool.execute(new ReplicaManagerPacketDispatcher(socket, packet, this));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

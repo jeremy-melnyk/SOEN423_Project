@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 
 import org.omg.CORBA.ORB;
 
+import global.Constants;
 import jeremy_replica.log.ILogger;
 import jeremy_replica.log.CustomLogger;
 import jeremy_replica.log.TextFileLog;
@@ -133,8 +134,28 @@ public abstract class UdpParserBase implements Runnable {
 	
 	private Thread initSequencerLogThread() {
 		return new Thread(() -> {
-			requestSequencerLog();
+			//requestSequencerLog();
+			replicaManagerRequests();
 		});
+	}
+	
+	private void replicaManagerRequests() {
+		DatagramSocket socket = null;
+		try {
+			socket = new DatagramSocket(port);
+			while (true) {
+				byte[] buffer = new byte[BUFFER_SIZE];
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				socket.receive(packet);
+				threadPool.execute(new UdpParserReplicaManagerPacketDispatcher(this, packet));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (socket != null){
+				socket.close();
+			}
+		}
 	}
 	
 	private ExecuteOperationLogReply executeOperationLog(ExecuteOperationLogOperation executeOperationLogOperation) {
@@ -149,7 +170,7 @@ public abstract class UdpParserBase implements Runnable {
 		MulticastSocket mSocket = null;
 		try {
 			mSocket = new MulticastSocket(groupportnumber);
-			InetAddress aGroup = InetAddress.getByName("localhost");
+			InetAddress aGroup = InetAddress.getByName(Constants.MULTICAST_ADDRESS);
 			mSocket.joinGroup(aGroup);
 
 			while (true) {
@@ -180,7 +201,7 @@ public abstract class UdpParserBase implements Runnable {
 
 			// creates MulticastSocket with InetAddress and ServerPort
 			aSocket = new MulticastSocket();
-			InetAddress aGroup = InetAddress.getByName("localhost");
+			InetAddress aGroup = InetAddress.getByName(Constants.MULTICAST_ADDRESS);
 
 			// join group
 			aSocket.joinGroup(aGroup);
@@ -242,7 +263,8 @@ public abstract class UdpParserBase implements Runnable {
 	public boolean checkHoldBackQueue() {
 		Packet convertedpacket=(Packet)UdpHelper.getObjectFromByteArray(holdbackqueue.peek().getData());
 		int receivedseqnumber = convertedpacket.getSequencernumber();
-		if (receivedseqnumber == this.getLastreceivednumber()) {
+		int expectedSequenceNumber = this.getLastreceivednumber() + 1;
+		if (receivedseqnumber == expectedSequenceNumber) {
 			return true;
 		} else {
 			return false;

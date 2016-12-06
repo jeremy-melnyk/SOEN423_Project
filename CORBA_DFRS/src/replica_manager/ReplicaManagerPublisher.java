@@ -15,13 +15,10 @@ public class ReplicaManagerPublisher {
 	private static final String REPLICA_1_PATH = "java -classpath json-simple-1.1.jar;bin jeremy_replica.server.PublishingServer";
 	private static final String REPLICA_2_PATH = "java -classpath json-simple-1.1.jar;bin caio_replica.servers.CaioPublisher";
 	private static final String REPLICA_3_PATH = "java -classpath json-simple-1.1.jar;bin mark_replica.server.FlightReservationServerPublisher";
-	// TODO : Add Tam's publishing server path
-	private static final String REPLICA_4_PATH = "java -classpath json-simple-1.1.jar;bin tam_replica.??";
+	private static final String REPLICA_4_PATH = "java -classpath json-simple-1.1.jar;bin tam_replica.PublishingServer.PublishingServer";
 	
 	public static void main(String[] args) {
 		JSONReader jsonReader = new JSONReader(JSON_CONFIG_PATH);
-		
-		// TODO : Add Patrick's replica
 		
 		int replica1Port = jsonReader.getPortForKeys("Jeremy", "");
 		int replica2Port = jsonReader.getPortForKeys("Caio", "");
@@ -44,7 +41,7 @@ public class ReplicaManagerPublisher {
 		replicaManagers.put("RM_1", rm1);
 		replicaManagers.put("RM_2", rm2);
 		replicaManagers.put("RM_3", rm3);
-		//replicaManagers.put("RM_4", rm4);
+		replicaManagers.put("RM_4", rm4);
 		
 		for(Entry<String, ReplicaManager> entry : replicaManagers.entrySet()){
 			ReplicaManager replicaManager = entry.getValue();

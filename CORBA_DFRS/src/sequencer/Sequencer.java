@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 
+import global.Constants;
 import json.JSONReader;
 import packet.Packet;
 import udp.UdpHelper;
@@ -55,7 +56,7 @@ public class Sequencer implements Runnable{
 
 			// creates MulticastSocket with InetAddress and ServerPort
 			aSocket = new MulticastSocket();
-			InetAddress aGroup = InetAddress.getByName("localhost");
+			InetAddress aGroup = InetAddress.getByName(Constants.MULTICAST_ADDRESS);
 
 			// join group
 			aSocket.joinGroup(aGroup);

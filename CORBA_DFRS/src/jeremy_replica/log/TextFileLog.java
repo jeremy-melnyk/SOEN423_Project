@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-
-import jeremy_replica.global.Constants;
 
 public class TextFileLog implements ILog {
 	
@@ -31,7 +28,7 @@ public class TextFileLog implements ILog {
 		try
 		{
 			fileWriter = new FileWriter(file, true);
-			fileWriter.write(message + Constants.DELIMITER + "TimeStamp" + Constants.DELIMITER + new Date().toString());
+			fileWriter.write(message);
 		} catch (IOException e)
 		{
 			e.printStackTrace();

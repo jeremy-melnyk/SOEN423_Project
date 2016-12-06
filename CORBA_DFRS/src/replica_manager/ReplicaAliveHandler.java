@@ -20,8 +20,8 @@ public class ReplicaAliveHandler extends OperationParametersHandler implements R
 	private final int TIMEOUT = 2000;
 	private ReplicaManager replicaManager;
 	
-	public ReplicaAliveHandler(InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
-		super(address, port, operationParameters);
+	public ReplicaAliveHandler(DatagramSocket socket, InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
+		super(socket, address, port, operationParameters);
 		this.replicaManager = replicaManager;
 	}
 	
@@ -48,16 +48,16 @@ public class ReplicaAliveHandler extends OperationParametersHandler implements R
 			if(replicaManager.isRebooting()){
 				// Send reply back to Front End 
 				ReplicaAliveReply isRebootingReplicaAliveReply = new ReplicaAliveReply(false, portToPing);
-				Packet isRebootingReplyPacket = new Packet(Operation.REPLICA_ALIVE, isRebootingReplicaAliveReply);
+				Packet isRebootingReplyPacket = new Packet(socket.getLocalAddress(), socket.getLocalPort(), Operation.REPLICA_ALIVE, isRebootingReplicaAliveReply);
 				byte[] isRebootingReplyMessage = UdpHelper.getByteArray(isRebootingReplyPacket);
 				DatagramPacket isRebootingReply = new DatagramPacket(isRebootingReplyMessage, isRebootingReplyMessage.length, address, port);
-				newSocket.send(isRebootingReply);
+				socket.send(isRebootingReply);
 				return;
 			}
 			
 			// Ping UdpParser too see if replica is alive
 			ReplicaAliveOperation replicaAliveOperation = new ReplicaAliveOperation(portToPing);
-			Packet packet = new Packet(Operation.REPLICA_ALIVE, replicaAliveOperation);
+			Packet packet = new Packet(newSocket.getLocalAddress(), newSocket.getLocalPort(), Operation.REPLICA_ALIVE, replicaAliveOperation);
 			byte[] message = UdpHelper.getByteArray(packet);
 			DatagramPacket request = new DatagramPacket(message, message.length, address, portToPing);
 			newSocket.send(request);
@@ -65,18 +65,19 @@ public class ReplicaAliveHandler extends OperationParametersHandler implements R
 			// Receive UdpParser reply, return false if timeout
 			byte[] buffer = new byte[BUFFER_SIZE];
 			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			byte[] replyMessage = null;
+			ReplicaAliveReply replicaAliveReply = null;
 			try{
 				newSocket.receive(reply);
-				replyMessage = reply.getData();
+				Packet udpParserPacket = (Packet) UdpHelper.getObjectFromByteArray(reply.getData());
+				replicaAliveReply = (ReplicaAliveReply) udpParserPacket.getOperationParameters();
 			} catch(SocketTimeoutException e){
-				ReplicaAliveReply replicaAliveReply = new ReplicaAliveReply(false, portToPing);
-				Packet replyPacket = new Packet(Operation.REPLICA_ALIVE, replicaAliveReply);
-				replyMessage = UdpHelper.getByteArray(replyPacket);
+				replicaAliveReply = new ReplicaAliveReply(false, portToPing);
 			}
 			
+			Packet replyPacket = new Packet(socket.getLocalAddress(), socket.getLocalPort(), Operation.REPLICA_ALIVE, replicaAliveReply);
+			byte[] replyMessage = UdpHelper.getByteArray(replyPacket);
 			DatagramPacket finalReply = new DatagramPacket(replyMessage, replyMessage.length, address, port);
-			newSocket.send(finalReply);
+			socket.send(finalReply);
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

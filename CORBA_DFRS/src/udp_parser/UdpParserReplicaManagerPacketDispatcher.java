@@ -9,11 +9,11 @@ import java.net.SocketException;
 import packet.Packet;
 import udp.UdpHelper;
 
-public class UdpParserPacketDispatcher implements Runnable {
+public class UdpParserReplicaManagerPacketDispatcher implements Runnable {
 	private final UdpParserBase udpParser;
 	private final DatagramPacket packet;
 
-	public UdpParserPacketDispatcher(UdpParserBase udpParser, DatagramPacket packet) {
+	public UdpParserReplicaManagerPacketDispatcher(UdpParserBase udpParser, DatagramPacket packet) {
 		super();
 		this.udpParser = udpParser;
 		this.packet = packet;
@@ -29,16 +29,15 @@ public class UdpParserPacketDispatcher implements Runnable {
 		replicaPacket = (Packet)UdpHelper.getObjectFromByteArray(packet.getData());
 		if(replicaPacket != null){
 			Packet replicaReplyPacket = this.udpParser.processPacket(replicaPacket);
-			sendReply(replicaReplyPacket, replicaPacket.getSenderPort());
+			sendReply(replicaReplyPacket, packet.getAddress(), packet.getPort());
 		}
 	}
 	
-	private void sendReply(Packet replicaReplyPacket, int port){
+	private void sendReply(Packet replicaReplyPacket, InetAddress address, int port){
 		DatagramSocket newSocket = null;
 		try {
 			newSocket = new DatagramSocket();
 			byte[] message = UdpHelper.getByteArray(replicaReplyPacket);
-			InetAddress address = InetAddress.getByName("localhost");
 			DatagramPacket reply = new DatagramPacket(message, message.length, address, port);
 			newSocket.send(reply);
 		} catch (SocketException e) {

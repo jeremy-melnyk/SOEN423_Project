@@ -23,12 +23,12 @@ public class ReplicaManagerTests {
 		JSONReader jsonReader = new JSONReader();
 		
 		// Choose parser to test
-		String username = "Caio";
+		String username = "Patrick";
 		
 		int udpPort = jsonReader.getPortForKeys(username, "RM");
 		
 		testReplicaAlive(udpPort);
-		testRebootReplica(udpPort);
+		//testRebootReplica(udpPort);
 		testReplicaAlive(udpPort);
 		
 		try {
