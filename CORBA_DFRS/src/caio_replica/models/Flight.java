@@ -141,8 +141,8 @@ public class Flight{
 	public String toString(){
 		StringBuilder s = new StringBuilder();
 		s.append(id + " | " + departure + " --> " + destination + " | " + 
-		new SimpleDateFormat("yyyy/MM/dd 'at' HH:mm").format(date) + " | " + 
-			"Econ: " + economic + ", Bus: " + business + ", First: " + first);
+		new SimpleDateFormat("yyyy/MM/dd").format(date) + " | " + 
+			"Econ: " + economic + "| Bus: " + business + "| First: " + first);
 		return s.toString();
 	}
 	
