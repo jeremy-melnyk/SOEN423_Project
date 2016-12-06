@@ -9,7 +9,7 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 
-import mark_replica.global.Constants;
+import global.Constants;
 import packet.BookFlightOperation;
 import packet.BookFlightReply;
 import packet.EditFlightRecordOperation;
@@ -45,7 +45,7 @@ public class UdpParserTam extends UdpParserBase {
 		try {
 			String date = (new SimpleDateFormat("MM/dd/yyyy"))
 					.format((new SimpleDateFormat("MM/dd/yyyy").parse(bookFlightOperation.getDate())));
-			String[] dest = (bookFlightOperation.getDestination().split("|"));
+			String[] dest = (bookFlightOperation.getDestination().split(Constants.DELIMITER_ESCAPE));
 			String s_FlightClass = bookFlightOperation.getFlightClass();
 			server = (ServerIDL) ServerIDLHelper.narrow(ncRef.resolve_str(dest[0]));
 
@@ -86,7 +86,7 @@ public class UdpParserTam extends UdpParserBase {
 			GetBookedFlightCountOperation getBookedFlightCountOperation) {
 		// recordType: "MTL1111|FIRST" (managerId | flightClass)
 		ServerIDL server = null;
-		String recordType[] = getBookedFlightCountOperation.getRecordType().split("|");
+		String recordType[] = getBookedFlightCountOperation.getRecordType().split(Constants.DELIMITER_ESCAPE);
 		String manager = recordType[0];
 		String flightClass = recordType[1];
 
@@ -131,7 +131,7 @@ public class UdpParserTam extends UdpParserBase {
 	protected EditFlightRecordReply editFlightRecord(EditFlightRecordOperation editFlightRecordOperation) {
 		ServerIDL server = null;
 		String recordID = editFlightRecordOperation.getRecordId();
-		String recordId[] = editFlightRecordOperation.getRecordId().split("|");
+		String recordId[] = editFlightRecordOperation.getRecordId().split(Constants.DELIMITER_ESCAPE);
 		String manager = recordId[0];
 		String fieldName = editFlightRecordOperation.getFieldName();
 		String newValues = editFlightRecordOperation.getNewValue();
@@ -147,7 +147,7 @@ public class UdpParserTam extends UdpParserBase {
 			e.printStackTrace();
 		}
 		String reply = server.editFlightRecord(recordID, fieldName, newValues);
-
+		
 		// Need agreed upon standardized reply message?
 		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(reply);
 		return editFlightRecordReply;
@@ -156,7 +156,7 @@ public class UdpParserTam extends UdpParserBase {
 	@Override
 	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservation) {
 		ServerIDL server = null;
-		String recordId[] = transferReservation.getPassengerId().split("|");
+		String recordId[] = transferReservation.getPassengerId().split(Constants.DELIMITER_ESCAPE);
 		String managerLocation = recordId[0].substring(0, 3);
 		String currentCity = transferReservation.getCurrentCity();
 		String otherCity = transferReservation.getOtherCity();

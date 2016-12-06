@@ -169,7 +169,20 @@ public class UdpParser extends UdpParserBase {
 		String request = managerId + Constants.DELIMITER + editType + Constants.DELIMITER + flightRecordId;
 		String result = flightServer.editFlightRecord(request, flightRecordField.toString(), newValue);
 		
-		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(result);
+		String[] resultTokens = result.split(Constants.DELIMITER_ESCAPE);
+		if (resultTokens.length == 1){
+			// Must be an error
+			return new EditFlightRecordReply(global.Constants.ERROR_CODE);
+		}
+		
+		String economySeats = resultTokens[11].substring(1, resultTokens[11].length());
+		String businessSeats = resultTokens[8].substring(1, resultTokens[11].length());
+		String firstSeats = resultTokens[5].substring(1, resultTokens[11].length());
+		
+		
+		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(resultTokens[0], resultTokens[1], resultTokens[2],
+				resultTokens[2], economySeats, businessSeats, firstSeats);
+		
 		return editFlightRecordReply;
 		
 		/*

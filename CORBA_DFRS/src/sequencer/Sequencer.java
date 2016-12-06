@@ -29,6 +29,7 @@ public class Sequencer implements Runnable{
 	public static void main(String[] args){
 		Sequencer sequencer = new Sequencer("");
 		new Thread(sequencer).start();
+		System.out.println("Sequencer initialized.");
 	}
 
 	public Sequencer(String message) {

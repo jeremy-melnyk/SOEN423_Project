@@ -44,16 +44,16 @@ public class DistributedServer {
 		// Initialization of some flight records
 		
 		List<String> mtlFlights = new ArrayList<String>();
-		mtlFlights.add("MTL|WST|06/05/2016|10|5|2");
-		mtlFlights.add("MTL|NDL|06/05/2016|10|5|2");
+		//mtlFlights.add("MTL|WST|06/05/2016|10|5|2");
+		//mtlFlights.add("MTL|NDL|06/05/2016|10|5|2");
 		
 		List<String> wstFlights = new ArrayList<String>();
-		wstFlights.add("WST|MTL|06/05/2016|10|5|2");
-		wstFlights.add("WST|NDL|06/05/2016|10|5|2");
+		//wstFlights.add("WST|MTL|06/05/2016|10|5|2");
+		//wstFlights.add("WST|NDL|06/05/2016|10|5|2");
 		
 		List<String> ndlFlights = new ArrayList<String>();
-		ndlFlights.add("NDL|MTL|06/05/2016|10|5|2");
-		ndlFlights.add("NDL|WST|06/05/2016|10|5|2");
+		//ndlFlights.add("NDL|MTL|06/05/2016|10|5|2");
+		//ndlFlights.add("NDL|WST|06/05/2016|10|5|2");
 		
 		flightServers.put("JEREMY_MTL",
 				initServer(City.MTL, mtlPort,

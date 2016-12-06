@@ -17,12 +17,13 @@ public class ReplicaManager implements Runnable {
 	private int port;
 	private int replicaPort;
 	private int replicaManagerSequencerPort;
+	int[] otherReplicaManagers;
 	private Process replica;
 	private boolean isRebooting = false;
 	private Thread shutdownHook;
 	private final String tag;
 	
-	public ReplicaManager(int port, int replicaPort, int replicaManagerSequencerPort, String replicaPath, ILogger logger) {
+	public ReplicaManager(int port, int replicaPort, int replicaManagerSequencerPort, int[] otherReplicaManagers, String replicaPath, ILogger logger) {
 		super();
 		this.tag = "REPLICA_MANAGER_" + port;
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -30,12 +31,21 @@ public class ReplicaManager implements Runnable {
 		this.port = port;
 		this.replicaManagerSequencerPort = replicaManagerSequencerPort;
 		this.replicaPort = replicaPort;
+		this.otherReplicaManagers = otherReplicaManagers;
 		this.logger = logger;
 		this.replica = null;
 		this.isRebooting = false;
 		this.shutdownHook = null;
 	}
 	
+	public int[] getReplicaManagerPorts() {
+		return otherReplicaManagers;
+	}
+
+	public void setOtherReplicaManagers(int[] otherReplicaManagers) {
+		this.otherReplicaManagers = otherReplicaManagers;
+	}
+
 	public int getReplicaManagerSequencerPort() {
 		return replicaManagerSequencerPort;
 	}
@@ -44,11 +54,11 @@ public class ReplicaManager implements Runnable {
 		this.replicaManagerSequencerPort = replicaManagerSequencerPort;
 	}
 
-	public synchronized boolean isRebooting() {
+	public boolean isRebooting() {
 		return isRebooting;
 	}
 
-	public synchronized void setRebooting(boolean isRebooting) {
+	public void setRebooting(boolean isRebooting) {
 		this.isRebooting = isRebooting;
 	}
 
@@ -66,11 +76,34 @@ public class ReplicaManager implements Runnable {
 		serveRequests();
 	}
 	
-	public synchronized boolean rebootReplica(){
+	public boolean killReplica(){
+		try {
+			if(replica == null){
+				return true;
+			}		
+			if(replica.isAlive()){
+				replica.destroy();
+				replica.waitFor();
+				resetShutdownHook();
+				logger.log(tag, "REPLICA_KILL", "Replica: " + replicaPath + " was killed.");
+			} else {
+				logger.log(tag, "REPLICA_ALREADY_DEAD", "Replica: " + replicaPath + " was already dead.");
+			}
+			return true;
+		} catch (InterruptedException e) {
+			logger.log(tag, "REPLICA_KILL_ERROR", e.getMessage());
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean rebootReplica(){
 		try {
 			Runtime runtime = Runtime.getRuntime();
-			replica.destroy();
-			replica.waitFor();
+			if(replica != null){
+				replica.destroy();
+				replica.waitFor();
+			}
 			replica = runtime.exec(replicaPath);
 			logger.log(tag, "REPLICA_REBOOTED", "Replica: " + replicaPath + " was rebooted.");
 			resetShutdownHook();
@@ -79,7 +112,7 @@ public class ReplicaManager implements Runnable {
 			logger.log(tag, "REPLICA_REBOOT_ERROR", e.getMessage());
 			e.printStackTrace();
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
+			logger.log(tag, "REPLICA_REBOOT_ERROR", e1.getMessage());
 			e1.printStackTrace();
 		}
 		return false;
