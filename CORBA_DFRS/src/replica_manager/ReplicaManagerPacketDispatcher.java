@@ -31,10 +31,10 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 		OperationParameters operationParameters = replicaPacket.getOperationParameters();
 		switch (operation) {
 		case REPLICA_ALIVE:
-			new Thread(new ReplicaAliveHandler(socket, packet.getAddress(), packet.getPort(), operationParameters, replicaManager)).start();
+			new ReplicaAliveHandler(socket, packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
 			break;
 		case REPLICA_REBOOT:
-			new Thread(new ReplicaRebootHandler(socket, packet.getAddress(), packet.getPort(), operationParameters, replicaManager)).start();
+			new ReplicaRebootHandler(socket, packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
 			break;
 		default:
 			break;
