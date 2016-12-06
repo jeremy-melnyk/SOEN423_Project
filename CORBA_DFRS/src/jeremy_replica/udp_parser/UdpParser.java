@@ -203,8 +203,8 @@ public class UdpParser extends UdpParserBase {
 	
 	@Override
 	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservation) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO : Implement formatting
+		return new TransferReservationReply();
 	}
 
 	private FlightReservationServer getFlightServer(City city) {

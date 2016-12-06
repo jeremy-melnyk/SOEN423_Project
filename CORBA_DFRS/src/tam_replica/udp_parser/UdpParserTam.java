@@ -54,7 +54,7 @@ import udp_parser.UdpParserBase;
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			return null;
+			return new BookFlightReply();
 		}
 
 		@Override
@@ -77,7 +77,7 @@ import udp_parser.UdpParserBase;
 			}
 			String reply = server.getBookedFlightCount(flightClass);
 			// Construct reply packet and reply
-			return null;
+			return new GetBookedFlightCountReply();
 		}
 
 		@Override
@@ -102,7 +102,7 @@ import udp_parser.UdpParserBase;
 			}
 			String reply = server.editFlightRecord(recordID, fieldName, newValues);
 			// Create response packet and return
-			return null;
+			return new EditFlightRecordReply();
 		}
 
 		@Override
@@ -123,8 +123,7 @@ import udp_parser.UdpParserBase;
 			}
 			String reply = server.transferReservation(recordId[1], currentCity, otherCity);
 			// Create packet and return
-			return null;
+			return new TransferReservationReply();
 		}
-
 	}
 
