@@ -15,7 +15,7 @@ import jeremy_replica.models.FlightReservation;
 import jeremy_replica.models.PassengerRecord;
 
 public class FlightReservationDbImpl implements FlightReservationDb {
-	private static int RECORD_ID = 0;
+	private static int RECORD_ID = 1;
 	private HashMap<FlightClass, HashMap<Character, HashMap<Integer, FlightReservation>>> records;
 	private static Lock idLock = new ReentrantLock(true);
 

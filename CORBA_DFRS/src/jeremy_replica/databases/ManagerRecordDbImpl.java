@@ -10,7 +10,7 @@ import jeremy_replica.enums.City;
 import jeremy_replica.models.ManagerRecord;
 
 public class ManagerRecordDbImpl implements ManagerRecordDb {
-	private static int RECORD_ID = 0;
+	private static int RECORD_ID = 1;
 	private HashMap<Integer, ManagerRecord> records;
 	private ReadWriteLock recordsLock;
 	private static Lock idLock = new ReentrantLock(true);

@@ -132,6 +132,7 @@ public class UdpParser extends UdpParserBase {
 
 		String managerID = recordIdTokens[0].toUpperCase();
 		int flightRecordID = Integer.parseInt(recordIdTokens[1]);
+		
 		String fieldAction = fieldNameTokens[0].toUpperCase();
 		String origin = managerID.substring(0, 3).toUpperCase();
 		FlightReservation server = getFlightServer(origin);
@@ -140,12 +141,12 @@ public class UdpParser extends UdpParserBase {
 
 		if (fieldAction.equalsIgnoreCase("CREATE")) {
 			String destination = newValueTokens[0];
-			reply = server.editFlightRecord(flightRecordID, fieldAction, destination);
+			reply = server.editFlightRecord(flightRecordID, "add", destination);
 		} else if (fieldAction.equalsIgnoreCase("DELETE")) {
-			reply = server.editFlightRecord(flightRecordID, fieldAction, "");
+			reply = server.editFlightRecord(flightRecordID, "delete", "");
 		} else if (fieldAction.equalsIgnoreCase("EDIT")) {
 			String newValue = newValueTokens[0];
-			reply = server.editFlightRecord(flightRecordID, fieldAction, newValue);
+			reply = server.editFlightRecord(flightRecordID, fieldNameTokens[1].toUpperCase(), newValue);
 		}
 
 		// Need agreed upon standardized reply message?
