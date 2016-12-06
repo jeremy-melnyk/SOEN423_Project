@@ -136,10 +136,17 @@ public class FrontEndTransfer extends Thread {
 						// SEND TO RM THAT REPLICA MIGHT HAVE CRASHED
 						// Every remaining replica in the group
 						for(int replicaPort : group){
+							int RM = 0;
+							for(Map.Entry<Integer, Integer> entry: replicaTracker.entrySet()){
+								if(entry.getValue() == replicaPort){
+									RM = entry.getKey();
+									break;
+								}
+							}
 							ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(replicaPort);
 							Packet packet = new Packet(Operation.REPLICA_ALIVE, aliveRequest);
 							byte[] aliveBytes = UdpHelper.getByteArray(packet);
-							DatagramPacket dPac = new DatagramPacket(aliveBytes, aliveBytes.length, host, replicaPort);
+							DatagramPacket dPac = new DatagramPacket(aliveBytes, aliveBytes.length, host, RM);
 							socket.send(dPac);
 						}
 					}
