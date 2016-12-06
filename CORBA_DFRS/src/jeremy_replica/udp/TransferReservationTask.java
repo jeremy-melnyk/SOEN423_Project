@@ -90,6 +90,7 @@ public class TransferReservationTask extends Task<String> {
 						flightReservationId);
 				// Release a seat
 				removedFlightReservation.getFlightRecord().getFlightClasses().get(flightClass).releaseSeat();
+				removedFlightReservation.getFlightRecord().setOrigin(flightServerAddress.getCity());
 				return removedFlightReservation.toString();
 			}
 		} catch (SocketException e) {
