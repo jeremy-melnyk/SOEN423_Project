@@ -259,11 +259,15 @@ public class UdpParser extends UdpParserBase{
 
 	@Override
 	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservation) {
+		logger.log("TRANSFER RESERVATION", "PACKET RECEIVED");
 		FlightServerInterface server = null;
 		String recordId[] = transferReservation.getPassengerId().split("\\|");
 		String managerLocation = recordId[0].substring(0, 3);
+		logger.log("TRANSFER RESERVATION", "manager: "+managerLocation);
 		String currentCity = transferReservation.getCurrentCity();
+		logger.log("TRANSFER RESERVATION", "current city: "+currentCity);
 		String otherCity = transferReservation.getOtherCity();
+		logger.log("TRANSFER RESERVATION", "other city: "+otherCity);
 		TransferReservationReply transferReservationReply = null;
 		try {
 			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(USERNAME+managerLocation));
@@ -275,21 +279,26 @@ public class UdpParser extends UdpParserBase{
 			e.printStackTrace();
 		}
 		String reply = server.transferReservation(recordId[1], currentCity, otherCity);
-		
+		logger.log("TRANSFER RESERVATION", "Server reply: "+reply);
 		if(reply.contains("OKK")){
 			try{
 				String parsedReply[] = reply.substring(4).split("\\|");
+				
 				int passengerId = Integer.parseInt(parsedReply[0].trim());
+				logger.log("TRANSFER RESERVATION", "reply packet creation: "+passengerId);
 				int flightId = Integer.parseInt(parsedReply[1].trim());
+				logger.log("TRANSFER RESERVATION", "reply packet creation: "+flightId);
 				String departure_destination[] = parsedReply[2].split("--->");
 				String dep = departure_destination[0].trim().toUpperCase();
 				String dest = departure_destination[1].trim().toUpperCase();
+				logger.log("TRANSFER RESERVATION", "reply packet creation: "+dep+" "+dest);
 				String date = (new SimpleDateFormat("MM/dd/yyyy")).format((new SimpleDateFormat("yyyy/MM/dd")).parse(parsedReply[3].trim()));
+				logger.log("TRANSFER RESERVATION", "reply packet creation: "+date);
 				String name[] = parsedReply[4].split(",");
 				String fName =name[1].trim();
 				String lName = name[0].trim();
 				String flightClass = "";
-				int iFlightClass = Integer.parseInt(parsedReply[5].trim());
+				int iFlightClass = Integer.parseInt(parsedReply[5].substring(7).trim());
 				switch(iFlightClass){
 				case 1:
 					flightClass = "ECONOMY";
@@ -301,12 +310,14 @@ public class UdpParser extends UdpParserBase{
 					flightClass = "FIRST";
 				}
 				transferReservationReply = new TransferReservationReply(passengerId, flightId, dep, dest, lName, fName, date,flightClass);
+				logger.log("TRANSFER RESERVATION", "reply packet created: "+transferReservationReply);
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 		}else if(reply.contains("ERR")){
 			transferReservationReply = new TransferReservationReply("There was a problem with the operation");
 		}
+		logger.log("TRANSFER RESERVATION", "reply packet sent");
 		return transferReservationReply;
 	}
 
