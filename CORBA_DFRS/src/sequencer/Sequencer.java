@@ -6,16 +6,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import packet.Packet;
 import udp.UdpHelper;
 
-public class Sequencer {
-	private final int BUFFER_SIZE = 5000;
-	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
-	private final ExecutorService threadPool;
+public class Sequencer implements Runnable {
 	private int sequencerport = 10000;
 	private int sequencernumber = 1;
 	private ArrayList<Packet> sequencerlog = new ArrayList<Packet>();
@@ -24,13 +19,11 @@ public class Sequencer {
 	
 	public static void main(String[] args){
 		Sequencer sequencer = new Sequencer("");
+		new Thread(sequencer).start();
 	}
 
 	public Sequencer(String message) {
 		super();
-		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-		this.packetDispatcherThread = initPacketDispatcherThread();
-		this.packetDispatcherThread.start();
 	}
 
 	public ArrayList<Packet> getSequencerLog() {
@@ -45,10 +38,9 @@ public class Sequencer {
 		this.sequencernumber = sequencernumber;
 	}
 	
-	private Thread initPacketDispatcherThread(){
-		return new Thread(() -> {
-			serveRequests();
-		});
+	@Override
+	public void run() {
+		UDPServer();
 	}
 
 	public void multicastToGroup(Packet packet) {
@@ -177,25 +169,6 @@ public class Sequencer {
 
 		} catch (Exception e) {
 
-		}
-	}
-	
-	private void serveRequests() {
-		DatagramSocket socket = null;
-		try {
-			socket = new DatagramSocket(sequencerport);
-			while (true) {
-				byte[] buffer = new byte[BUFFER_SIZE];
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-				socket.receive(packet);
-				threadPool.execute(new SequencerPacketDispatcher(packet, this));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (socket != null){
-				socket.close();
-			}
 		}
 	}
 }

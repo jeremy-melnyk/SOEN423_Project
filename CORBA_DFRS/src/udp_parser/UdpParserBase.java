@@ -45,16 +45,13 @@ public abstract class UdpParserBase implements Runnable {
 	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
 	private final ExecutorService threadPool;
 	private ILogger logger;
-
 	protected final ORB orb;
 	protected final int port;
-
-	
 	private int lastreceivednumber = 0;
 	private Set<Integer> setofreceivednumbers = new HashSet<Integer>();
 	private PriorityQueue<DatagramPacket> holdbackqueue = new PriorityQueue<DatagramPacket>(new PQSort());
-	private int replicaportnumber;
 	private final int groupportnumber = 9876;
+	private Thread sequencerLogThread;
 	
 	public UdpParserBase(ORB orb, int port) {
 		super();
@@ -62,6 +59,12 @@ public abstract class UdpParserBase implements Runnable {
 		this.orb = orb;
 		this.port = port;
 		this.logger = new CustomLogger(new TextFileLog());
+		this.sequencerLogThread = initSequencerLogThread();
+		this.sequencerLogThread.start();
+	}
+
+	public int getPort() {
+		return port;
 	}
 
 	public ORB getOrb() {
@@ -121,6 +124,12 @@ public abstract class UdpParserBase implements Runnable {
 		return new ReplicaAliveReply(true, port);
 	}
 	
+	private Thread initSequencerLogThread() {
+		return new Thread(() -> {
+			requestSequencerLog();
+		});
+	}
+	
 	private ExecuteOperationLogReply executeOperationLog(ExecuteOperationLogOperation executeOperationLogOperation) {
 		ArrayList<Packet> operationLog = executeOperationLogOperation.getOperationLog();
 		for(Packet packet : operationLog){
@@ -129,63 +138,24 @@ public abstract class UdpParserBase implements Runnable {
 		return new ExecuteOperationLogReply();
 	}
 	
-	private void serveRequests() {
-		
-		
+	private void serveRequests() {	
 		MulticastSocket mSocket = null;
 		try {
-
-
 			mSocket = new MulticastSocket(groupportnumber);
 			InetAddress aGroup = InetAddress.getByName("localhost");
 			mSocket.joinGroup(aGroup);
 
-	
 			while (true) {
-
 				byte[] buffer = new byte[BUFFER_SIZE];
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-
 				mSocket.receive(request);
-
 
 				// delivers packet
 				this.deliverMulticast(request);
-
 			}
 		} catch (Exception e) {
-
+			this.logger.log("UDP_PARSER", "EXCEPTION", e.getMessage());
 		}
-		
-		
-		
-		
-		
-		DatagramSocket socket = null;
-		try {
-			socket = new DatagramSocket(port);
-			while (true) {
-				byte[] buffer = new byte[BUFFER_SIZE];
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-				socket.receive(packet);
-				this.logger.log("UDP_PARSER", "SERVE_REQUESTS", packet.toString());
-				threadPool.execute(new UdpParserPacketDispatcher(this, packet));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (socket != null) {
-				socket.close();
-			}
-		}
-	}
-	
-	public int getReplicaportnumber() {
-		return replicaportnumber;
-	}
-
-	public void setReplicaportnumber(int replicaportnumber) {
-		this.replicaportnumber = replicaportnumber;
 	}
 
 	public int getLastreceivednumber() {
@@ -225,13 +195,11 @@ public abstract class UdpParserBase implements Runnable {
 	}
 
 	public void deliverMulticast(DatagramPacket receivedpacket) {
-
 		// check if this is a duplicate packet
-		Packet convertedpacket=(Packet)UdpHelper.getObjectFromByteArray(receivedpacket.getData());
+		Packet convertedpacket = (Packet) UdpHelper.getObjectFromByteArray(receivedpacket.getData());
 		int receivedseqnumber = convertedpacket.getSequencernumber();
 
 		if (this.isDuplicate(receivedseqnumber) == false) {
-
 			// delivers to the rest of the group to ensure multicast reliability
 			this.multicastToGroup(convertedpacket);
 
@@ -241,19 +209,17 @@ public abstract class UdpParserBase implements Runnable {
 			// continuously delivers until holdback queue is empty or there is a
 			// missing packet
 			while (this.checkHoldBackQueue() == true) {
-
-				// pops the latest datagrampacket from the queue and increments the last
+				// pops the latest datagrampacket from the queue and increments
+				// the last
 				// received number
-				DatagramPacket poppacket=holdbackqueue.poll();
-				Packet deliveredpacket = (Packet)UdpHelper.getObjectFromByteArray(poppacket.getData());
+				DatagramPacket poppacket = holdbackqueue.poll();
+				Packet deliveredpacket = (Packet) UdpHelper.getObjectFromByteArray(poppacket.getData());
 				this.setLastreceivednumber(deliveredpacket.getSequencernumber());
 
-				this.logger.log("UDP_PARSER", "SERVE_REQUESTS", poppacket.toString());
+				this.logger.log("UDP_PARSER", "SERVE_REQUEST", poppacket.toString());
 				threadPool.execute(new UdpParserPacketDispatcher(this, poppacket));
 			}
-
 		}
-
 	}
 
 	public boolean isDuplicate(int seqnumber) {
@@ -282,7 +248,7 @@ public abstract class UdpParserBase implements Runnable {
 		public int compare(DatagramPacket one, DatagramPacket two) {
 			Packet onepacket=(Packet)UdpHelper.getObjectFromByteArray(one.getData());
 			Packet twopacket=(Packet)UdpHelper.getObjectFromByteArray(two.getData());
-			return onepacket.getSequencernumber()-twopacket.getSequencernumber();
+			return onepacket.getSequencernumber() - twopacket.getSequencernumber();
 		}
 	}
 
@@ -293,8 +259,8 @@ public abstract class UdpParserBase implements Runnable {
 
 		try {
 			// creates socket to receive sequencer log of packets
-			aSocket = new DatagramSocket(replicaportnumber);
-			byte[] buffer = new byte[1000];
+			aSocket = new DatagramSocket(port);
+			byte[] buffer = new byte[BUFFER_SIZE];
 			DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 
 			// receive sequencer log of packets
