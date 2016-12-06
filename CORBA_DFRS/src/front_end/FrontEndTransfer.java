@@ -66,7 +66,7 @@ public class FrontEndTransfer extends Thread {
 			long timerStart = System.currentTimeMillis();
 			// Send to Sequencer
 			socket.send(seq);
-			byte buffer[] = new byte[100];
+			byte buffer[] = new byte[5000];
 			DatagramPacket p = new DatagramPacket(buffer, buffer.length);
 			String seqACK = "";
 			socket.setSoTimeout(2000);

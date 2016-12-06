@@ -172,14 +172,15 @@ public class FrontEnd extends FlightReservationServerPOA{
 			socket.setSoTimeout(2000);
 			while(counter > 0){
 				try{
-					byte buffer[] = new byte[100];
+					byte buffer[] = new byte[5000];
 					DatagramPacket p = new DatagramPacket(buffer, buffer.length);
 					socket.receive(p);
 					if (transmitionTracker.containsKey(p.getPort()))
 						transmitionTracker.remove(p.getPort());	// Remove from tracker
 					else
 						continue;	// If repeated
-					ReplicaAliveReply reply = (ReplicaAliveReply) UdpHelper.getObjectFromByteArray(p.getData());
+					Packet packetReply = (Packet) UdpHelper.getObjectFromByteArray(p.getData());
+					ReplicaAliveReply reply = (ReplicaAliveReply) packetReply.getOperationParameters();
 					if(reply.isAlive()){
 						group.add(reply.getReplicaPort());
 						replicaTracker.put(p.getPort(), reply.getReplicaPort());
