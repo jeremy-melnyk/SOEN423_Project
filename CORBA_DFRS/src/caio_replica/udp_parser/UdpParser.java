@@ -1,5 +1,6 @@
 package caio_replica.udp_parser;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import org.omg.CORBA.ORB;
@@ -64,7 +65,7 @@ public class UdpParser extends UdpParserBase{
 											bookFlightOperation.getAddress(), bookFlightOperation.getPhoneNumber(),
 											dep_dest[1], date, flightClass);
 			if(reply.contains("OKK")){
-				String parsedReply[] = reply.substring(0,4).split("|");
+				String parsedReply[] = reply.substring(4).split("\\|");
 				int passengerId = Integer.parseInt(parsedReply[0].trim());
 				int flightId = Integer.parseInt(parsedReply[1].trim());
 				String departure_destination[] = parsedReply[2].split("--->");
@@ -159,23 +160,48 @@ public class UdpParser extends UdpParserBase{
 		if(fieldName.equalsIgnoreCase("CREATE")){
 			parsedRecordId = recordId[0] + "-" + recordId[1];
 			parsedFieldName = "add";
-			parsedNewValues = newValues.replace('|', '&');
+			String separateValues[] = newValues.split("\\|");
+			try {
+				separateValues[1] = (new SimpleDateFormat("yyyy/MM/dd")).format((new SimpleDateFormat("MM/dd/yyyy")).parse(separateValues[1].trim()));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			for(String value : separateValues){
+				parsedNewValues += value+"&";
+			}
 		}else if(fieldName.equalsIgnoreCase("DELETE")){
 			parsedRecordId = recordId[0] + "-" + recordId[1];
 			parsedFieldName = "delete";			
 		}else if(fieldName.contains("EDIT")){
 			parsedRecordId = recordId[0] + "-" + recordId[1];
 			parsedFieldName = "edit?";
-			String changedField = fieldName.split("|")[1];
-			if(changedField.equalsIgnoreCase("ECONOMY"))
+			String changedField = fieldName.split("\\|")[1];
+			if(changedField.equalsIgnoreCase("ECONOMY")){
 				parsedFieldName += "econ";
-			else if(changedField.equalsIgnoreCase("BUSINESS"))
+				parsedNewValues = newValues;
+			}
+			else if(changedField.equalsIgnoreCase("BUSINESS")){
 				parsedFieldName += "bus";
-			else if(changedField.equalsIgnoreCase("DESTINATION"))
+				parsedNewValues = newValues;
+			}
+			else if(changedField.equalsIgnoreCase("DESTINATION")){
 				parsedFieldName += "dest";
-			else
+				parsedNewValues = newValues;
+			}
+			else{
 				parsedFieldName += changedField.toLowerCase();
-			parsedNewValues = newValues;
+				String separateValues[] = newValues.split("\\|");
+				try {
+					separateValues[1] = (new SimpleDateFormat("yyyy/MM/dd")).format((new SimpleDateFormat("MM/dd/yyyy")).parse(separateValues[1].trim()));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				for(String value : separateValues){
+					parsedNewValues += value+"&";
+				}
+			}
 		}
 		String managerLocation = manager.substring(0, 3);
 		try {
@@ -188,8 +214,38 @@ public class UdpParser extends UdpParserBase{
 			e.printStackTrace();
 		}
 		String reply = server.editFlightRecord(parsedRecordId, parsedFieldName, parsedNewValues);
-		// TODO Parse message with agreed format
-		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(reply);
+		logger.log("EDIT FLIGHT", fieldName+": Reply: "+reply.substring(4));
+		EditFlightRecordReply editFlightRecordReply = null;
+		if(reply.contains("OKK")){
+			String parsedReply[] = reply.substring(4).split("\\|");
+			String flightId = parsedReply[0].trim();
+			logger.log("\tEDIT FLIGHT", fieldName+": Reply Packet: "+flightId);
+
+			String departure_destination[] = parsedReply[1].split("-->");
+			
+			String dep = departure_destination[0].trim();
+			String dest = departure_destination[1].trim();
+			logger.log("EDIT FLIGHT", fieldName+": Reply Packet: "+dep+" "+dest);
+
+			String date = "";
+			try {
+				date = (new SimpleDateFormat("MM/dd/yyyy")).format((new SimpleDateFormat("yyyy/MM/dd")).parse(parsedReply[2].trim()));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			logger.log("EDIT FLIGHT", fieldName+": Reply Packet: "+date);
+
+			String econ = parsedReply[3].trim().substring(6);
+			String bus = parsedReply[4].trim().substring(5);
+			String first = parsedReply[5].trim().substring(7);
+			logger.log("EDIT FLIGHT", fieldName+": Reply Packet: "+econ + " "+bus+ " "+first);
+			
+			editFlightRecordReply = new EditFlightRecordReply(flightId, dep, dest, date,econ, bus, first);
+			logger.log("EDIT FLIGHT", fieldName+": Reply Packet: "+editFlightRecordReply.toString());
+		}else if(reply.contains("ERR")){
+			editFlightRecordReply = new EditFlightRecordReply("There was a problem with the operation");
+		}
 		return editFlightRecordReply;
 	}
 
@@ -214,7 +270,7 @@ public class UdpParser extends UdpParserBase{
 		
 		if(reply.contains("OKK")){
 			try{
-				String parsedReply[] = reply.substring(0,4).split("\\|");
+				String parsedReply[] = reply.substring(4).split("\\|");
 				int passengerId = Integer.parseInt(parsedReply[0].trim());
 				int flightId = Integer.parseInt(parsedReply[1].trim());
 				String departure_destination[] = parsedReply[2].split("--->");
