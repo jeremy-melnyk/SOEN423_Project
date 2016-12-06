@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import mark_replica.global.Constants;
+import tam_replica.global.Constants;
 
 import java.net.*;
 import java.io.*;
@@ -290,7 +290,7 @@ public class Server extends ServerIDLPOA{
 	
 	public String getBookedFlightCount(String manageridandrecordtype) {
 		
-		String[] type=manageridandrecordtype.split("\\|");
+		String[] type=manageridandrecordtype.split(Constants.DELIMITER_ESCAPE);
 		String managerid=type[0];
 		String recordtype="";
 		
@@ -356,7 +356,7 @@ public class Server extends ServerIDLPOA{
 				DatagramPacket reply = new DatagramPacket(buffer, buffer.length);	
 				aSocket.receive(reply);
 			
-				finalresult+="\t" + (new String(reply.getData())).trim();
+				finalresult+= Constants.DELIMITER_ESCAPE + (new String(reply.getData())).trim();
 			}
 			
 			
@@ -1061,7 +1061,7 @@ public class Server extends ServerIDLPOA{
 				
 					
 			}
-			return servername + " " + count;
+			return servername + Constants.DELIMITER_ESCAPE + count;
 		}
 		else
 		{

@@ -1,6 +1,7 @@
 package tam_replica.udp_parser;
 
-	import java.text.SimpleDateFormat;
+	import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 	import org.omg.CORBA.ORB;
 	import org.omg.CORBA.ORBPackage.InvalidName;
@@ -9,6 +10,7 @@ package tam_replica.udp_parser;
 	import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 	import org.omg.CosNaming.NamingContextPackage.NotFound;
 
+import mark_replica.global.Constants;
 import packet.BookFlightOperation;
 import packet.BookFlightReply;
 import packet.EditFlightRecordOperation;
@@ -42,7 +44,7 @@ import udp_parser.UdpParserBase;
 			ServerIDL server = null;
 			// FORMAT MTL|WST : DEPARTURE = MTL
 			try{
-				String date = (new SimpleDateFormat("YYYY/mm/DD")).format((new SimpleDateFormat("mm/DD/YYYY").parse(bookFlightOperation.getDate())));
+				String date = (new SimpleDateFormat("MM/dd/yyyy")).format((new SimpleDateFormat("MM/dd/yyyy").parse(bookFlightOperation.getDate())));
 				String[] dest = (bookFlightOperation.getDestination().split("|"));
 				String s_FlightClass = bookFlightOperation.getFlightClass();
 				server = (ServerIDL) ServerIDLHelper.narrow(ncRef.resolve_str(dest[0]));
@@ -50,7 +52,27 @@ import udp_parser.UdpParserBase;
 				String reply = server.bookFlight(bookFlightOperation.getFirstName(), bookFlightOperation.getLastName(),
 												bookFlightOperation.getAddress(), bookFlightOperation.getPhoneNumber(),
 												dest[1], date, s_FlightClass);
-				// Create packet and return;
+
+				// Modified to be similar to Mark's implementation
+				// Typical reply would look like this: "Flight successfully booked for
+				// passenger:|...|...|..."
+				// It follows the format below:
+				// BookFlightReply(int passengerId, int flightId, String departure,
+				// String destination, String lastName, String firstName, String date,
+				// String flightClass)
+
+				String formattedReply = reply.replaceAll("Flight successfully booked for passenger:|", "");
+				// Format to remove the first part
+
+				String[] replyTokens = formattedReply.split(Constants.DELIMITER_ESCAPE);
+
+				int passengerID = Integer.parseInt(replyTokens[0]);
+				int flightID = Integer.parseInt(replyTokens[1]);
+
+				BookFlightReply bookFlightReply = new BookFlightReply(passengerID, flightID, replyTokens[2], replyTokens[3],
+						replyTokens[4], replyTokens[5], replyTokens[6], replyTokens[7]);
+
+				return bookFlightReply;
 			}catch(Exception e){
 				e.printStackTrace();
 			}
@@ -76,8 +98,30 @@ import udp_parser.UdpParserBase;
 				e.printStackTrace();
 			}
 			String reply = server.getBookedFlightCount(flightClass);
-			// Construct reply packet and reply
-			return null;
+
+			// Modified to be similar to Mark's implementation
+			// Typical reply would look like this: "MTL|1|WST|2|NDL|3"
+
+			String[] replyTokens = reply.split(Constants.DELIMITER_ESCAPE);
+
+			int mtlCount = 0;
+			int wstCount = 0;
+			int ndlCount = 0;
+
+			for (int i = 0; i < 5; i += 2) {
+				if (replyTokens[i].equalsIgnoreCase("MTL")) {
+					mtlCount = Integer.parseInt(replyTokens[i + 1]);
+				} else if (replyTokens[i].equalsIgnoreCase("WST")) {
+					wstCount = Integer.parseInt(replyTokens[i + 1]);
+				} else if (replyTokens[i].equalsIgnoreCase("NDL")) {
+					ndlCount = Integer.parseInt(replyTokens[i + 1]);
+				}
+			}
+
+			GetBookedFlightCountReply getBookedFlightCountReply = new GetBookedFlightCountReply(mtlCount, wstCount,
+					ndlCount);
+
+			return getBookedFlightCountReply;
 		}
 
 		@Override
@@ -101,8 +145,11 @@ import udp_parser.UdpParserBase;
 				e.printStackTrace();
 			}
 			String reply = server.editFlightRecord(recordID, fieldName, newValues);
-			// Create response packet and return
-			return null;
+			
+			// Need agreed upon standardized reply message?
+			EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(reply);
+
+			return editFlightRecordReply;
 		}
 
 		@Override
@@ -122,7 +169,7 @@ import udp_parser.UdpParserBase;
 				e.printStackTrace();
 			}
 			String reply = server.transferReservation(recordId[1], currentCity, otherCity);
-			// Create packet and return
+			// TO-DO: Create packet and return
 			return null;
 		}
 
