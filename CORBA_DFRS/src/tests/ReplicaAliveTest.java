@@ -15,7 +15,7 @@ import packet.ReplicaAliveReply;
 import packet.ReplicaRebootOperation;
 import packet.ReplicaRebootReply;
 
-public class KillReplicaTest {
+public class ReplicaAliveTest {
 	public static int BUFFER_SIZE = 50000;
 
 	public static void main(String[] args) {
@@ -24,7 +24,7 @@ public class KillReplicaTest {
 		
 		String username = "Patrick";
 		int port = jsonReader.getPortForKeys(username, "RM");
-		testKillReplica(port);
+		testReplicaAlive(port);
 	}
 	
 	private static void testReplicaCrash(int port) {
