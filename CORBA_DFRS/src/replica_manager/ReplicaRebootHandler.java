@@ -35,17 +35,17 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 		DatagramSocket newSocket = null;
 		try {
 			newSocket = new DatagramSocket();
+			newSocket.setReuseAddress(true);
 			
 			// Reboot replica
 			replicaManager.setRebooting(true);
 			boolean result = replicaManager.rebootReplica();
 			
-			// TODO : Get sequencerPort from configuration
-			int sequencerPort = 10000;
+			int replicaManagerSequencerPort = replicaManager.getReplicaManagerSequencerPort();
 			OperationLogOperation operationLogOperation = new OperationLogOperation(replicaManager.getPort());
-			Packet operationLogPacket = new Packet(Operation.OPERATION_LOG, operationLogOperation);
+			Packet operationLogPacket = new Packet(newSocket.getInetAddress(), newSocket.getLocalPort(), Operation.OPERATION_LOG, operationLogOperation);
 			byte[] operationLogMessage = UdpHelper.getByteArray(operationLogPacket);
-			DatagramPacket requestPacket = new DatagramPacket(operationLogMessage, operationLogMessage.length, address, sequencerPort);
+			DatagramPacket requestPacket = new DatagramPacket(operationLogMessage, operationLogMessage.length, address, replicaManagerSequencerPort);
 			newSocket.send(requestPacket);
 			
 			// Receive reply from Sequencer
@@ -58,17 +58,19 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 			
 			// Replica re-performs all operations in the log
 			ExecuteOperationLogOperation executeOperationLogOperation = new ExecuteOperationLogOperation(operationLog);
-			Packet executeOperationLogOperationPacket = new Packet(Operation.EXECUTE_OPERATION_LOG, executeOperationLogOperation);
+			Packet executeOperationLogOperationPacket = new Packet(newSocket.getInetAddress(), newSocket.getLocalPort(), Operation.EXECUTE_OPERATION_LOG, executeOperationLogOperation);
 			byte[] operationLogPayload = UdpHelper.getByteArray(executeOperationLogOperationPacket);
 			DatagramPacket operationPacket = new DatagramPacket(operationLogPayload, operationLogPayload.length, address, replicaManager.getReplicaPort());
+			/*
 			try {
 				// Would prefer an alternative, but it won't work without a delay
 				// Packet doesn't get sent otherwise and it hangs at newSocket.receive()
-				Thread.sleep(400);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			*/
 			newSocket.send(operationPacket);
 			
 			byte[] operationBuffer = new byte[BUFFER_SIZE];
@@ -77,7 +79,7 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 			
 			replicaManager.setRebooting(false);
 			ReplicaRebootReply replicaRebootReply = new ReplicaRebootReply(result);
-			Packet replyPacket = new Packet(Operation.REPLICA_REBOOT, replicaRebootReply);
+			Packet replyPacket = new Packet(socket.getInetAddress(), socket.getLocalPort(), Operation.REPLICA_REBOOT, replicaRebootReply);
 			
 			byte[] message = UdpHelper.getByteArray(replyPacket);
 			DatagramPacket reply = new DatagramPacket(message, message.length, address, port);

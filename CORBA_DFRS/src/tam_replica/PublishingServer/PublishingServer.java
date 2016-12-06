@@ -17,7 +17,7 @@ import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
-import caio_replica.udp_parser.UdpParser;
+import tam_replica.udp_parser.UdpParserTam;
 import json.JSONReader;
 import tam_replica.ServerInterfaceIDL.Flight;
 import tam_replica.ServerInterfaceIDL.PassengerRecord;
@@ -99,7 +99,7 @@ JSONReader jsonReader = new JSONReader();
 			
 			
 			// Set UDP Parser
-			UdpParserBase udpParser = new UdpParser(orb, udpPort);
+			UdpParserBase udpParser = new UdpParserTam(orb, udpPort);
 			
 			new Thread(udpParser).start();
 			

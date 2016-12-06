@@ -97,32 +97,26 @@ public abstract class UdpParserBase implements Runnable {
 		case BOOK_FLIGHT:
 			BookFlightOperation bookFlightOperation = (BookFlightOperation) operationParameters;
 			BookFlightReply bookFlightResult = bookFlight(bookFlightOperation);
-			this.logger.log(tag, "BOOK_FLIGHT_REPLY", bookFlightResult.toString());
 			return new Packet(address, port, Operation.BOOK_FLIGHT, bookFlightResult);
 		case BOOKED_FLIGHTCOUNT:
 			GetBookedFlightCountOperation getBookedFlightCountOperation = (GetBookedFlightCountOperation) operationParameters;
 			GetBookedFlightCountReply bookedFlightCountResult = getBookedFlightCount(getBookedFlightCountOperation);
-			this.logger.log(tag, "GET_BOOKED_FLIGHT_COUNT_REPLY", bookedFlightCountResult.toString());
 			return new Packet(address, port, Operation.BOOKED_FLIGHTCOUNT, bookedFlightCountResult);
 		case EDIT_FLIGHT:
 			EditFlightRecordOperation editFlightRecordOperation = (EditFlightRecordOperation) operationParameters;
 			EditFlightRecordReply editFlightRecordOperationResult = editFlightRecord(editFlightRecordOperation);
-			this.logger.log(tag, "EDIT_FLIGHT_RECORD_REPLY", editFlightRecordOperationResult.toString());
 			return new Packet(address, port, Operation.EDIT_FLIGHT, editFlightRecordOperationResult);
 		case TRANSFER_RESERVATION:
 			TransferReservationOperation transferReservationOperation = (TransferReservationOperation) operationParameters;
 			TransferReservationReply transferReservationOperationResult = transferReservation(transferReservationOperation);
-			this.logger.log(tag, "TRANSFER_RESERVATION_REPLY", transferReservationOperationResult.toString());
 			return new Packet(address, port, Operation.TRANSFER_RESERVATION, transferReservationOperationResult);
 		case REPLICA_ALIVE:
 			ReplicaAliveOperation replicaAliveOperation = (ReplicaAliveOperation) operationParameters;
 			ReplicaAliveReply replicaAliveReply = replicaAlive(replicaAliveOperation);
-			this.logger.log(tag, "REPLICA_ALIVE_REPLY", replicaAliveReply.toString());
 			return new Packet(address, port, Operation.REPLICA_ALIVE, replicaAliveReply);
 		case EXECUTE_OPERATION_LOG:
 			ExecuteOperationLogOperation executeOperationLogOperation = (ExecuteOperationLogOperation) operationParameters;
 			ExecuteOperationLogReply executeOperationLogReply = executeOperationLog(executeOperationLogOperation);
-			this.logger.log(tag, "EXECUTE_OPERATION_LOG_REPLY", executeOperationLogReply.toString());
 			return new Packet(address, port, Operation.EXECUTE_OPERATION_LOG, executeOperationLogReply);
 		default:
 			break;

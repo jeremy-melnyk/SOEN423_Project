@@ -48,7 +48,7 @@ public class ReplicaAliveHandler extends OperationParametersHandler implements R
 			if(replicaManager.isRebooting()){
 				// Send reply back to Front End 
 				ReplicaAliveReply isRebootingReplicaAliveReply = new ReplicaAliveReply(false, portToPing);
-				Packet isRebootingReplyPacket = new Packet(socket.getLocalAddress(), socket.getLocalPort(), Operation.REPLICA_ALIVE, isRebootingReplicaAliveReply);
+				Packet isRebootingReplyPacket = new Packet(socket.getInetAddress(), socket.getLocalPort(), Operation.REPLICA_ALIVE, isRebootingReplicaAliveReply);
 				byte[] isRebootingReplyMessage = UdpHelper.getByteArray(isRebootingReplyPacket);
 				DatagramPacket isRebootingReply = new DatagramPacket(isRebootingReplyMessage, isRebootingReplyMessage.length, address, port);
 				socket.send(isRebootingReply);
@@ -57,7 +57,7 @@ public class ReplicaAliveHandler extends OperationParametersHandler implements R
 			
 			// Ping UdpParser too see if replica is alive
 			ReplicaAliveOperation replicaAliveOperation = new ReplicaAliveOperation(portToPing);
-			Packet packet = new Packet(newSocket.getLocalAddress(), newSocket.getLocalPort(), Operation.REPLICA_ALIVE, replicaAliveOperation);
+			Packet packet = new Packet(newSocket.getInetAddress(), newSocket.getLocalPort(), Operation.REPLICA_ALIVE, replicaAliveOperation);
 			byte[] message = UdpHelper.getByteArray(packet);
 			DatagramPacket request = new DatagramPacket(message, message.length, address, portToPing);
 			newSocket.send(request);
@@ -74,7 +74,7 @@ public class ReplicaAliveHandler extends OperationParametersHandler implements R
 				replicaAliveReply = new ReplicaAliveReply(false, portToPing);
 			}
 			
-			Packet replyPacket = new Packet(socket.getLocalAddress(), socket.getLocalPort(), Operation.REPLICA_ALIVE, replicaAliveReply);
+			Packet replyPacket = new Packet(socket.getInetAddress(), socket.getLocalPort(), Operation.REPLICA_ALIVE, replicaAliveReply);
 			byte[] replyMessage = UdpHelper.getByteArray(replyPacket);
 			DatagramPacket finalReply = new DatagramPacket(replyMessage, replyMessage.length, address, port);
 			socket.send(finalReply);
