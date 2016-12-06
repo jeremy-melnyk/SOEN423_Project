@@ -143,7 +143,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 		}
 		// Bind FE Address
 		packet.setSenderAddress(socket.getInetAddress());
-		packet.setSenderPort(socket.getPort());
+		packet.setSenderPort(socket.getLocalPort());
 		// Get Active Replica addresses from RMs 
 		List<Integer> group = getActiveReplicas(socket);
 		// SEQUENCER
