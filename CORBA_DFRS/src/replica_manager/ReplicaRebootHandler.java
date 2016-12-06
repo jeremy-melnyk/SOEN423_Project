@@ -20,8 +20,8 @@ import udp.UdpHelper;
 public class ReplicaRebootHandler extends OperationParametersHandler implements Runnable {
 	private ReplicaManager replicaManager;
 
-	public ReplicaRebootHandler(InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
-		super(address, port, operationParameters);
+	public ReplicaRebootHandler(DatagramSocket socket, InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
+		super(socket, address, port, operationParameters);
 		this.replicaManager = replicaManager;
 	}
 	
@@ -81,7 +81,7 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 			
 			byte[] message = UdpHelper.getByteArray(replyPacket);
 			DatagramPacket reply = new DatagramPacket(message, message.length, address, port);
-			newSocket.send(reply);
+			socket.send(reply);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
