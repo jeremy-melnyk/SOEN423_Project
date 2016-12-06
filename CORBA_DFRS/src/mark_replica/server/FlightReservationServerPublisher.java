@@ -1,14 +1,8 @@
 package mark_replica.server;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Set;
 
 import org.omg.CORBA.ORB;
@@ -107,5 +101,4 @@ public class FlightReservationServerPublisher {
 		
 		orb.run();
 	}
-
 }

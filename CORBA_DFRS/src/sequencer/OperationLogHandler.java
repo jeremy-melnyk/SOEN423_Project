@@ -17,8 +17,8 @@ import udp.UdpHelper;
 public class OperationLogHandler extends OperationParametersHandler {
 	private Sequencer sequencer;
 
-	public OperationLogHandler(InetAddress address, int port, OperationParameters operationParameters, Sequencer sequencer) {
-		super(address, port, operationParameters);
+	public OperationLogHandler(DatagramSocket socket, InetAddress address, int port, OperationParameters operationParameters, Sequencer sequencer) {
+		super(socket, address, port, operationParameters);
 		this.sequencer = sequencer;
 	}
 
