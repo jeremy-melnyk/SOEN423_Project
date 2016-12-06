@@ -154,16 +154,18 @@ public class FrontEnd extends FlightReservationServerPOA{
 		logger.log("PACKET COMMUNICATION", "ACTIVE REPLICAS: "+group.toString());
 		FrontEndTransfer transfer =  new FrontEndTransfer(socket, packet, group, sequencer, failureTracker, replicaTracker);
 		transfer.start();
-		// Wait while there's no correct Response
-		while(!transfer.hasCorrectReply());
-		logger.log("PACKET COMMUNICATION", "sending reply: "+transfer.getCorrectReply());
 		try {
 			transfer.join();
+			System.out.println("Sending reply");
+			return transfer.getCorrectReply();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return transfer.getCorrectReply();
+		// Wait while there's no correct Response
+		//while(!transfer.hasCorrectReply());
+		return "Unable to get response";
+		
 	}
 	
 	private List<Integer> getActiveReplicas(DatagramSocket socket) {
@@ -193,7 +195,6 @@ public class FrontEnd extends FlightReservationServerPOA{
 						continue;	// If repeated
 					Packet packetReply = (Packet) UdpHelper.getObjectFromByteArray(p.getData());
 					ReplicaAliveReply reply = (ReplicaAliveReply) packetReply.getOperationParameters();
-					System.out.println(reply.isAlive());
 					if(reply.isAlive()){
 						group.add(reply.getReplicaPort());
 						replicaTracker.put(p.getPort(), reply.getReplicaPort());
