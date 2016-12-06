@@ -186,7 +186,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 			socket.setSoTimeout(2000);
 			while(counter > 0){
 				try{
-					byte buffer[] = new byte[5000];
+					byte buffer[] = new byte[50000];
 					DatagramPacket p = new DatagramPacket(buffer, buffer.length);
 					socket.receive(p);
 					if (transmitionTracker.containsKey(p.getPort()))
