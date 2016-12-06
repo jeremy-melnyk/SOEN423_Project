@@ -24,3 +24,4 @@ hs_err_pid*
 logs/
 *ior*.txt
 upd-registry.txt
+*serverLog.txt
