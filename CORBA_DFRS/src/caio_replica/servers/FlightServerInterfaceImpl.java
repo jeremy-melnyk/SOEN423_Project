@@ -1,7 +1,6 @@
 package caio_replica.servers;
 
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -36,7 +35,6 @@ public abstract class FlightServerInterfaceImpl extends FlightServerInterfacePOA
 		this.flightRecord = new FlightRecord();
 		this.passengerRecord = new PassengerRecord();
 		createInitialRecord(this.flightRecord);
-		registerUDPPort(UPDPort);
 		logger.log(acronym, "Server Created");
 		this.createUdpServer(this);
 	}
@@ -104,7 +102,7 @@ public abstract class FlightServerInterfaceImpl extends FlightServerInterfacePOA
 				byte buffer[] = new byte[100];
 				DatagramPacket p = new DatagramPacket(buffer, buffer.length);
 				s.receive(p);
-				reply = ((new String(p.getData())).trim() +"\t");
+				reply = ((new String(p.getData())).trim() +" ");
 				//semaphore--;
 			}catch(IOException e){
 				e.printStackTrace();
@@ -351,21 +349,6 @@ public abstract class FlightServerInterfaceImpl extends FlightServerInterfacePOA
 		return reply;
 	}
 	
-	private void registerUDPPort(int UDPPort){
-		FileWriter fw = null;
-		try{
-			fw = new FileWriter(UPDRegistry, true);
-			fw.write(acronym + " " +UDPPort+"\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}finally{
-			try {
-				if(fw != null) fw.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}	
-	}
 	
 	private void createUdpServer(FlightServerInterfaceImpl server){
 		final int port = server.UDP_PORT;

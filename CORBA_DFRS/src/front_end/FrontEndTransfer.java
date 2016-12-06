@@ -5,15 +5,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
+import caio_replica.utils.Logger;
 import front_end.failure_tracker.FailureTracker;
 import packet.MulticastPacket;
 import packet.Operation;
@@ -32,6 +30,7 @@ public class FrontEndTransfer extends Thread {
 	private List<Integer> group;
 	private FailureTracker failureTracker;
 	private HashMap<Integer, Integer> replicaTracker;
+	private Logger logger;
 	
 	public FrontEndTransfer(DatagramSocket socket, Packet p, List<Integer> group, int sequencer, FailureTracker failureTracker, HashMap<Integer, Integer> replicaTracker) {
 		this.socket = socket;
@@ -41,6 +40,7 @@ public class FrontEndTransfer extends Thread {
 		this.sequencer =  sequencer;
 		this.failureTracker = failureTracker;
 		this.replicaTracker = replicaTracker;
+		logger = new Logger("./logs/FRONT_END.log");
 	}
 	
 	// For single Sender (RETRANSMITION)
@@ -53,6 +53,7 @@ public class FrontEndTransfer extends Thread {
 		this.sequencer =  sequencer;
 		this.failureTracker = failureTracker;
 		this.replicaTracker = replicaTracker;
+		logger = new Logger("./logs/FRONT_END.log");
 	}
 
 	@Override
@@ -66,6 +67,7 @@ public class FrontEndTransfer extends Thread {
 			InetAddress host = InetAddress.getLocalHost();
 			DatagramPacket seq = new DatagramPacket(packetBytes, packetBytes.length, host, sequencer);
 			long timerStart = System.currentTimeMillis();
+			logger.log("FRONT END TRANSFER", "sending packet to sequencer");
 			// Send to Sequencer
 			socket.send(seq);
 			byte buffer[] = new byte[5000];
@@ -82,7 +84,7 @@ public class FrontEndTransfer extends Thread {
 			}
 			// First Timeout 2 secs
 			if(seqACK.equalsIgnoreCase("ACK")){
-				HashMap<OperationParameters, Integer> replies = new HashMap<OperationParameters, Integer>();
+				HashMap<String, Integer> replies = new HashMap<String, Integer>();
 				int counter = group.size();
 				while(counter > 0 /* All replicas */){
 					try{
@@ -91,6 +93,7 @@ public class FrontEndTransfer extends Thread {
 						socket.receive(reply);
 						Packet replyPacket = (Packet) UdpHelper.getObjectFromByteArray(reply.getData());
 						OperationParameters serverReply = replyPacket.getOperationParameters();
+						logger.log("FRONT END TRANSFER", "Received Packet: "+serverReply.toString());
 						if(replyPacket.getReplicaOperation() == Operation.REPLICA_ALIVE){
 							ReplicaAliveReply replicaAlive = (ReplicaAliveReply) serverReply;
 							if(!replicaAlive.isAlive())
@@ -100,19 +103,20 @@ public class FrontEndTransfer extends Thread {
 						} else if(replyPacket.getReplicaOperation() == Operation.REPLICA_REBOOT){
 							// Necessary?
 						}else{	// Replica Reply
-							System.out.println(replyPacket.toString());
 							group.remove(new Integer(replyPacket.getSenderPort()));
 							long timeReceived = System.currentTimeMillis();
-							if(replies.containsKey(serverReply)){	// If same reply was received before
-								int newVal = replies.replace(serverReply, replies.get(serverReply)+1);
-								if(newVal == 2)	// If 2 of the same, set as correct reply
+							if(replies.containsKey(serverReply.toString())){	// If same reply was received before
+								int newVal = replies.replace(serverReply.toString(), replies.get(serverReply.toString())+1);
+								if(++newVal == 2)	// If 2 of the same, set as correct reply
 									correctReply = serverReply.toString();
+								logger.log("FRONT END TRANSFER", "Correct reply found");
 							} else{				// 1st time seeing reply
 								// If correct reply was found, set this different as incorrect reply
 								if(this.hasCorrectReply()){
 									int numberFailures = failureTracker.insertFailure(replyPacket.getSenderPort());
 									if(numberFailures >= 3){		// Reboot Replica
 										// Get RM's Address
+										logger.log("FRONT END TRANSFER", "replica failure: Communicating RM");
 										int RM = 0;
 										for(Map.Entry<Integer, Integer> entry: replicaTracker.entrySet()){
 											if(entry.getValue() == replyPacket.getSenderPort()){
@@ -129,15 +133,15 @@ public class FrontEndTransfer extends Thread {
 									}
 								}
 								// Add to replies structure
-								replies.put(serverReply, 1);
+								replies.put(serverReply.toString(), 1);
 							}
 							counter--;
 							// Timeout set for 2x the latest packet
-							socket.setSoTimeout((int)(timeReceived - timerStart* 2));
 						}
 					}catch(SocketTimeoutException e){	// Timeout
 						// SEND TO RM THAT REPLICA MIGHT HAVE CRASHED
 						// Every remaining replica in the group
+						logger.log("FRONT END TRANSFER", "REQUESTING REPLICA ALIVE SIGNAL FROM RM");
 						for(int replicaPort : group){
 							int RM = 0;
 							for(Map.Entry<Integer, Integer> entry: replicaTracker.entrySet()){
