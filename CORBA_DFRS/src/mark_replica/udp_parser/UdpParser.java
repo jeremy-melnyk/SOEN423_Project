@@ -43,9 +43,9 @@ public class UdpParser extends UdpParserBase {
 		String s_FlightClass = bookFlightOperation.getFlightClass();
 		String flightClass = null;
 		if (s_FlightClass.equalsIgnoreCase("ECONOMY")) {
-			flightClass = "ECON";
+			flightClass = "ECONONOMY";
 		} else if (s_FlightClass.equalsIgnoreCase("BUSINESS")) {
-			flightClass = "BUS";
+			flightClass = "BUSINESS";
 		} else if (s_FlightClass.equalsIgnoreCase("FIRST")) {
 			flightClass = "FIRST";
 		}
