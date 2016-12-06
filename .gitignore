@@ -26,6 +26,8 @@ logs/
 upd-registry.txt
 *serverLog.txt
 Server_*.txt
-MTL*.txt
+*MTL*.txt
+*.ser
 WST*.txt
 NDL*.txt
+*ID.txt
