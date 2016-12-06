@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
+import global.Constants;
 import packet.Operation;
 import packet.OperationParameters;
 import packet.OperationParametersHandler;
@@ -15,9 +16,7 @@ import packet.ReplicaAliveOperation;
 import packet.ReplicaAliveReply;
 import udp.UdpHelper;
 
-public class ReplicaAliveHandler extends OperationParametersHandler implements Runnable {
-	// 2 seconds
-	private final int TIMEOUT = 2000;
+public class ReplicaAliveHandler extends OperationParametersHandler {
 	private ReplicaManager replicaManager;
 	
 	public ReplicaAliveHandler(DatagramSocket socket, InetAddress address, int port, OperationParameters operationParameters, ReplicaManager replicaManager) {
@@ -26,16 +25,11 @@ public class ReplicaAliveHandler extends OperationParametersHandler implements R
 	}
 	
 	@Override
-	public void run() {
-		execute();
-	}
-
-	@Override
 	public void execute() {
 		DatagramSocket newSocket = null;
 		try {
 			newSocket = new DatagramSocket();
-			newSocket.setSoTimeout(TIMEOUT);
+			newSocket.setSoTimeout(Constants.REPLICA_MANAGER_TIMEOUT);
 			
 			ReplicaAliveOperation incomingReplicaAliveOperation = (ReplicaAliveOperation) operationParameters;
 			int portToCheck = incomingReplicaAliveOperation.getPortToCheck();

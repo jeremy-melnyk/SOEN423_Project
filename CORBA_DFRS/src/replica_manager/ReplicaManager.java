@@ -67,6 +67,9 @@ public class ReplicaManager implements Runnable {
 	}
 	
 	public synchronized boolean rebootReplica(){
+		if(replica == null){
+			return false;
+		}
 		try {
 			Runtime runtime = Runtime.getRuntime();
 			replica.destroy();
