@@ -39,11 +39,10 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 			// Reboot replica
 			replicaManager.setRebooting(true);
 			boolean result = replicaManager.rebootReplica();
-			
-			// TODO : Get sequencerPort from configuration
-			int sequencerPort = 10000;
+			/*
+			int sequencerPort = replicaManager.getSequencerPort();
 			OperationLogOperation operationLogOperation = new OperationLogOperation(replicaManager.getPort());
-			Packet operationLogPacket = new Packet(Operation.OPERATION_LOG, operationLogOperation);
+			Packet operationLogPacket = new Packet(newSocket.getInetAddress(), newSocket.getLocalPort(), Operation.OPERATION_LOG, operationLogOperation);
 			byte[] operationLogMessage = UdpHelper.getByteArray(operationLogPacket);
 			DatagramPacket requestPacket = new DatagramPacket(operationLogMessage, operationLogMessage.length, address, sequencerPort);
 			newSocket.send(requestPacket);
@@ -74,10 +73,10 @@ public class ReplicaRebootHandler extends OperationParametersHandler implements 
 			byte[] operationBuffer = new byte[BUFFER_SIZE];
 			DatagramPacket operationPacketReply = new DatagramPacket(operationBuffer, operationBuffer.length);
 			newSocket.receive(operationPacketReply);
-			
+			*/
 			replicaManager.setRebooting(false);
 			ReplicaRebootReply replicaRebootReply = new ReplicaRebootReply(result);
-			Packet replyPacket = new Packet(Operation.REPLICA_REBOOT, replicaRebootReply);
+			Packet replyPacket = new Packet(socket.getInetAddress(), socket.getLocalPort(), Operation.REPLICA_REBOOT, replicaRebootReply);
 			
 			byte[] message = UdpHelper.getByteArray(replyPacket);
 			DatagramPacket reply = new DatagramPacket(message, message.length, address, port);

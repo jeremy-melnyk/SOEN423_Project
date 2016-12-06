@@ -16,17 +16,19 @@ public class ReplicaManager implements Runnable {
 	private String replicaPath;
 	private int port;
 	private int replicaPort;
+	private int sequencerPort;
 	private Process replica;
 	private boolean isRebooting = false;
 	private Thread shutdownHook;
 	private final String tag;
 	
-	public ReplicaManager(int port, int replicaPort, String replicaPath, ILogger logger) {
+	public ReplicaManager(int port, int replicaPort, int sequencerPort, String replicaPath, ILogger logger) {
 		super();
 		this.tag = "REPLICA_MANAGER_" + port;
 		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		this.replicaPath = replicaPath;
 		this.port = port;
+		this.sequencerPort = sequencerPort;
 		this.replicaPort = replicaPort;
 		this.logger = logger;
 		this.replica = null;
@@ -34,11 +36,15 @@ public class ReplicaManager implements Runnable {
 		this.shutdownHook = null;
 	}
 	
-	public boolean isRebooting() {
+	public int getSequencerPort() {
+		return sequencerPort;
+	}
+	
+	public synchronized boolean isRebooting() {
 		return isRebooting;
 	}
 
-	public void setRebooting(boolean isRebooting) {
+	public synchronized void setRebooting(boolean isRebooting) {
 		this.isRebooting = isRebooting;
 	}
 
@@ -56,7 +62,7 @@ public class ReplicaManager implements Runnable {
 		serveRequests();
 	}
 	
-	public boolean rebootReplica(){
+	public synchronized boolean rebootReplica(){
 		try {
 			Runtime runtime = Runtime.getRuntime();
 			replica.destroy();
