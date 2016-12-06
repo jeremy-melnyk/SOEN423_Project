@@ -181,7 +181,7 @@ public class UdpParser extends UdpParserBase {
 		
 		
 		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(resultTokens[0], resultTokens[1], resultTokens[2],
-				resultTokens[2], economySeats, businessSeats, firstSeats);
+				resultTokens[3], economySeats, businessSeats, firstSeats);
 		
 		return editFlightRecordReply;
 		
