@@ -101,7 +101,7 @@ public class FrontEndTransfer extends Thread {
 							// Necessary?
 						}else{	// Replica Reply
 							System.out.println(replyPacket.toString());
-							group.remove(new Integer(reply.getPort()));
+							group.remove(new Integer(replyPacket.getSenderPort()));
 							long timeReceived = System.currentTimeMillis();
 							if(replies.containsKey(serverReply)){	// If same reply was received before
 								int newVal = replies.replace(serverReply, replies.get(serverReply)+1);
@@ -110,12 +110,12 @@ public class FrontEndTransfer extends Thread {
 							} else{				// 1st time seeing reply
 								// If correct reply was found, set this different as incorrect reply
 								if(this.hasCorrectReply()){
-									int numberFailures = failureTracker.insertFailure(reply.getPort());
+									int numberFailures = failureTracker.insertFailure(replyPacket.getSenderPort());
 									if(numberFailures >= 3){		// Reboot Replica
 										// Get RM's Address
 										int RM = 0;
 										for(Map.Entry<Integer, Integer> entry: replicaTracker.entrySet()){
-											if(entry.getValue() == reply.getPort()){
+											if(entry.getValue() == replyPacket.getSenderPort()){
 												RM = entry.getKey();
 												break;
 											}
