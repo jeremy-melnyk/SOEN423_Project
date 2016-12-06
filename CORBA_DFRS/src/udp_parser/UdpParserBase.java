@@ -241,14 +241,13 @@ public abstract class UdpParserBase implements Runnable {
 
 			// continuously delivers until holdback queue is empty or there is a
 			// missing packet
-			while (this.checkHoldBackQueue() == true) {
+			while (this.checkHoldBackQueue()) {
 				// pops the latest datagrampacket from the queue and increments
 				// the last
 				// received number
 				DatagramPacket poppacket = holdbackqueue.poll();
 				Packet deliveredpacket = (Packet) UdpHelper.getObjectFromByteArray(poppacket.getData());
 				this.setLastreceivednumber(deliveredpacket.getSequencernumber());
-				
 				threadPool.execute(new UdpParserPacketDispatcher(this, poppacket));
 			}
 		}
@@ -265,14 +264,18 @@ public abstract class UdpParserBase implements Runnable {
 
 	// checks if the next correct packet is within the holdbackqueue
 	public boolean checkHoldBackQueue() {
-		Packet convertedpacket=(Packet)UdpHelper.getObjectFromByteArray(holdbackqueue.peek().getData());
-		int receivedseqnumber = convertedpacket.getSequencernumber();
-		int expectedSequenceNumber = this.getLastreceivednumber() + 1;
-		if (receivedseqnumber == expectedSequenceNumber) {
-			return true;
-		} else {
-			return false;
+		if (!holdbackqueue.isEmpty()) {
+			Packet convertedpacket = (Packet) UdpHelper.getObjectFromByteArray(holdbackqueue.peek().getData());
+			int receivedseqnumber = convertedpacket.getSequencernumber();
+			int expectedSequenceNumber = this.getLastreceivednumber() + 1;
+			if (receivedseqnumber == expectedSequenceNumber) {
+				return true;
+			} else {
+				return false;
+			}
 		}
+
+		return false;
 	}
 
 	// for comparing packets in the priority queue

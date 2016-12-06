@@ -54,11 +54,11 @@ public class ReplicaManager implements Runnable {
 		this.replicaManagerSequencerPort = replicaManagerSequencerPort;
 	}
 
-	public synchronized boolean isRebooting() {
+	public boolean isRebooting() {
 		return isRebooting;
 	}
 
-	public synchronized void setRebooting(boolean isRebooting) {
+	public void setRebooting(boolean isRebooting) {
 		this.isRebooting = isRebooting;
 	}
 
@@ -76,7 +76,7 @@ public class ReplicaManager implements Runnable {
 		serveRequests();
 	}
 	
-	public synchronized boolean killReplica(){
+	public boolean killReplica(){
 		try {
 			if(replica == null){
 				return true;
@@ -97,7 +97,7 @@ public class ReplicaManager implements Runnable {
 		return false;
 	}
 	
-	public synchronized boolean rebootReplica(){
+	public boolean rebootReplica(){
 		try {
 			Runtime runtime = Runtime.getRuntime();
 			if(replica != null){

@@ -22,16 +22,59 @@ public class ReplicaManagerTests {
 		// Initialize ports configuration
 		JSONReader jsonReader = new JSONReader();
 		
-		// Choose parser to test
-		String username = "Jeremy";
+		int[] ports = new int[4];
+		ports[0] = jsonReader.getPortForKeys("Jeremy", "RM");
+		ports[1] = jsonReader.getPortForKeys("Caio", "RM");
+		ports[2] = jsonReader.getPortForKeys("Mark", "RM");
+		ports[3] = jsonReader.getPortForKeys("Patrick", "RM");
 		
-		int udpPort = jsonReader.getPortForKeys(username, "RM");
+		System.out.println("Testing: " + ports[0]);
+		testOne(ports[0]);
+		System.out.println("Testing: " + ports[1]);
+		testTwo(ports[1]);
+		System.out.println("Testing: " + ports[2]);
+		testThree(ports[2]);
+		System.out.println("Testing: " + ports[3]);
+		testFour(ports[3]);
 		
-		testKillReplica(udpPort);
-		testReplicaCrash(udpPort);
-		//testReplicaAlive(udpPort);
-		//testRebootReplica(udpPort);
+		for(int port : ports){
+			System.out.println("Checking status of replica: " + port);
+			testReplicaAlive(port);
+		}
+		
+		System.out.println("Tests complete!");
 	}
+	
+	private static void testOne(int port){
+		testReplicaAlive(port);
+		testKillReplica(port);
+		testReplicaCrash(port);
+		testReplicaAlive(port);
+		testRebootReplica(port);
+		testReplicaAlive(port);	
+	}
+	
+	private static void testTwo(int port){
+		testReplicaAlive(port);
+		testReplicaCrash(port);
+		testReplicaAlive(port);
+	}
+	
+	private static void testThree(int port){
+		testReplicaCrash(port);
+		testKillReplica(port);
+		testReplicaCrash(port);
+		testReplicaAlive(port);
+	}
+	
+	private static void testFour(int port){
+		testRebootReplica(port);
+		testReplicaCrash(port);
+		testKillReplica(port);
+		testReplicaCrash(port);
+		testReplicaAlive(port);
+	}
+	
 	private static void testReplicaCrash(int port) {
 		// Build the action for the packet
 		ReplicaAliveOperation replicaAliveOperation = new ReplicaAliveOperation();
