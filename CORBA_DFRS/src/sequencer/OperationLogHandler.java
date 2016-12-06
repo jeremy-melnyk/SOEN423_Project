@@ -33,7 +33,7 @@ public class OperationLogHandler extends OperationParametersHandler {
 			//OperationLogOperation operationLogOperation = (OperationLogOperation) operationParameters;
 			ArrayList<Packet> operationLog = sequencer.getSequencerLog();
 			OperationLogReply operationLogReply = new OperationLogReply(operationLog);
-			Packet replyPacket = new Packet(Operation.OPERATION_LOG, operationLogReply);
+			Packet replyPacket = new Packet(newSocket.getInetAddress(), newSocket.getLocalPort(), Operation.OPERATION_LOG, operationLogReply);
 			
 			// Reply to Replica Manager
 			byte[] message = UdpHelper.getByteArray(replyPacket);
