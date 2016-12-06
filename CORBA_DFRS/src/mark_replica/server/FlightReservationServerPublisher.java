@@ -1,14 +1,8 @@
 package mark_replica.server;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Set;
 
 import org.omg.CORBA.ORB;
@@ -45,7 +39,6 @@ public class FlightReservationServerPublisher {
 		
 		// Initialize ports configuration
 		JSONReader jsonReader = new JSONReader();
-		//jsonReader.initialize();
 		
 		int udpParserPort = jsonReader.getPortForKeys(USERNAME, "");
 		int mtlPort = jsonReader.getPortForKeys(USERNAME, "MTL");
@@ -84,8 +77,6 @@ public class FlightReservationServerPublisher {
 			FlightReservation flightReservationServer = FlightReservationHelper.narrow(flightReservationSystemRef);
 			namingContextRef.rebind(path, flightReservationServer);
 
-			//System.out.println("Server created for " + city);
-
 			String ior = orb.object_to_string(ref);
 			System.out.println(ior);
 
@@ -94,7 +85,9 @@ public class FlightReservationServerPublisher {
 			file.close();
 
 			rootPOA.the_POAManager().activate();
-			flightReservationSystem.run();
+			
+			new Thread(flightReservationSystem).start();
+			
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -102,57 +95,10 @@ public class FlightReservationServerPublisher {
 		
 		// Set UDP Parser
 		UdpParserBase udpParser = new UdpParser(orb, udpParserPort);
+		
 		// Spins up UdpParser
 		new Thread(udpParser).start();
 		
 		orb.run();
-
-		/*FlightReservationImplementation flightReservationSystem[] = new FlightReservationImplementation[3];
-
-		for (int i = 0; i < 3; i++) {
-			ORB orb = ORB.init(args, null);
-			POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-			
-			if (i == 0) {
-				city = "Montreal";
-				cityCode = "MTL";
-				port = 2020;
-				choice = true;
-			} else if (i == 1) {
-				city = "Washington";
-				cityCode = "WST";
-				port = 2021;
-				choice = true;
-				break;
-			} else if (i == 2) {
-				city = "New Delhi";
-				cityCode = "NDL";
-				port = 2022;
-				choice = true;
-			}
-
-			// Creating new server object for selected city
-			flightReservationSystem[i] = new FlightReservationImplementation(city, cityCode, port);
-			byte[] id = rootPOA.activate_object(flightReservationSystem[i]);
-			org.omg.CORBA.Object ref = rootPOA.id_to_reference(id);
-
-			System.out.println("Server created for " + city);
-
-			String ior = orb.object_to_string(ref);
-			System.out.println(ior);
-
-			PrintWriter file = new PrintWriter(cityCode + "ior.txt");
-			file.println(ior);
-			file.close();
-
-			rootPOA.the_POAManager().activate();
-			flightReservationSystem[i].run();
-			orb.run();
-		}
-		
-		flightReservationSystem[0].run();
-		flightReservationSystem[1].run();
-		flightReservationSystem[2].run();*/
 	}
-
 }

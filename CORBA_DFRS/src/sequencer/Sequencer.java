@@ -7,11 +7,12 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 
+import json.JSONReader;
 import packet.Packet;
 import udp.UdpHelper;
 
-public class Sequencer implements Runnable {
-	private int sequencerport = 10000;
+public class Sequencer implements Runnable{
+	private int sequencerport;
 	private int sequencernumber = 1;
 	private ArrayList<Packet> sequencerlog = new ArrayList<Packet>();
 	private final int groupportnumber = 9876;
@@ -24,6 +25,8 @@ public class Sequencer implements Runnable {
 
 	public Sequencer(String message) {
 		super();
+		JSONReader jsonReader = new JSONReader();
+		sequencerport = jsonReader.getSequencerPort();
 	}
 
 	public ArrayList<Packet> getSequencerLog() {

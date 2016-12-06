@@ -26,6 +26,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import json.JSONReader;
+import mark_replica.global.Constants;
 import mark_replica.models.FlightRecord;
 import mark_replica.models.PassengerRecord;
 
@@ -43,10 +44,6 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 		this.city = city;
 		this.cityCode = cityCode;
 		this.port = port;
-	}
-
-	// Used for concurrent execution with other servers, executes at runtime
-	public void run() {
 
 		System.out.println("Setting up server for " + city + "...");
 
@@ -137,14 +134,16 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 				e.printStackTrace();
 			}
 		}
+	}
 
+	// Used for concurrent execution with other servers, executes at runtime
+	@Override
+	public void run() {
 		DatagramSocket aSocket = null;
 
 		try {
 			// Creating socket
 			aSocket = new DatagramSocket(port);
-
-			System.out.println("Initiating connection with other servers...");
 
 			byte[] buffer = new byte[1000];
 
@@ -172,7 +171,7 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 							}
 						}
 					}
-					replyMessage = cityCode + " " + Integer.toString(count);
+					replyMessage = cityCode + Constants.DELIMITER_ESCAPE + Integer.toString(count);
 				} else {
 					String data[] = requestMessage.split("/");
 
@@ -438,7 +437,9 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 
 		boolean passengerAdded = false;
 
-		PassengerRecord record = new PassengerRecord(firstName, lastName, address, phone, destination, date, seating);
+		PassengerRecord pRecord = new PassengerRecord(firstName, lastName, address, phone, destination, date, seating);
+
+		FlightRecord fRecord = null;
 
 		// Trying to add passenger to a flightF
 		for (int i = 0; i < list.size(); i++) {
@@ -446,7 +447,8 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 				// Ensuring access to the flight that the passenger is added to
 				// is synchronized
 				synchronized (list.get(i)) {
-					list.get(i).addToFlight(record.getID(), seating);
+					list.get(i).addToFlight(pRecord.getID(), seating);
+					fRecord = list.get(i);
 				}
 				passengerAdded = true;
 				break;
@@ -467,7 +469,7 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 			temp = new ArrayList<PassengerRecord>();
 		}
 
-		temp.add(record);
+		temp.add(pRecord);
 
 		// Ensuring access to list of passenger records by name's first letter
 		// is synchronized
@@ -475,11 +477,14 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 			passengers.put(firstLetter, temp);
 		}
 
-		writeToLog("Flight booked for passenger " + firstName + " " + lastName + " with ID " + record.getID());
+		writeToLog("Flight booked for passenger " + firstName + " " + lastName + " with ID " + pRecord.getID());
 		savePassengers();
 
-		return "Flight successfully booked for passenger " + firstName + " " + lastName + " with ID " + record.getID()
-				+ ".";
+		return "Flight successfully booked for passenger:" + Constants.DELIMITER_ESCAPE + pRecord.getID()
+				+ Constants.DELIMITER_ESCAPE + fRecord.getID() + Constants.DELIMITER_ESCAPE + cityCode
+				+ Constants.DELIMITER_ESCAPE + destination + Constants.DELIMITER_ESCAPE + lastName
+				+ Constants.DELIMITER_ESCAPE + firstName + Constants.DELIMITER_ESCAPE + date
+				+ Constants.DELIMITER_ESCAPE + seating;
 	}
 
 	// Used by managers to get a count of the number of booked flights on this
@@ -506,11 +511,11 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 		}
 
 		// Requesting other servers' data for a count
-		String msg = cityCode + " " + count + " " + call("count");
+		String msg = cityCode + Constants.DELIMITER_ESCAPE + count + Constants.DELIMITER_ESCAPE + call("count");
 
 		writeToLog("Booked flights checked: " + msg);
 
-		return "Booked flights: " + msg;
+		return "Booked flights:" + Constants.DELIMITER_ESCAPE + msg;
 	}
 
 	// Used by managers to add, edit or delete flight records
