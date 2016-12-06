@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import mark_replica.global.Constants;
+
 import java.net.*;
 import java.io.*;
 
@@ -137,8 +139,12 @@ public class Server extends ServerIDLPOA{
 							log1.writeToManagers("Success. FlightID" +flight.getFlightID() + destination.toUpperCase() + " on " + date + "RecordID: " +newrecordid, servername);
 							log1.writetoFile("Success. RecordID: " +newrecordid + " Name: " +lastname+", " +firstname + " Address: " +address +" Phone: " +phone +
 									" Dest: "+ destination.toUpperCase() + " Date: " + date + " FlightClass: " + flightclass + " FlightID: " + flightfound.getFlightID(), operation,true);
-							return "Successfully booked a flight to " + destination.toUpperCase() + " on " + date + " RecordID: " +newrecordid;	
 							
+							return "Flight successfully booked for passenger:" + Constants.DELIMITER_ESCAPE + newrecordid
+							+ Constants.DELIMITER_ESCAPE + flight.getFlightID() + Constants.DELIMITER_ESCAPE + servername
+							+ Constants.DELIMITER_ESCAPE + destination + Constants.DELIMITER_ESCAPE + lastname
+							+ Constants.DELIMITER_ESCAPE + firstname + Constants.DELIMITER_ESCAPE + date
+							+ Constants.DELIMITER_ESCAPE + flightclass;
 
 						}
 						}
