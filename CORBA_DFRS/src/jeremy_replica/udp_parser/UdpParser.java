@@ -172,31 +172,19 @@ public class UdpParser extends UdpParserBase {
 		String[] resultTokens = result.split(Constants.DELIMITER_ESCAPE);
 		if (resultTokens.length == 1){
 			// Must be an error
-			return new EditFlightRecordReply(resultTokens[0]);
+			return new EditFlightRecordReply(global.Constants.ERROR_CODE);
 		}
-		
-		// 0|MTL|WST|06/06/2016|FIRST|S10|A10|BUSINESS|S10|A10|ECONOMY|S10|A10
-		// OKK-2" + resultTokens[0] + " | " + resultTokens[1].toLowerCase() + " --> " + resultTokens[2].toUpperCase()
 		
 		String economySeats = resultTokens[11].substring(1, resultTokens[11].length());
 		String businessSeats = resultTokens[8].substring(1, resultTokens[11].length());
 		String firstSeats = resultTokens[5].substring(1, resultTokens[11].length());
 		
-		String dateFormat = resultTokens[3];
-		try {
-			dateFormat = new SimpleDateFormat("yyyy/MM/dd").format(new SimpleDateFormat(Constants.DATE_FORMAT).parse(resultTokens[3]));
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		String format = String.format("OKK-2%s | %s --> %s | %s at 00:00 | Econ: %s, Bus: %s, First: %s",
-				resultTokens[0], resultTokens[1].toLowerCase(), resultTokens[2].toUpperCase(), dateFormat,
-				economySeats, businessSeats, firstSeats);
+		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(resultTokens[0], resultTokens[1], resultTokens[2],
+				resultTokens[2], economySeats, businessSeats, firstSeats);
 		
-		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(format);
 		return editFlightRecordReply;
-			
+		
 		/*
 		// Old EditFlightRecord response model
 		String failMessage1 = "Flight reservation does not exist.";
