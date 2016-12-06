@@ -187,7 +187,7 @@ public class UdpParser extends UdpParserBase{
 		} catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
 			e.printStackTrace();
 		}
-		String reply = server.editFlightRecord(parsedRecordId, parsedFieldName, parsedNewValues);
+		String reply = server.editFlightRecord(parsedRecordId, parsedFieldName, parsedNewValues).substring(4);
 		// TODO Parse message with agreed format
 		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(reply);
 		return editFlightRecordReply;

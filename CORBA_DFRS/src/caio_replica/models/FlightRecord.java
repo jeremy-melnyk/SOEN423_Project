@@ -48,13 +48,15 @@ public class FlightRecord {
 		return "ERR-UNKNOWN";
 	}
 	
-	public synchronized Boolean deleteById(int flightID){
+	public synchronized Flight deleteById(int flightID){
 		Iterator<Flight> iter = records.iterator();
+		Flight deletedFlight = null;
 		while(iter.hasNext()) {
 			Flight f = iter.next();
 			if(f.getFlightNumber() == flightID){
+				deletedFlight = f;
 				iter.remove();
-				return true;
+				return deletedFlight;
 			}
 		}
 		return null;
