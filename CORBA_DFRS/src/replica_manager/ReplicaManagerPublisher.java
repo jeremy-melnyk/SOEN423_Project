@@ -27,16 +27,14 @@ public class ReplicaManagerPublisher {
 		int sequencerPort = 50000;
 		
 		int rm_1_port = jsonReader.getPortForKeys("Jeremy", "RM");
-		ReplicaManager rm1 = new ReplicaManager(rm_1_port, replica1Port, sequencerPort, REPLICA_1_PATH, new CustomLogger(new TextFileLog()));
-		
 		int rm_2_port = jsonReader.getPortForKeys("Caio", "RM");
-		ReplicaManager rm2 = new ReplicaManager(rm_2_port, replica2Port, sequencerPort, REPLICA_2_PATH, new CustomLogger(new TextFileLog()));
-		
 		int rm_3_port = jsonReader.getPortForKeys("Mark", "RM");
-		ReplicaManager rm3 = new ReplicaManager(rm_3_port, replica3Port, sequencerPort, REPLICA_3_PATH, new CustomLogger(new TextFileLog()));
-		
 		int rm_4_port = jsonReader.getPortForKeys("Patrick", "RM");
-		ReplicaManager rm4 = new ReplicaManager(rm_4_port, replica4Port, sequencerPort, REPLICA_4_PATH, new CustomLogger(new TextFileLog()));
+		
+		ReplicaManager rm1 = new ReplicaManager(rm_1_port, replica1Port, sequencerPort, new int[]{rm_1_port, rm_2_port, rm_3_port, rm_4_port}, REPLICA_1_PATH, new CustomLogger(new TextFileLog()));
+		ReplicaManager rm2 = new ReplicaManager(rm_2_port, replica2Port, sequencerPort, new int[]{rm_1_port, rm_2_port, rm_3_port, rm_4_port}, REPLICA_2_PATH, new CustomLogger(new TextFileLog()));
+		ReplicaManager rm3 = new ReplicaManager(rm_3_port, replica3Port, sequencerPort, new int[]{rm_1_port, rm_2_port, rm_3_port, rm_4_port}, REPLICA_3_PATH, new CustomLogger(new TextFileLog()));
+		ReplicaManager rm4 = new ReplicaManager(rm_4_port, replica4Port, sequencerPort, new int[]{rm_1_port, rm_2_port, rm_3_port, rm_4_port}, REPLICA_4_PATH, new CustomLogger(new TextFileLog()));
 		
 		HashMap<String, ReplicaManager> replicaManagers = new HashMap<String, ReplicaManager>();
 		replicaManagers.put("RM_1", rm1);

@@ -142,6 +142,7 @@ public class FrontEndTransfer extends Thread {
 						// SEND TO RM THAT REPLICA MIGHT HAVE CRASHED
 						// Every remaining replica in the group
 						logger.log("FRONT END TRANSFER", "REQUESTING REPLICA ALIVE SIGNAL FROM RM");
+						
 						for(int replicaPort : group){
 							int RM = 0;
 							for(Map.Entry<Integer, Integer> entry: replicaTracker.entrySet()){
@@ -150,8 +151,21 @@ public class FrontEndTransfer extends Thread {
 									break;
 								}
 							}
+							/*
 							ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(replicaPort);
 							Packet packet = new Packet(Operation.REPLICA_ALIVE, aliveRequest);
+							byte[] aliveBytes = UdpHelper.getByteArray(packet);
+							DatagramPacket dPac = new DatagramPacket(aliveBytes, aliveBytes.length, host, RM);
+							socket.send(dPac);
+							*/
+							
+							// @Caio I made a new REPLICA_CRASH request. The RM you send it to will ask other RMs to check
+							// alive status of the replica. They then reach a consensus and reboot if necessary.
+							// It returns a replica alive reply with true (if replica was crashed) and false (if it was OK).
+							// It triggers reboot automatically (resetting logs) if it was crashed, you'll know if it's back online with a normal replica alive ping
+							// elsewhere.
+							ReplicaAliveOperation aliveRequest = new ReplicaAliveOperation(replicaPort);
+							Packet packet = new Packet(Operation.REPLICA_CRASH, aliveRequest);
 							byte[] aliveBytes = UdpHelper.getByteArray(packet);
 							DatagramPacket dPac = new DatagramPacket(aliveBytes, aliveBytes.length, host, RM);
 							socket.send(dPac);
