@@ -16,7 +16,7 @@ import jeremy_replica.models.FlightRecord;
 import jeremy_replica.models.FlightSeats;
 
 public class FlightRecordDbImpl implements FlightRecordDb {
-	private static int RECORD_ID = 0;
+	private static int RECORD_ID = 1;
 	private HashMap<Date, HashMap<Integer, FlightRecord>> records;
 	private static Lock idLock = new ReentrantLock(true);
 
