@@ -6,14 +6,21 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import global.Constants;
 import json.JSONReader;
+import packet.MulticastPacket;
 import packet.Packet;
 import udp.UdpHelper;
 
 public class Sequencer implements Runnable{
+	private final int BUFFER_SIZE = 50000;
+	private final int THREAD_POOL_SIZE = Integer.MAX_VALUE;
+	private final ExecutorService threadPool;
 	private int sequencerport;
+	private int replicaManagerPort;
 	private int sequencernumber = 1;
 	private ArrayList<Packet> sequencerlog = new ArrayList<Packet>();
 	private final int groupportnumber = 9876;
@@ -26,8 +33,13 @@ public class Sequencer implements Runnable{
 
 	public Sequencer(String message) {
 		super();
+		this.threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		JSONReader jsonReader = new JSONReader();
 		sequencerport = jsonReader.getSequencerPort();
+		// TODO : Get from configuration. This port is for RM to get logs.
+		replicaManagerPort = 50000;
+		this.packetDispatcherThread = initPacketDispatcher();
+		this.packetDispatcherThread.start();
 	}
 
 	public ArrayList<Packet> getSequencerLog() {
@@ -128,7 +140,7 @@ public class Sequencer implements Runnable{
 				ObjectInput in = null;
 				try {
 					in = new ObjectInputStream(bis);
-					frontendpacket = (Packet) in.readObject();
+					frontendpacket = ((MulticastPacket) in.readObject()).getP();
 					this.multicastToGroup(frontendpacket);
 
 					// sends reply back to front end to say it received message
@@ -162,7 +174,7 @@ public class Sequencer implements Runnable{
 				finally {
 					try {
 						if (in != null) {
-							in.close();
+							in.close(); 
 						}
 					} catch (IOException ex) {
 						// ignore close exception
@@ -173,6 +185,31 @@ public class Sequencer implements Runnable{
 
 		} catch (Exception e) {
 
+		}
+	}
+	
+	private Thread initPacketDispatcher() {
+		return new Thread(() -> {
+			replicaManagerRequests();
+		});
+	}
+	
+	private void replicaManagerRequests() {
+		DatagramSocket socket = null;
+		try {
+			socket = new DatagramSocket(replicaManagerPort);
+			while (true) {
+				byte[] buffer = new byte[BUFFER_SIZE];
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				socket.receive(packet);
+				threadPool.execute(new SequencerPacketDispatcher(socket, packet, this));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (socket != null){
+				socket.close();
+			}
 		}
 	}
 }

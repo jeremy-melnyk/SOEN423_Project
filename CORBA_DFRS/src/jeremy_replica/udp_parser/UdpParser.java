@@ -59,15 +59,16 @@ public class UdpParser extends UdpParserBase {
 		FlightClass flightClass = FlightClass.valueOf(bookFlightOperation.getFlightClass().toString().toUpperCase());
 		String result = flightServer.bookFlight(firstName, lastName, address.toString(), phoneNumber, destination.toString(),
 				date, flightClass.toString());
-		if(result.equals("Error")){
-			return new BookFlightReply();
-		}
 		String[] resultTokens = result.split(Constants.DELIMITER_ESCAPE);
+		if (resultTokens.length == 1){
+			// Must be an error
+			return new BookFlightReply(result);
+		}
 		int resultFlightId = Integer.parseInt(resultTokens[0]);
 		int resultPassengerId = Integer.parseInt(resultTokens[2]);
 		String resultDate = resultTokens[8];
 		try {
-			Date resultDateObject = new SimpleDateFormat(Constants.DATE_TOSTRING_FORMAT).parse(resultTokens[8]);
+			Date resultDateObject = new SimpleDateFormat(Constants.DATE_FORMAT).parse(resultTokens[8]);
 			resultDate = new SimpleDateFormat(Constants.DATE_FORMAT).format(resultDateObject);
 		} catch (ParseException e) {
 			logger.log("UDP_PARSER", "DATE_PARSE_FAILED", e.getMessage());
@@ -193,7 +194,6 @@ public class UdpParser extends UdpParserBase {
 			e.printStackTrace();
 		}
 		
-		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(result);
 		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(resultTokens[0], resultTokens[1], resultTokens[2],
 				resultDate, economicSeats, businessSeats, firstSeats);
 		
@@ -202,9 +202,23 @@ public class UdpParser extends UdpParserBase {
 	}
 	
 	@Override
-	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservation) {
-		// TODO Auto-generated method stub
-		return null;
+	protected TransferReservationReply transferReservation(TransferReservationOperation transferReservationOperation) {
+		String[] recordIdTokens = transferReservationOperation.getPassengerId().split(Constants.DELIMITER_ESCAPE);
+		City origin = City.valueOf(transferReservationOperation.getCurrentCity().toUpperCase());
+		City destination = City.valueOf(transferReservationOperation.getOtherCity().toUpperCase());
+		FlightReservationServer flightServer = getFlightServer(origin);
+		
+		String transferReservationRequest = recordIdTokens[0].toUpperCase() + Constants.DELIMITER + recordIdTokens[1].toUpperCase();
+		String result = flightServer.transferReservation(transferReservationRequest, origin.toString(), destination.toString());
+		String[] resultTokens = result.split(Constants.DELIMITER_ESCAPE);
+		if (resultTokens.length == 1){
+			// Must be an error
+			return new TransferReservationReply(resultTokens[0]);
+		}
+		int passengerId = Integer.parseInt(resultTokens[0]);
+		int flightId = Integer.parseInt(resultTokens[5]);
+		TransferReservationReply transferReservationReply = new TransferReservationReply(passengerId, flightId, resultTokens[6], resultTokens[7], resultTokens[3], resultTokens[4], resultTokens[8], resultTokens[1]);
+		return transferReservationReply;
 	}
 
 	private FlightReservationServer getFlightServer(City city) {
