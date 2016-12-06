@@ -130,7 +130,7 @@ public abstract class UdpParserBase implements Runnable {
 
 	protected abstract EditFlightRecordReply editFlightRecord(EditFlightRecordOperation editFlightRecordOperation);
 
-	protected abstract TransferReservationReply transferReservation(TransferReservationOperation transferReservation);
+	protected abstract TransferReservationReply transferReservation(TransferReservationOperation transferReservationOperation);
 
 	private ReplicaAliveReply replicaAlive(ReplicaAliveOperation replicaAliveOperation) {
 		return new ReplicaAliveReply(true, port);
