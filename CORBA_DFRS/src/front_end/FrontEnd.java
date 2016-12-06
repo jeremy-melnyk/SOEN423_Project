@@ -16,6 +16,7 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
+import caio_replica.utils.Logger;
 import friendly_end.FlightReservationServer;
 import friendly_end.FlightReservationServerHelper;
 import friendly_end.FlightReservationServerPOA;
@@ -36,6 +37,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 	private FailureTracker failureTracker;
 	private HashMap<Integer, Integer> replicaTracker;
 	private ORB orb;
+	private Logger logger;
 
 	public static void main(String[] args) {
 		
@@ -65,6 +67,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 	}
 	
 	public FrontEnd(){
+		logger = new Logger("./logs/FRONT_END.log");
 		failureTracker = new FailureTracker();
 		// GET RMs' address from config
 		replicaTracker = new HashMap<Integer, Integer>();
@@ -83,6 +86,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 	@Override
 	public String bookFlight(String firstName, String lastName, String address, String phoneNumber, String destination,
 			String date, String flightClass) {
+		logger.log("BOOK FLIGHT REQUEST", "Invocation");
 		BookFlightOperation bookFlightOperation = new BookFlightOperation.BuilderImpl(firstName).lastName(lastName)
 				.address(address)
 				.phoneNumber(phoneNumber)
@@ -147,10 +151,18 @@ public class FrontEnd extends FlightReservationServerPOA{
 		// Get Active Replica addresses from RMs 
 		List<Integer> group = getActiveReplicas(socket);
 		// SEQUENCER
+		logger.log("PACKET COMMUNICATION", "ACTIVE REPLICAS: "+group.toString());
 		FrontEndTransfer transfer =  new FrontEndTransfer(socket, packet, group, sequencer, failureTracker, replicaTracker);
 		transfer.start();
 		// Wait while there's no correct Response
 		while(!transfer.hasCorrectReply());
+		logger.log("PACKET COMMUNICATION", "sending reply: "+transfer.getCorrectReply());
+		try {
+			transfer.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return transfer.getCorrectReply();
 	}
 	
@@ -181,6 +193,7 @@ public class FrontEnd extends FlightReservationServerPOA{
 						continue;	// If repeated
 					Packet packetReply = (Packet) UdpHelper.getObjectFromByteArray(p.getData());
 					ReplicaAliveReply reply = (ReplicaAliveReply) packetReply.getOperationParameters();
+					System.out.println(reply.isAlive());
 					if(reply.isAlive()){
 						group.add(reply.getReplicaPort());
 						replicaTracker.put(p.getPort(), reply.getReplicaPort());

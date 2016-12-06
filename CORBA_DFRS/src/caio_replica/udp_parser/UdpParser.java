@@ -11,6 +11,8 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 import caio_replica.FlightBookingServer.FlightServerInterface;
 import caio_replica.FlightBookingServer.FlightServerInterfaceHelper;
+import caio_replica.utils.Logger;
+import global.Constants;
 import packet.BookFlightOperation;
 import packet.BookFlightReply;
 import packet.EditFlightRecordOperation;
@@ -23,10 +25,12 @@ import udp_parser.UdpParserBase;
 
 public class UdpParser extends UdpParserBase{
 	private NamingContextExt ncRef;
+	private Logger logger;
+	private static final String USERNAME = "Caio";
 	
 	public UdpParser(ORB orb, int port) {
 		super(orb, port);
-		
+		logger = new Logger("./logs/CAIO_PARSER.log");
 		//CORBA
 		org.omg.CORBA.Object objRef = null;
 		try {
@@ -39,6 +43,7 @@ public class UdpParser extends UdpParserBase{
 
 	@Override
 	protected BookFlightReply bookFlight(BookFlightOperation bookFlightOperation) {
+		logger.log("BOOK FLIGHT REQUEST", "Packet received");
 		FlightServerInterface server = null;
 		// FORMAT MTL|WST : DEPARTURE = MTL
 		BookFlightReply bookFlightReply = null;
@@ -54,7 +59,7 @@ public class UdpParser extends UdpParserBase{
 			}else if(s_FlightClass.equalsIgnoreCase("FIRST")){
 				flightClass = "3";
 			}
-			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(dep_dest[0]));
+			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(USERNAME+dep_dest[0]));
 			String reply = server.bookFlight(bookFlightOperation.getFirstName(), bookFlightOperation.getLastName(),
 											bookFlightOperation.getAddress(), bookFlightOperation.getPhoneNumber(),
 											dep_dest[1], date, flightClass);
@@ -87,15 +92,18 @@ public class UdpParser extends UdpParserBase{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		logger.log("BOOK FLIGHT REQUEST", "Packet sent");
 		return bookFlightReply;
 	}
 
 	@Override
 	protected GetBookedFlightCountReply getBookedFlightCount(GetBookedFlightCountOperation getBookedFlightCountOperation) {
 		// recordType: "MTL1111|FIRST" (managerId | flightClass)
+		logger.log("GET BOOK FLIGHT COUNT REQUEST", "Packet received: "+getBookedFlightCountOperation.getRecordType());
 		FlightServerInterface server = null;
 		GetBookedFlightCountReply getBookedFlightCountReply = null;
 		String recordType[] = getBookedFlightCountOperation.getRecordType().split("\\|");
+		logger.log("GET BOOK FLIGHT COUNT REQUEST", "recordType: " + recordType[0]);
 		String manager = recordType[0];
 		String flightClass = recordType[1];
 		String flightClassInteger = "";
@@ -107,9 +115,11 @@ public class UdpParser extends UdpParserBase{
 			flightClassInteger = "3";
 		else if(flightClass.equalsIgnoreCase("ALL"))
 			flightClassInteger = "4";
+		logger.log("GET BOOK FLIGHT COUNT REQUEST", "manager location: "+manager.substring(0, 3));
 		String managerLocation = manager.substring(0, 3);
+		logger.log("GET BOOK FLIGHT COUNT REQUEST", "Getting CORBA");
 		try {
-			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(managerLocation));
+			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(USERNAME+managerLocation));
 		} catch (NotFound e) {
 			e.printStackTrace();
 		} catch (CannotProceed e) {
@@ -118,8 +128,10 @@ public class UdpParser extends UdpParserBase{
 			e.printStackTrace();
 		}
 		String reply = server.getBookedFlightCount(flightClassInteger);
+		logger.log("GET BOOK FLIGHT COUNT REQUEST", "Received reply: "+reply);
 		String parsedReply[] = reply.split(" ");
 		int mtl = 0, ndl = 0, wst = 0;
+		logger.log("GET BOOK FLIGHT COUNT REQUEST", ""+parsedReply);
 		for(int i = 0; i < parsedReply.length; i += 2){
 			if(parsedReply[i].equalsIgnoreCase("mtl"))
 				mtl = Integer.parseInt(parsedReply[i+1]);
@@ -128,6 +140,7 @@ public class UdpParser extends UdpParserBase{
 			else if(parsedReply[i].equalsIgnoreCase("wst"))
 				wst = Integer.parseInt(parsedReply[i+1]);
 		}
+		logger.log("GET BOOK FLIGHT COUNT REQUEST", "Packet sent");
 		getBookedFlightCountReply = new GetBookedFlightCountReply(mtl, wst, ndl);
 		return getBookedFlightCountReply;
 	}
@@ -166,7 +179,7 @@ public class UdpParser extends UdpParserBase{
 		}
 		String managerLocation = manager.substring(0, 3);
 		try {
-			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(managerLocation));
+			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(USERNAME+managerLocation));
 		} catch (NotFound e) {
 			e.printStackTrace();
 		} catch (CannotProceed e) {
@@ -189,7 +202,7 @@ public class UdpParser extends UdpParserBase{
 		String otherCity = transferReservation.getOtherCity();
 		TransferReservationReply transferReservationReply = null;
 		try {
-			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(managerLocation));
+			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(USERNAME+managerLocation));
 		} catch (NotFound e) {
 			e.printStackTrace();
 		} catch (CannotProceed e) {
