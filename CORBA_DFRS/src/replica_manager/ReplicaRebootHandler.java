@@ -91,7 +91,7 @@ public class ReplicaRebootHandler extends OperationParametersHandler {
 			OperationLogReply operationLogReply = (OperationLogReply) sequencerReplyPacket.getOperationParameters();
 			ArrayList<Packet> operationLog = operationLogReply.getOperationLog();
 			
-			// TEST
+			// TEST PACKET
 			/*
 			// Build the action for the packet
 			BookFlightOperation bookFlightOperation = new BookFlightOperation.BuilderImpl("John").lastName("Doe")
