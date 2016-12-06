@@ -1,6 +1,7 @@
 package jeremy_replica.models;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -108,7 +109,7 @@ public class FlightRecord implements Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(id + Constants.DELIMITER + origin + Constants.DELIMITER + destination + Constants.DELIMITER
-				+ flightDate);
+				+ new SimpleDateFormat(Constants.DATE_FORMAT).format(flightDate));
 		sb.append(Constants.DELIMITER + FlightClass.FIRST + Constants.DELIMITER + flightClasses.get(FlightClass.FIRST));
 		sb.append(Constants.DELIMITER + FlightClass.BUSINESS + Constants.DELIMITER + flightClasses.get(FlightClass.BUSINESS));
 		sb.append(Constants.DELIMITER + FlightClass.ECONOMY + Constants.DELIMITER + flightClasses.get(FlightClass.ECONOMY));

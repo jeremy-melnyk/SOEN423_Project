@@ -1,6 +1,7 @@
 package jeremy_replica.models;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import jeremy_replica.enums.FlightClass;
@@ -58,6 +59,6 @@ public class FlightReservation implements Serializable {
 	@Override
 	public String toString() {
 		return id + Constants.DELIMITER + flightClass + Constants.DELIMITER + passengerRecord + Constants.DELIMITER
-				+ flightRecord + Constants.DELIMITER + bookingDate;
+				+ flightRecord + Constants.DELIMITER + new SimpleDateFormat(Constants.DATE_FORMAT).format(bookingDate);
 	}
 }
