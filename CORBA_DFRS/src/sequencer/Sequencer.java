@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 
 import global.Constants;
 import json.JSONReader;
+import packet.MulticastPacket;
 import packet.Packet;
 import udp.UdpHelper;
 
@@ -139,7 +140,7 @@ public class Sequencer implements Runnable{
 				ObjectInput in = null;
 				try {
 					in = new ObjectInputStream(bis);
-					frontendpacket = (Packet) in.readObject();
+					frontendpacket = ((MulticastPacket) in.readObject()).getP();
 					this.multicastToGroup(frontendpacket);
 
 					// sends reply back to front end to say it received message
