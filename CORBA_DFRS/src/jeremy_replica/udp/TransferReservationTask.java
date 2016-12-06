@@ -79,8 +79,8 @@ public class TransferReservationTask extends Task<String> {
 				byte[] resultBuffer = new byte[BUFFER_SIZE];
 				DatagramPacket resultPacket = new DatagramPacket(resultBuffer, resultBuffer.length);
 				socket.receive(resultPacket);
-				boolean result = UdpHelper.byteArrayToBoolean(resultPacket.getData());
-				if (!result) {
+				TransferReservationRequest transferReservationResult = (TransferReservationRequest) UdpHelper.getObjectFromByteArray(resultPacket.getData());
+				if (transferReservationResult.getRequestType().equals(UdpRequestType.TRANSFER_RESERVATION_FAIL)) {
 					// Cancel transaction
 					return "Unable to transfer.";
 				}
@@ -90,8 +90,7 @@ public class TransferReservationTask extends Task<String> {
 						flightReservationId);
 				// Release a seat
 				removedFlightReservation.getFlightRecord().getFlightClasses().get(flightClass).releaseSeat();
-				removedFlightReservation.getFlightRecord().setOrigin(flightServerAddress.getCity());
-				return removedFlightReservation.toString();
+				return transferReservationResult.getFlightReservation().toString();
 			}
 		} catch (SocketException e) {
 			e.printStackTrace();

@@ -13,6 +13,7 @@ import jeremy_replica.databases.FlightReservationDb;
 import jeremy_replica.databases.PassengerRecordDb;
 import jeremy_replica.enums.City;
 import jeremy_replica.enums.FlightClass;
+import jeremy_replica.enums.UdpRequestType;
 import jeremy_replica.models.FlightRecord;
 import jeremy_replica.models.FlightReservation;
 import jeremy_replica.models.PassengerRecord;
@@ -77,7 +78,12 @@ public class TransferReservationHandler extends RequestHandler {
 			}
 			
 			// Send result
-			byte[] result = UdpHelper.booleanToByteArray(transferResult);
+			UdpRequestType header = UdpRequestType.TRANSFER_RESERVATION_FAIL;
+			if(transferResult){
+				header = UdpRequestType.TRANSFER_RESERVATION;
+			}
+			TransferReservationRequest transferReservationRequestResult = new TransferReservationRequest(header, flightReservation);	
+			byte[] result = UdpHelper.getByteArray(transferReservationRequestResult);
 			DatagramPacket resultMessage = new DatagramPacket(result, result.length, packet.getAddress(), packet.getPort());
 			newSocket.send(resultMessage);
 			newSocket.close();
