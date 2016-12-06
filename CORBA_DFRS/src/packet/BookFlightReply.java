@@ -141,6 +141,8 @@ public class BookFlightReply extends OperationParameters {
 	
 	@Override
 	public String toString(){
+		if(!this.unsuccessfulOperation.isEmpty())
+			return this.unsuccessfulOperation;
 		StringBuilder sb = new StringBuilder();
 		sb.append(this.passengerId); sb.append(" | ");
 		sb.append(this.flightId); sb.append(" | ");
