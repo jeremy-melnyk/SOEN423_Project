@@ -36,6 +36,12 @@ public class ReplicaManagerPacketDispatcher implements Runnable {
 		case REPLICA_REBOOT:
 			new ReplicaRebootHandler(socket, packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
 			break;
+		case REPLICA_CRASH:
+			new ReplicaCrashHandler(socket, packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
+			break;
+		case REPLICA_KILL:
+			new ReplicaKillHandler(socket, packet.getAddress(), packet.getPort(), operationParameters, replicaManager).execute();
+			break;
 		default:
 			break;
 		}

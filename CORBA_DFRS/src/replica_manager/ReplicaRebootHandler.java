@@ -62,6 +62,7 @@ public class ReplicaRebootHandler extends OperationParametersHandler {
 				} catch(SocketTimeoutException e){
 					// Keep trying
 					++attempts;
+					System.out.println("Reboot attempts: " + attempts);
 					if (attempts >= Constants.MAX_TIMEOUT_ATTEMPTS){
 						// Reboot cannot complete, send failure to FE
 						ReplicaRebootReply replicaRebootReply = new ReplicaRebootReply(false);

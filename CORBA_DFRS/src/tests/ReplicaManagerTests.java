@@ -23,15 +23,39 @@ public class ReplicaManagerTests {
 		JSONReader jsonReader = new JSONReader();
 		
 		// Choose parser to test
-		String username = "Mark";
+		String username = "Jeremy";
 		
 		int udpPort = jsonReader.getPortForKeys(username, "RM");
 		
-		testReplicaAlive(udpPort);
-		testRebootReplica(udpPort);
-		testReplicaAlive(udpPort);	
-		testReplicaAlive(udpPort);		
-		testReplicaAlive(udpPort);
+		testKillReplica(udpPort);
+		testReplicaCrash(udpPort);
+		//testReplicaAlive(udpPort);
+		//testRebootReplica(udpPort);
+	}
+	private static void testReplicaCrash(int port) {
+		// Build the action for the packet
+		ReplicaAliveOperation replicaAliveOperation = new ReplicaAliveOperation();
+
+		// Create a packet with the operation
+		Packet packet = new Packet(Operation.REPLICA_CRASH, replicaAliveOperation);
+
+		// Process the packet
+		Packet result = processOperationPacket(packet, port);
+		ReplicaAliveReply reply = (ReplicaAliveReply) result.getOperationParameters();
+		System.out.println("Replica wasCrashed: " + reply.isAlive());
+	}
+	
+	private static void testKillReplica(int port) {
+		// Build the action for the packet
+		ReplicaRebootOperation rebootReplicaOperation = new ReplicaRebootOperation();
+
+		// Create a packet with the operation
+		Packet packet = new Packet(Operation.REPLICA_KILL, rebootReplicaOperation);
+
+		// Process the packet
+		Packet result = processOperationPacket(packet, port);
+		ReplicaRebootReply reply = (ReplicaRebootReply) result.getOperationParameters();
+		System.out.println("Replica isKilled: " + reply.isRebooted());
 	}
 
 	private static void testRebootReplica(int port) {
