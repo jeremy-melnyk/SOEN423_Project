@@ -551,9 +551,9 @@ public class FlightReservationImplementation extends FlightReservationPOA implem
 
 		} else {
 			// Checking if the field name given is valid
-			if (!fieldName.equals("destination") && !fieldName.equals("date") && !fieldName.equals("time")
-					&& !fieldName.equals("economySeats") && !fieldName.equals("businessSeats")
-					&& !fieldName.equals("firstSeats")) {
+			if (!fieldName.equalsIgnoreCase("destination") && !fieldName.equalsIgnoreCase("date")
+					&& !fieldName.equalsIgnoreCase("time") && !fieldName.equalsIgnoreCase("economy")
+					&& !fieldName.equalsIgnoreCase("business") && !fieldName.equalsIgnoreCase("first")) {
 				return "No such field name.";
 			}
 		}

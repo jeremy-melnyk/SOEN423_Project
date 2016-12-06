@@ -32,7 +32,6 @@ public class UdpParser extends UdpParserBase {
 	}
 
 	protected BookFlightReply bookFlight(BookFlightOperation bookFlightOperation) {
-		// FORMAT MTL-WST : DEPARTURE = MTL
 		String date = "";
 		try {
 			date = (new SimpleDateFormat("dd.MM.yyyy"))
