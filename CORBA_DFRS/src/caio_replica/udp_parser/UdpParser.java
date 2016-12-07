@@ -49,7 +49,8 @@ public class UdpParser extends UdpParserBase{
 		// FORMAT MTL|WST : DEPARTURE = MTL
 		BookFlightReply bookFlightReply = null;
 		try{
-			String date = (new SimpleDateFormat("YYYY/mm/DD")).format((new SimpleDateFormat("mm/DD/YYYY").parse(bookFlightOperation.getDate())));
+			logger.log("BOOK FLIGHT REQUEST", "Server request date before: " +bookFlightOperation.getDate());
+			String date = (new SimpleDateFormat("yyyy/MM/dd")).format((new SimpleDateFormat("MM/dd/yyyy")).parse(bookFlightOperation.getDate()));
 			String[] dep_dest = (bookFlightOperation.getDestination().split("\\|"));
 			String s_FlightClass = bookFlightOperation.getFlightClass();
 			String flightClass = "";
@@ -60,22 +61,28 @@ public class UdpParser extends UdpParserBase{
 			}else if(s_FlightClass.equalsIgnoreCase("FIRST")){
 				flightClass = "3";
 			}
+			logger.log("BOOK FLIGHT REQUEST", "Server request date: " +date);
 			server = (FlightServerInterface) FlightServerInterfaceHelper.narrow(ncRef.resolve_str(USERNAME+dep_dest[0]));
 			String reply = server.bookFlight(bookFlightOperation.getFirstName(), bookFlightOperation.getLastName(),
 											bookFlightOperation.getAddress(), bookFlightOperation.getPhoneNumber(),
 											dep_dest[1], date, flightClass);
+			logger.log("BOOK FLIGHT REQUEST", "Server Reply: " +reply);
 			if(reply.contains("OKK")){
 				String parsedReply[] = reply.substring(4).split("\\|");
 				int passengerId = Integer.parseInt(parsedReply[0].trim());
+				logger.log("BOOK FLIGHT REQUEST", "Packet creation " + passengerId);
 				int flightId = Integer.parseInt(parsedReply[1].trim());
+				logger.log("BOOK FLIGHT REQUEST", "Packet creation " + flightId);
 				String departure_destination[] = parsedReply[2].split("--->");
-				String dep = departure_destination[0].trim();
-				String dest = departure_destination[1].trim();
+				String dep = departure_destination[0].trim().toUpperCase();
+				String dest = departure_destination[1].trim().toUpperCase();
+				logger.log("BOOK FLIGHT REQUEST", "Packet creation" + dep + " "+dest);
 				date = (new SimpleDateFormat("MM/dd/yyyy")).format((new SimpleDateFormat("yyyy/MM/dd")).parse(parsedReply[3].trim()));
+				logger.log("BOOK FLIGHT REQUEST", "Packet creation " + date);
 				String name[] = parsedReply[4].split(",");
 				String fName =name[1].trim();
 				String lName = name[0].trim();
-				int iFlightClass = Integer.parseInt(parsedReply[5].trim());
+				int iFlightClass = Integer.parseInt(parsedReply[5].substring(7).trim());
 				switch(iFlightClass){
 				case 1:
 					flightClass = "ECONOMY";
@@ -87,6 +94,7 @@ public class UdpParser extends UdpParserBase{
 					flightClass = "FIRST";
 				}
 				bookFlightReply = new BookFlightReply(passengerId, flightId, dep, dest, lName, fName, date,flightClass);
+				logger.log("BOOK FLIGHT REQUEST", "Packet Created " + bookFlightReply);
 			}else if(reply.contains("ERR")){
 				bookFlightReply = new BookFlightReply("There was a problem with the operation");
 			}
@@ -223,8 +231,8 @@ public class UdpParser extends UdpParserBase{
 
 			String departure_destination[] = parsedReply[1].split("-->");
 			
-			String dep = departure_destination[0].trim();
-			String dest = departure_destination[1].trim();
+			String dep = departure_destination[0].trim().toUpperCase();
+			String dest = departure_destination[1].trim().toUpperCase();
 			logger.log("EDIT FLIGHT", fieldName+": Reply Packet: "+dep+" "+dest);
 
 			String date = "";
@@ -274,8 +282,8 @@ public class UdpParser extends UdpParserBase{
 				int passengerId = Integer.parseInt(parsedReply[0].trim());
 				int flightId = Integer.parseInt(parsedReply[1].trim());
 				String departure_destination[] = parsedReply[2].split("--->");
-				String dep = departure_destination[0].trim();
-				String dest = departure_destination[1].trim();
+				String dep = departure_destination[0].trim().toUpperCase();
+				String dest = departure_destination[1].trim().toUpperCase();
 				String date = (new SimpleDateFormat("MM/dd/yyyy")).format((new SimpleDateFormat("yyyy/MM/dd")).parse(parsedReply[3].trim()));
 				String name[] = parsedReply[4].split(",");
 				String fName =name[1].trim();

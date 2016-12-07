@@ -98,7 +98,9 @@ public class FrontEndTransfer extends Thread {
 							ReplicaAliveReply replicaAlive = (ReplicaAliveReply) serverReply;
 							if(!replicaAlive.isAlive())
 								counter--; // Move on, RM and sequencer will take care
-							else{}
+							else{
+								counter--;
+							}
 								// TODO Retransmition
 						} else if(replyPacket.getReplicaOperation() == Operation.REPLICA_REBOOT){
 							// Necessary?
