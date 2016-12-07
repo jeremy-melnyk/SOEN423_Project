@@ -166,7 +166,7 @@ public abstract class FlightServerInterfaceImpl extends FlightServerInterfacePOA
 					Integer.parseInt(values[2]), Integer.parseInt(values[3]),
 					Integer.parseInt(values[4]));
 		} else if(fieldName.equalsIgnoreCase("delete")){
-			Flight success = null;
+			String success = null;
 			synchronized (FlightRecord.bookingLock) {
 				success = this.flightRecord.deleteById(flightNumber);
 			}
@@ -174,7 +174,7 @@ public abstract class FlightServerInterfaceImpl extends FlightServerInterfacePOA
 			if(success == null){
 				reply = "ERR-Flight ID not found";
 			}else{
-				reply = success.toString();
+				reply = "OKK-"+success.toString();
 			}
 		}else if(fieldName.contains("edit?")){
 			String changedFields[] = fieldName.substring(5).split("&");
