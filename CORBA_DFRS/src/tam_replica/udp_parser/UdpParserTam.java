@@ -146,10 +146,10 @@ public class UdpParserTam extends UdpParserBase {
 		} catch (org.omg.CosNaming.NamingContextPackage.InvalidName e) {
 			e.printStackTrace();
 		}
-		String reply = server.editFlightRecord(recordID, fieldName, newValues);
+		//String reply = server.editFlightRecord(recordID, fieldName, newValues);
 		
 		// Need agreed upon standardized reply message?
-		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply(reply);
+		EditFlightRecordReply editFlightRecordReply = new EditFlightRecordReply("Error");
 		return editFlightRecordReply;
 	}
 
